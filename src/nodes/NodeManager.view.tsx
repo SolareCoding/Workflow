@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import {Card, CardActions, CardContent, CardHeader, Stack} from "@mui/material";
 import NodeView from "./Node.view";
 import {auto} from "@popperjs/core";
+import {NodeModel} from "./Node.model";
 
 export default function NodeManagerView() {
 
@@ -11,9 +12,9 @@ export default function NodeManagerView() {
 	return (
 		<Box sx={{marginTop: 2}}>
 			<Stack spacing={2} sx={{alignItems: 'center'}}>
-				<NodeView/>
-				<NodeView/>
-				<NodeView/>
+				<NodeView data={NodeModel.getDummyNode()}/>
+				<NodeView data={NodeModel.getDummyNode()}/>
+				<NodeView data={NodeModel.getDummyNode()}/>
 			</Stack>
 		</Box>
 	);

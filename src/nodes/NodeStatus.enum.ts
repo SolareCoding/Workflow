@@ -3,3 +3,9 @@ export enum NodeStatusEnum {
 	WORKING = 'working',
 	DONE = 'done'
 }
+
+export enum NodeActionEnum {
+	WORK = 'work',
+	CANCEL = 'cancel',
+	FINISH = 'finish',
+}

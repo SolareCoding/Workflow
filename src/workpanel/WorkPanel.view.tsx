@@ -14,6 +14,8 @@ import {
 	ListItemAvatar, ListItemText, Paper
 } from "@mui/material";
 import {WorkPanelEnum} from "./WorkPanel.enum";
+import PipelineNodeView from "../pipeline/PipelineNode.view";
+import PipelineView from "../pipeline/Pipeline.view";
 
 /**
  * This is the main interface of workflows.
@@ -29,7 +31,7 @@ interface TabPanelProps {
 
 export default function WorkPanelView() {
 
-	const [panelIndex, setPanelIndex] = React.useState(WorkPanelEnum.NODES);
+	const [panelIndex, setPanelIndex] = React.useState(WorkPanelEnum.PIPELINES);
 	const ref = React.useRef<HTMLDivElement>(null);
 
 	const getContent = (index: WorkPanelEnum) => {
@@ -37,14 +39,14 @@ export default function WorkPanelView() {
 			case WorkPanelEnum.NODES:
 				return <NodeManagerView/>;
 			case WorkPanelEnum.PIPELINES:
-				return null;
+				return <PipelineView />;
 			case WorkPanelEnum.WORKFLOWS:
 				return null;
 		}
 	}
 
 	return (
-		<Box sx={{ pb: 7, overflow: 'auto'}} ref={ref}>
+		<Box sx={{ pb: 7, overflow: 'scroll'}} ref={ref}>
 			<CssBaseline />
 			<Box sx={{alignItems: 'center'}}>
 				{getContent(panelIndex)}
