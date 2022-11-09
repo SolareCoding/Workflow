@@ -5,16 +5,12 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import Box from '@mui/material/Box';
 import NodeManagerView from "../nodes/NodeManager.view";
 import {
-	Avatar,
 	BottomNavigation,
-	BottomNavigationAction, Button,
+	BottomNavigationAction,
 	CssBaseline,
-	List,
-	ListItem,
-	ListItemAvatar, ListItemText, Paper
+	Paper
 } from "@mui/material";
 import {WorkPanelEnum} from "./WorkPanel.enum";
-import PipelineNodeView from "../pipeline/PipelineNode.view";
 import PipelineView from "../pipeline/Pipeline.view";
 
 /**
@@ -23,14 +19,15 @@ import PipelineView from "../pipeline/Pipeline.view";
  * @author: solare@yeah.net
  */
 
-interface TabPanelProps {
-	children?: React.ReactNode;
-	index: number;
-	value: number;
+interface WorkPanelProps {
+	data: string
 }
 
-export default function WorkPanelView() {
+export const WorkPanelContext = React.createContext(0)
 
+export default function WorkPanelView(props: WorkPanelProps) {
+
+	const [data, setData] = React.useState(JSON.parse(props.data))
 	const [panelIndex, setPanelIndex] = React.useState(WorkPanelEnum.PIPELINES);
 	const ref = React.useRef<HTMLDivElement>(null);
 
@@ -39,31 +36,33 @@ export default function WorkPanelView() {
 			case WorkPanelEnum.NODES:
 				return <NodeManagerView/>;
 			case WorkPanelEnum.PIPELINES:
-				return <PipelineView />;
+				return <PipelineView data={data.pipelines} />;
 			case WorkPanelEnum.WORKFLOWS:
 				return null;
 		}
 	}
 
 	return (
-		<Box sx={{ pb: 7, overflow: 'scroll'}} ref={ref}>
-			<CssBaseline />
-			<Box sx={{alignItems: 'center'}}>
-				{getContent(panelIndex)}
+		<WorkPanelContext.Provider value={data} >
+			<Box sx={{ pb: 7, overflow: 'scroll'}} ref={ref}>
+				<CssBaseline />
+				<Box sx={{alignItems: 'center'}}>
+					{getContent(panelIndex)}
+				</Box>
+				<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, paddingY: 1}} elevation={3}>
+					<BottomNavigation
+						showLabels
+						value={panelIndex}
+						onChange={(event, newValue) => {
+							setPanelIndex(newValue);
+						}}
+					>
+						<BottomNavigationAction sx={{paddingY: 3}} label="Nodes" icon={<DnsIcon />} />
+						<BottomNavigationAction sx={{paddingY: 3}} label="Workflows" icon={<DvrIcon />} />
+						<BottomNavigationAction sx={{paddingY: 3}} label="Pipelines" icon={<AccountTreeIcon />} />
+					</BottomNavigation>
+				</Paper>
 			</Box>
-			<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, paddingY: 1}} elevation={3}>
-				<BottomNavigation
-					showLabels
-					value={panelIndex}
-					onChange={(event, newValue) => {
-						setPanelIndex(newValue);
-					}}
-				>
-					<BottomNavigationAction sx={{paddingY: 3}} label="Nodes" icon={<DnsIcon />} />
-					<BottomNavigationAction sx={{paddingY: 3}} label="Workflows" icon={<DvrIcon />} />
-					<BottomNavigationAction sx={{paddingY: 3}} label="Pipelines" icon={<AccountTreeIcon />} />
-				</BottomNavigation>
-			</Paper>
-		</Box>
+		</WorkPanelContext.Provider>
 	);
 }

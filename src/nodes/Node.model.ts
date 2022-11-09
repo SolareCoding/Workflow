@@ -28,3 +28,7 @@ export class NodeModel {
 		return node
 	}
 }
+
+export class NodesModel {
+	data: NodeModel[]
+}

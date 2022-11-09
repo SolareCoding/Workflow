@@ -8,7 +8,7 @@ import {
 	CardActions,
 	CardContent,
 	CardHeader,
-	Chip,
+	Chip, Container,
 	IconButton,
 	Menu,
 	MenuItem,
@@ -19,12 +19,18 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
 import {NodeModel} from "./Node.model";
 import {TimeUtils} from "../utils/Time.utils";
+import {useContext} from "react";
+import {WorkPanelContext} from "../workpanel/WorkPanel.view";
+import {PipelineContext} from "../pipeline/Pipeline.context";
+import {PLContext} from "../pipeline/Pipeline.view";
 
 interface NodeProps {
 	data: NodeModel
 }
 
 export default function NodeView(node: NodeProps) {
+
+	const context: PipelineContext = useContext(PLContext)
 
 	const [nodeModel, setNodeModel] = React.useState(node.data)
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
@@ -51,6 +57,7 @@ export default function NodeView(node: NodeProps) {
 				newModel.finishTime = Date.now()
 		}
 		setNodeModel(newModel)
+		context.updateNode(newModel)
 	};
 
 	const getColorFromNodeStatus = (status: NodeStatusEnum) => {
@@ -102,59 +109,53 @@ export default function NodeView(node: NodeProps) {
 	}
 
 	return (
-		<Card sx={{width: 200}}>
-			<CardHeader
-				sx={{paddingBottom: 0}}
-				action={
-					<Box>
-						<Button
-							id="node-manage"
-							onClick={handleClick}
-						>
-							<MoreVertIcon/>
-						</Button>
-						<Menu
-							aria-labelledby="node-manage"
-							anchorEl={anchorEl}
-							open={open}
-							onClose={() => {
-								handleClose()
-							}
-							}
-						>
-							{getMenuItems(nodeModel)}
-						</Menu>
-					</Box>
-				}
-				title={nodeModel.title}
-				titleTypographyProps={{variant: 'h6'}}
-			/>
-			<CardContent sx={{padding: 0}}>
-				<Accordion elevation={0}>
+		<Box sx={{width: 180, elevation: 1, backgroundColor: 'white', padding: 1, borderRadius: 1}}>
+				<Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 1}}>
+					<Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600}}>{nodeModel.title}</Typography>
+					<Button
+						id="node-manage"
+						sx={{width: 20}}
+						onClick={handleClick}
+					>
+						<MoreVertIcon sx={{width: 20}}/>
+					</Button>
+					<Menu
+						aria-labelledby="node-manage"
+						anchorEl={anchorEl}
+						open={open}
+						onClose={() => {
+							handleClose()
+						}
+						}
+					>
+						{getMenuItems(nodeModel)}
+					</Menu>
+				</Box>
+				<Accordion elevation={0} sx={{margin: 0}}>
 					<AccordionSummary
 						expandIcon={<ExpandMoreIcon/>}
 						aria-controls="panel1a-content"
 						id="panel1a-header"
+						sx={{padding: 0}}
 					>
-						<Typography>{nodeModel.tips.summary}</Typography>
+						<Typography sx={{fontSize: 14}}>{nodeModel.tips.summary}</Typography>
 					</AccordionSummary>
 					<AccordionDetails>
-						<Typography>
+						<Typography sx={{fontSize: 14}}>
 							{nodeModel.tips.content}
 						</Typography>
 					</AccordionDetails>
 				</Accordion>
-			</CardContent>
-			<CardActions sx={{justifyContent: 'space-between'}}>
-				<Chip
-					id="chip"
-					label={nodeModel.status}
-					color={getColorFromNodeStatus(nodeModel.status)}
-				/>
-				<Typography sx={{fontSize: 14}}>
-					{getNodeTime(nodeModel)}
-				</Typography>
-			</CardActions>
-		</Card>
+				<Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+					<Chip
+						id="chip"
+						label={nodeModel.status}
+						color={getColorFromNodeStatus(nodeModel.status)}
+					/>
+					<Typography sx={{fontSize: 14}}>
+						{getNodeTime(nodeModel)}
+					</Typography>
+				</Box>
+			</Box>
 	);
 }
