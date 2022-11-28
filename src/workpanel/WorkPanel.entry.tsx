@@ -47,7 +47,7 @@ export class WorkPanelEntry extends TextFileView {
 		this.data = data;
 		this.root.render(
 			<React.StrictMode>
-				<WorkPanelView data={this.data}/>
+				<WorkPanelView data={this.data} saveData={(data) => {this.updateData(data)}}/>
 			</React.StrictMode>
 		)
 	}

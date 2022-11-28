@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import {WorkPanelEnum} from "./WorkPanel.enum";
 import PipelineView from "../pipeline/Pipeline.view";
+import WorkflowView from "../workflow/Workflow.view";
 
 /**
  * This is the main interface of workflows.
@@ -21,6 +22,7 @@ import PipelineView from "../pipeline/Pipeline.view";
 
 interface WorkPanelProps {
 	data: string
+	saveData: (dataStr: string)=>void
 }
 
 export const WorkPanelContext = React.createContext(0)
@@ -28,17 +30,26 @@ export const WorkPanelContext = React.createContext(0)
 export default function WorkPanelView(props: WorkPanelProps) {
 
 	const [data, setData] = React.useState(JSON.parse(props.data))
-	const [panelIndex, setPanelIndex] = React.useState(WorkPanelEnum.PIPELINES);
+	const [panelIndex, setPanelIndex] = React.useState(WorkPanelEnum.WORKFLOWS);
 	const ref = React.useRef<HTMLDivElement>(null);
+
+	const savePipelines = () => {
+		console.log('data: ' + JSON.stringify(data))
+		props.saveData(JSON.stringify(data))
+	}
+
+	const workflowView = <WorkflowView data={data.workflows} saveData={savePipelines}/>
+	const pipelineView = <PipelineView data={data.pipelines} saveData={savePipelines} />
+
 
 	const getContent = (index: WorkPanelEnum) => {
 		switch (index) {
 			case WorkPanelEnum.NODES:
 				return <NodeManagerView/>;
 			case WorkPanelEnum.PIPELINES:
-				return <PipelineView data={data.pipelines} />;
+				return pipelineView;
 			case WorkPanelEnum.WORKFLOWS:
-				return null;
+				return workflowView;
 		}
 	}
 

@@ -1,9 +1,8 @@
 import * as React from "react";
 import NodeView from "../nodes/Node.view";
-import {Button, Card, CardContent, CardHeader, Menu, Stack, Typography,} from "@mui/material";
+import {Stack, Typography} from "@mui/material";
 import {PipelineNodeModel} from "./Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Box from "@mui/material/Box";
 
 
@@ -18,11 +17,11 @@ export interface PipelineNodeProps {
 export default function PipelineNodeView(props: PipelineNodeProps) {
 
 	const getNodes = () => {
-		let nodes = []
+		let nodeViews = []
 		for (const node of props.data.nodes) {
-			nodes.push(<NodeView data={node}/>)
+			nodeViews.push(<NodeView node={node}/>)
 		}
-		return nodes;
+		return nodeViews;
 	}
 
 	const getBackgroundColor = () => {
@@ -44,19 +43,19 @@ export default function PipelineNodeView(props: PipelineNodeProps) {
 			}
 		}
 		if (pendingCount == props.data.nodes.length) {
-			return '#c6d4e5'
+			return '#7e57c2'
 		} else if (doneCount == props.data.nodes.length) {
-			return '#bada55'
+			return '#9ccc65'
 		} else if (workingCount > 0) {
-			return '#eed5b7'
+			return '#42a5f5'
 		} else {
-			return '#c6d4e5'
+			return '#7e57c2'
 		}
 	}
 
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: 1, backgroundColor: getBackgroundColor(), borderRadius: 1}}>
-			<Typography sx={{fontSize: 20, maxWidth: 120, fontWeight: 600, marginBottom: 1}}>{props.data.title}</Typography>
+			<Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600, color: 'white'}}>{props.data.title}</Typography>
 			<Stack spacing={1} sx={{alignItems: 'center'}}>
 				{getNodes()}
 			</Stack>
