@@ -7,7 +7,8 @@ import {PipelineModel, PipelinesModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 
 export interface WorkflowProps {
-	data: WorkflowModel
+	workflows: WorkflowModel
+	templates: PipelinesModel
 	saveData: () => void;
 }
 
@@ -23,27 +24,31 @@ export default function WorkflowView(props: WorkflowProps) {
 		return result;
 	}
 
-	const [focusPL, setFocusPL] = React.useState(props.data.data[0])
-	const [flag, setFlag] = React.useState(false)
-	const [pendingWF, setPendingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.PENDING, props.data))
-	const [workingWF, setWorkingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.WORKING, props.data))
-	const [doneWF, setDoneWF] = React.useState(getKanbanPipelines(NodeStatusEnum.DONE, props.data))
+	const [focusPL, setFocusPL] = React.useState(props.workflows.data[0])
+	const [pendingWF, setPendingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.PENDING, props.workflows))
+	const [workingWF, setWorkingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
+	const [doneWF, setDoneWF] = React.useState(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
 
 	// update workflows
 	const save = () => {
-		setPendingWF(getKanbanPipelines(NodeStatusEnum.PENDING, props.data))
-		setWorkingWF(getKanbanPipelines(NodeStatusEnum.WORKING, props.data))
-		setDoneWF(getKanbanPipelines(NodeStatusEnum.DONE, props.data))
+		setPendingWF(getKanbanPipelines(NodeStatusEnum.PENDING, props.workflows))
+		setWorkingWF(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
+		setDoneWF(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
 		props.saveData()
+	}
+
+	const insertPipeline = (pipeline: PipelineModel) => {
+		props.workflows.data.push(pipeline)
+		save()
 	}
 
 	const selectPipeline = (pipeline: PipelineModel) => {
 		setFocusPL(pipeline)
 	}
 
-	const pendingKanban = <WorkflowKanbanView title={NodeStatusEnum.PENDING} data={pendingWF} onPipelineClick={selectPipeline} />
-	const workingKanban = <WorkflowKanbanView title={NodeStatusEnum.WORKING} data={workingWF} onPipelineClick={selectPipeline}/>
-	const doneKanban = <WorkflowKanbanView title={NodeStatusEnum.DONE} data={doneWF} onPipelineClick={selectPipeline}/>
+	const pendingKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.PENDING} workflows={pendingWF} selectPipeline={selectPipeline} templates={props.templates.data} addNewPipeline={insertPipeline} />
+	const workingKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.WORKING} workflows={workingWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={insertPipeline}/>
+	const doneKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.DONE} workflows={doneWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={insertPipeline}/>
 
 	return(
 		<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.paper', margin: 3}}>

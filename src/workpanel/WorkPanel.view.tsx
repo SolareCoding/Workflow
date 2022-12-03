@@ -33,12 +33,16 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	const [panelIndex, setPanelIndex] = React.useState(WorkPanelEnum.WORKFLOWS);
 	const ref = React.useRef<HTMLDivElement>(null);
 
-	const savePipelines = () => {
-		console.log('data: ' + JSON.stringify(data))
-		props.saveData(JSON.stringify(data))
+	/**
+	 * 异步保存
+	 */
+	const savePipelines = ()=> {
+		return new Promise((resolve, reject) => {
+			props.saveData(JSON.stringify(data))
+		})
 	}
 
-	const workflowView = <WorkflowView data={data.workflows} saveData={savePipelines}/>
+	const workflowView = <WorkflowView workflows={data.workflows} templates={data.pipelines} saveData={savePipelines}/>
 	const pipelineView = <PipelineView data={data.pipelines} saveData={savePipelines} />
 
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {Button, Divider, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
@@ -19,6 +19,8 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [showTips, setShowTips] = React.useState(false)
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
 	const open = Boolean(anchorEl);
+
+	const [stateNode, setStateNode] = useState(nodeViewProps.node)
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		if (nodeViewProps.node.status == NodeStatusEnum.DONE) {

@@ -4,11 +4,15 @@ import * as React from "react";
 import {PipelineModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import {TimeUtils} from "../utils/Time.utils";
+import {useEffect} from "react";
+import NewPipelineDialog from "./NewPipelineDialog.view";
 
 export interface WorkflowKanbanProps {
-	title: string,
-	data: PipelineModel[],
-	onPipelineClick: (pipeline: PipelineModel) => void
+	kanbanTitle: string,
+	workflows: PipelineModel[],
+	templates: PipelineModel[],
+	selectPipeline: (pipeline: PipelineModel) => void,
+	addNewPipeline: (pipeline: PipelineModel) => void
 }
 
 /**
@@ -16,6 +20,8 @@ export interface WorkflowKanbanProps {
  * @constructor
  */
 export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
+
+	const [open, setOpen] = React.useState(false);
 
 	const getProgress = (pipeline: PipelineModel) => {
 		let totalNodes = 0;
@@ -31,12 +37,26 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 		return doneNodes + '/' + totalNodes
 	}
 
-	const addNewWorkflow = () => {
-		console.log("add new")
-
+	// show a dialog for user to choose a template, and add it to the current Kanban
+	const addNewWorkflow = (pipeline: PipelineModel) => {
+		props.addNewPipeline(pipeline)
 	}
 
-	const addNewView = <Box onClick={(event) => addNewWorkflow()}>
+	const handleClose = () => {
+		setOpen(false);
+	}
+
+	const handleCreateNewTask = (pipeline: PipelineModel) => {
+		setOpen(false);
+		addNewWorkflow(pipeline)
+		console.log("handle create new task")
+	}
+
+	const openNewPipelineDialog = () => {
+		setOpen(true);
+	}
+
+	const addNewView = <Box onClick={(event) => openNewPipelineDialog()}>
 		<Typography variant="body2" sx={{fontWeight: '600', color: "#336666", textAlign: 'center'}}>
 			Add new
 		</Typography>
@@ -44,10 +64,13 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 
 	const getPipelines = () => {
 		let pipelines = []
-		for (const pipeline of props.data) {
+		if (props.kanbanTitle == NodeStatusEnum.PENDING) {
+			pipelines.push(addNewView)
+		}
+		for (const pipeline of props.workflows) {
 			pipelines.push(
 				<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', id: pipeline.id}} onClick={()=>{
-					props.onPipelineClick(pipeline)}}>
+					props.selectPipeline(pipeline)}}>
 					<Box>
 						<Typography>
 							{pipeline.title}
@@ -64,21 +87,24 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 				</Box>
 			)
 		}
-		if (props.title == NodeStatusEnum.PENDING) {
-			pipelines.push(addNewView)
-		}
 		return pipelines
 	}
 
 	return (
-		<Box sx={{width: 300, bgcolor: 'background.paper', padding: 1, borderRadius: 1, boxShadow: 1}}>
+		<Box sx={{width: 300, bgcolor: 'background.paper', padding: 1, borderRadius: 1, boxShadow: 1, height: 300, overflow: 'scroll'}}>
 			<Typography variant="h5" gutterBottom color={'#333366'}>
-				{'Kanban: ' + props.title}
+				{'Kanban: ' + props.kanbanTitle}
 			</Typography>
 			<Divider sx={{marginY: 1}}/>
 			<Stack spacing={1} divider={<Divider orientation="horizontal" flexItem />}>
 				{getPipelines()}
 			</Stack>
+			<NewPipelineDialog
+				templates={props.templates}
+				open={open}
+				closeDialog={handleClose}
+				createNewTask={handleCreateNewTask}
+			/>
 		</Box>
 	);
 }
