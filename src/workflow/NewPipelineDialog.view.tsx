@@ -32,6 +32,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 		copied.title = taskName
 		copied.createTime = Date.now()
 		copied.status = NodeStatusEnum.PENDING
+		copied.isTemplate = false
 		props.createNewTask(copied)
 	}
 

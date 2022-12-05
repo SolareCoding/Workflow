@@ -1,29 +1,28 @@
 import * as React from "react";
-import {useContext, useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {Button, Divider, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
 import {NodeModel} from "./Node.model";
 import {TimeUtils} from "../utils/Time.utils";
-import {PipelineContext} from "../pipeline/Pipeline.context";
-import {PLContext} from "../pipeline/Pipeline.view";
 
 interface NodeProps {
-	node: NodeModel
+	node: NodeModel,
+	couldUpdate: boolean,
+	onNodeUpdate: () => void
 }
 
 export default function NodeView(nodeViewProps: NodeProps) {
 
-	const context: PipelineContext = useContext(PLContext)
-	const [changeFlag, setChangeFlag] = React.useState(false)
+	const {node, couldUpdate, onNodeUpdate} = nodeViewProps
 	const [showTips, setShowTips] = React.useState(false)
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
 	const open = Boolean(anchorEl);
 
-	const [stateNode, setStateNode] = useState(nodeViewProps.node)
-
 	const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		if (nodeViewProps.node.status == NodeStatusEnum.DONE) {
+		if (!couldUpdate) {
+			return;
+		}
+		if (node.status == NodeStatusEnum.DONE) {
 			return;
 		}
 		setAnchorEl(event.currentTarget);
@@ -35,23 +34,26 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			return
 		switch (action) {
 			case NodeActionEnum.WORK:
-				nodeViewProps.node.status = NodeStatusEnum.WORKING
-				nodeViewProps.node.startTime = Date.now()
+				node.status = NodeStatusEnum.WORKING
+				node.startTime = Date.now()
 				break
 			case NodeActionEnum.CANCEL:
-				nodeViewProps.node.status = NodeStatusEnum.PENDING
-				nodeViewProps.node.startTime = 0
+				node.status = NodeStatusEnum.PENDING
+				node.startTime = 0
 				break
 			case NodeActionEnum.FINISH:
-				nodeViewProps.node.status = NodeStatusEnum.DONE
-				nodeViewProps.node.finishTime = Date.now()
+				node.status = NodeStatusEnum.DONE
+				node.finishTime = Date.now()
 				break;
 		}
-		context.updateNode();
+		onNodeUpdate();
 	};
 
 	const getColorFromNodeStatus = () => {
-		switch (nodeViewProps.node.status) {
+		if (!couldUpdate) {
+			return "#6C6C6C"
+		}
+		switch (node.status) {
 			case NodeStatusEnum.PENDING:
 				return '#7e57c2'
 			case NodeStatusEnum.WORKING:
@@ -63,7 +65,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	const getMenuItems = () => {
 		let items = []
-		switch (nodeViewProps.node.status) {
+		switch (node.status) {
 			case NodeStatusEnum.PENDING:
 				items.push([
 					<MenuItem onClick={() => {
@@ -98,7 +100,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const getTipsContent = () => {
 		let tips = []
 		if (showTips) {
-			for (const tip of nodeViewProps.node.tips.content) {
+			for (const tip of node.tips.content) {
 				tips.push(
 					<Typography sx={{fontSize: 14}}>
 						{'- ' + tip}
@@ -111,23 +113,23 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	const getTimeDetails = () => {
 		let details = []
-		switch (nodeViewProps.node.status) {
+		switch (node.status) {
 			case NodeStatusEnum.DONE:
 				details.push(
 					<Typography sx={{fontSize: 14}}>
-						{'Finish: ' + TimeUtils.getDateTimeStr(nodeViewProps.node.finishTime)}
+						{'Finish: ' + TimeUtils.getDateTimeStr(node.finishTime)}
 					</Typography>
 				)
 				details.push(
 					<Typography sx={{fontSize: 14}}>
-						{'Start: ' + TimeUtils.getDateTimeStr(nodeViewProps.node.startTime)}
+						{'Start: ' + TimeUtils.getDateTimeStr(node.startTime)}
 					</Typography>
 				)
 				break;
 			case NodeStatusEnum.WORKING:
 				details.push(
 					<Typography sx={{fontSize: 14}}>
-						{'Start: ' + TimeUtils.getDateTimeStr(nodeViewProps.node.startTime)}
+						{'Start: ' + TimeUtils.getDateTimeStr(node.startTime)}
 					</Typography>
 				)
 				break;
@@ -138,7 +140,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	}
 
 	return (
-		<Box sx={{width: 180, bgcolor: 'background.paper', padding: 1, borderRadius: 1, boxShadow: 1, id: nodeViewProps.node.id}}>
+		<Box sx={{width: 180, bgcolor: 'background.paper', padding: 1, borderRadius: 1, boxShadow: 1, id: node.id}}>
 			<Box sx={{
 				display: 'flex',
 				flexDirection: 'row',
@@ -146,9 +148,9 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				justifyContent: 'space-between',
 				marginBottom: 1
 			}}>
-				<Typography sx={{fontSize: 14, fontWeight: 600}}>{nodeViewProps.node.title}</Typography>
+				<Typography sx={{fontSize: 14, fontWeight: 600}}>{node.title}</Typography>
 				<Box sx={{backgroundColor: getColorFromNodeStatus(), paddingX: 1, borderRadius: 1}}>
-					<Typography onClick={handleStatusClick} sx={{fontSize: 14, fontWeight: 600, color:'white'}}>{nodeViewProps.node.status}</Typography>
+					<Typography onClick={handleStatusClick} sx={{fontSize: 14, fontWeight: 600, color:'white'}}>{node.status}</Typography>
 				</Box>
 
 				<Menu
@@ -166,7 +168,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			<Divider sx={{marginY: '1px'}}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
 				<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-					<Typography sx={{fontSize: 14, fontWeight: '600'}}>{nodeViewProps.node.tips.summary}</Typography>
+					<Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
 					<Typography sx={{fontSize: 14, minWidth: 40, fontWeight: '600', color: "#6c6c6c"}} onClick={()=>{setShowTips(!showTips)}}>{getTipsButton()}</Typography>
 				</Box>
 				<Box>

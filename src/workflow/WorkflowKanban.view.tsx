@@ -49,7 +49,6 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 	const handleCreateNewTask = (pipeline: PipelineModel) => {
 		setOpen(false);
 		addNewWorkflow(pipeline)
-		console.log("handle create new task")
 	}
 
 	const openNewPipelineDialog = () => {

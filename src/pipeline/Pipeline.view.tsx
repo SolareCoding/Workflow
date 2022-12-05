@@ -1,25 +1,17 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import {
-	Stack, Typography,
-} from "@mui/material";
-import PipelineNodeView from "./PipelineNode.view";
+import {Stack, Typography,} from "@mui/material";
+import SectionView from "./Section.view";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-import {PipelineModel, PipelinesModel} from "./Pipeline.model";
-import {createContext} from "react";
-import {PipelineContext} from "./Pipeline.context";
-import {NodeModel} from "../nodes/Node.model";
+import {PipelineModel, PipelineNodeModel} from "./Pipeline.model";
+import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
+import NodeView from "../nodes/Node.view";
+import PipelineColors from "../common/Pipeline.colors";
 
 export interface PipelineProps {
 	data: PipelineModel
-	saveData: () => void;
+	onPipelineUpdate: () => void;
 }
-
-export const PLContext = createContext({
-	updateNode: () => {
-		console.log("Default context")
-	}
-})
 
 /**
  * 单条流水线的View
@@ -28,38 +20,66 @@ export const PLContext = createContext({
  */
 export default function PipelineView(props: PipelineProps) {
 
-	const [changeFlag, setChangeFlag] = React.useState(false)
+	const pipeline = props.data
+	const sections = pipeline.sections
+	const onPipelineUpdate = props.onPipelineUpdate
 
 	const getDividerView = () => {
 		return(<KeyboardDoubleArrowRightIcon />)
 	}
 
-	const getPipeline = () => {
-		let sections = []
-		for (const section of props.data.sections) {
-			sections.push(<PipelineNodeView data={section}/>)
+	const getColor = () => {
+		return PipelineColors.COLOR_MAP[pipeline.status]
+	}
+
+	const getTitle = () => {
+		return <Typography sx={{fontSize: 20, fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'任务: ' + props.data.title}</Typography>
+	}
+
+	const getSubTitle = () => {
+		if (!pipeline.isTemplate) {
+			return <Typography sx={{fontSize: 18, color: getColor(), fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'工作流: ' + props.data.templateTitle}</Typography>
 		}
-		return sections
+		return null
+	}
+
+	const getSectionViews = () => {
+		let sectionViews = []
+		for (let i = 0; i < sections.length; i++) {
+			let couldUpdate = i == 0 ? true : sections[i - 1].status == NodeStatusEnum.DONE
+			sectionViews.push(<SectionView data={sections[i]} couldUpdate={couldUpdate} onSectionUpdate = {onSectionUpdate}/>)
+		}
+		return sectionViews
+	}
+	const isPending = (section: PipelineNodeModel) => section.status == NodeStatusEnum.PENDING
+	const isDone = (section: PipelineNodeModel) => section.status == NodeStatusEnum.DONE
+
+	const getPipelineStatus = () => {
+		if (sections.every(isPending)) {
+			return  NodeStatusEnum.PENDING
+		} else if (sections.every(isDone)) {
+			return NodeStatusEnum.DONE
+		} else {
+			return NodeStatusEnum.WORKING
+		}
+	}
+
+
+	const onSectionUpdate = () => {
+		pipeline.status = getPipelineStatus()
+		onPipelineUpdate()
 	}
 
 	/**
 	 * 更新所有Pipelines中的对应节点
 	 */
-	const pipelineContext: PipelineContext = {
-		updateNode: () => {
-			setChangeFlag(!changeFlag)
-			props.saveData()
-		}
-	}
-
 	return (
-		<PLContext.Provider value={pipelineContext}>
-			<Box sx={{overflow: 'scroll', margin: 3}}>
-				<Typography sx={{fontSize: 20, fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'工作流: ' + props.data.title}</Typography>
-				<Stack spacing={1} sx={{alignItems: 'center'}} direction='row' divider={getDividerView()}>
-					{getPipeline()}
-				</Stack>
-			</Box>
-		</PLContext.Provider>
+		<Box sx={{overflow: 'scroll', margin: 3}}>
+			{getTitle()}
+			{getSubTitle()}
+			<Stack spacing={1} sx={{alignItems: 'center'}} direction='row' divider={getDividerView()}>
+				{getSectionViews()}
+			</Stack>
+		</Box>
 	);
 }

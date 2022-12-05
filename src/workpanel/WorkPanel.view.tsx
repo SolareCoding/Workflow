@@ -43,7 +43,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	}
 
 	const workflowView = <WorkflowView workflows={data.workflows} templates={data.pipelines} saveData={savePipelines}/>
-	const pipelineView = <PipelineView data={data.pipelines} saveData={savePipelines} />
+	const pipelineView = <PipelineView data={data.pipelines} onPipelineUpdate={savePipelines} />
 
 
 	const getContent = (index: WorkPanelEnum) => {

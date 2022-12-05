@@ -8,6 +8,8 @@ export interface PipelinesModel {
 export interface PipelineModel {
 	id: string,
 	title: string,
+	templateTitle: string,
+	isTemplate: boolean,
 	status: NodeStatusEnum,
 	createTime: number,
 	sections: PipelineNodeModel[]
@@ -15,5 +17,6 @@ export interface PipelineModel {
 
 export interface PipelineNodeModel {
 	title: string,
+	status: NodeStatusEnum,
 	nodes: NodeModel[]
 }

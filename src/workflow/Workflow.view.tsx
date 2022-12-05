@@ -14,6 +14,8 @@ export interface WorkflowProps {
 
 export default function WorkflowView(props: WorkflowProps) {
 
+	const { workflows, templates, saveData } = props
+
 	const getKanbanPipelines = (type: NodeStatusEnum, workflowModel: WorkflowModel) => {
 		const result = []
 		for (const pipeline of workflowModel.data) {
@@ -24,7 +26,23 @@ export default function WorkflowView(props: WorkflowProps) {
 		return result;
 	}
 
-	const [focusPL, setFocusPL] = React.useState(props.workflows.data[0])
+	const getFocusPipeline = () => {
+		if (focusPL) {
+			return <Box>
+				<PipelineView data={focusPL} onPipelineUpdate={onPipelineUpdate} />
+			</Box>
+		}
+		return null
+	}
+
+	const getDefaultPL = () => {
+		if (workflows.data?.length > 0) {
+			return workflows.data[0]
+		}
+		return null
+	}
+
+	const [focusPL, setFocusPL] = React.useState(getDefaultPL())
 	const [pendingWF, setPendingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.PENDING, props.workflows))
 	const [workingWF, setWorkingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
 	const [doneWF, setDoneWF] = React.useState(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
@@ -35,6 +53,13 @@ export default function WorkflowView(props: WorkflowProps) {
 		setWorkingWF(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
 		setDoneWF(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
 		props.saveData()
+	}
+
+	/**
+	 * 更新Selected Pipeline
+	 */
+	const onPipelineUpdate = () => {
+		save()
 	}
 
 	const insertPipeline = (pipeline: PipelineModel) => {
@@ -52,10 +77,7 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	return(
 		<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.paper', margin: 3}}>
-			<Box>
-				<PipelineView data={focusPL} saveData={save} />
-			</Box>
-
+			{ getFocusPipeline() }
 			<Stack spacing={3} sx={{alignItems: 'center'}} direction='row' >
 				{pendingKanban}
 				{workingKanban}
