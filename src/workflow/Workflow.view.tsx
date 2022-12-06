@@ -5,6 +5,7 @@ import PipelineView from "../pipeline/Pipeline.view";
 import {WorkflowModel} from "./Workflow.model";
 import {PipelineModel, PipelinesModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
+import {useState} from "react";
 
 export interface WorkflowProps {
 	workflows: WorkflowModel
@@ -28,6 +29,7 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	const getFocusPipeline = () => {
 		if (focusPL) {
+			console.log("Focused pipeline: " + JSON.stringify(focusPL))
 			return <Box>
 				<PipelineView data={focusPL} onPipelineUpdate={onPipelineUpdate} />
 			</Box>
@@ -42,10 +44,11 @@ export default function WorkflowView(props: WorkflowProps) {
 		return null
 	}
 
-	const [focusPL, setFocusPL] = React.useState(getDefaultPL())
-	const [pendingWF, setPendingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.PENDING, props.workflows))
-	const [workingWF, setWorkingWF] = React.useState(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
-	const [doneWF, setDoneWF] = React.useState(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
+	const [focusPL, setFocusPL] = useState(getDefaultPL())
+	const [flag, setFlag] = useState(false)
+	const [pendingWF, setPendingWF] = useState(getKanbanPipelines(NodeStatusEnum.PENDING, props.workflows))
+	const [workingWF, setWorkingWF] = useState(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
+	const [doneWF, setDoneWF] = useState(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
 
 	// update workflows
 	const save = () => {
@@ -69,6 +72,7 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	const selectPipeline = (pipeline: PipelineModel) => {
 		setFocusPL(pipeline)
+		setFlag(!flag)
 	}
 
 	const pendingKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.PENDING} workflows={pendingWF} selectPipeline={selectPipeline} templates={props.templates.data} addNewPipeline={insertPipeline} />

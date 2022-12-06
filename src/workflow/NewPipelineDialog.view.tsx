@@ -33,6 +33,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 		copied.createTime = Date.now()
 		copied.status = NodeStatusEnum.PENDING
 		copied.isTemplate = false
+		copied.id = Date.now().toString() + (Math.random() * 1000).toFixed(0)
 		props.createNewTask(copied)
 	}
 

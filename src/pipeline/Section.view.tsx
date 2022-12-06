@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import NodeView from "../nodes/Node.view";
 import {Stack, Typography} from "@mui/material";
 import {PipelineNodeModel} from "./Pipeline.model";
@@ -26,7 +26,7 @@ export default function SectionView(props: PipelineNodeProps) {
 	const nodes = section.nodes
 
 	const [bgColor, setBgColor] = useState(PipelineColors.COLOR_MAP[section.status])
-	const [flag, setFlag] = useState(false)
+	useEffect(()=> setBgColor(PipelineColors.COLOR_MAP[section.status]))
 
 	const isPending = (node: NodeModel) => node.status == NodeStatusEnum.PENDING
 	const isDone = (node: NodeModel) => node.status == NodeStatusEnum.DONE
@@ -44,8 +44,8 @@ export default function SectionView(props: PipelineNodeProps) {
 	const onNodeUpdate = () => {
 		let status: NodeStatusEnum = getSectionStatus()
 		section.status = status
+		console.log("section: " + JSON.stringify(section))
 		setBgColor(PipelineColors.COLOR_MAP[status])
-		setFlag(!flag)
 		onSectionUpdate()
 	}
 
