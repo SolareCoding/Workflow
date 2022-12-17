@@ -12,9 +12,9 @@ export default function NodeManagerView() {
 	return (
 		<Box sx={{marginTop: 2}}>
 			<Stack spacing={2} sx={{alignItems: 'center'}}>
-				<NodeView node={NodeModel.getDummyNode()}/>
-				<NodeView node={NodeModel.getDummyNode()}/>
-				<NodeView node={NodeModel.getDummyNode()}/>
+				<NodeView node={NodeModel.newInstance()}/>
+				<NodeView node={NodeModel.newInstance()}/>
+				<NodeView node={NodeModel.newInstance()}/>
 			</Stack>
 		</Box>
 	);

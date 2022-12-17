@@ -11,7 +11,6 @@ import {
 	Paper
 } from "@mui/material";
 import {WorkPanelEnum} from "./WorkPanel.enum";
-import PipelineView from "../pipeline/Pipeline.view";
 import WorkflowView from "../workflow/Workflow.view";
 
 /**
@@ -43,15 +42,14 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	}
 
 	const workflowView = <WorkflowView workflows={data.workflows} templates={data.pipelines} saveData={savePipelines}/>
-	const pipelineView = <PipelineView data={data.pipelines} onPipelineUpdate={savePipelines} />
-
+	const templateView = <WorkflowView workflows={data.workflows} templates={data.pipelines} saveData={savePipelines} editorMode={true}/>
 
 	const getContent = (index: WorkPanelEnum) => {
 		switch (index) {
 			case WorkPanelEnum.NODES:
 				return <NodeManagerView/>;
 			case WorkPanelEnum.PIPELINES:
-				return pipelineView;
+				return templateView;
 			case WorkPanelEnum.WORKFLOWS:
 				return workflowView;
 		}

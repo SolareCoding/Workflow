@@ -1,25 +1,32 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import {Button, Divider, Menu, MenuItem, Typography} from "@mui/material";
+import {Button, Divider, Input, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
 import {NodeModel} from "./Node.model";
 import {TimeUtils} from "../utils/Time.utils";
+import {useState} from "react";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
 interface NodeProps {
 	node: NodeModel,
 	couldUpdate: boolean,
-	onNodeUpdate: () => void
+	editorMode?: boolean,
+	onNodeUpdate: () => void,
+	onNodeRemove: (node: NodeModel) => void,
 }
 
 export default function NodeView(nodeViewProps: NodeProps) {
 
-	const {node, couldUpdate, onNodeUpdate} = nodeViewProps
-	const [showTips, setShowTips] = React.useState(false)
-	const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
+	const {node, couldUpdate, editorMode, onNodeUpdate, onNodeRemove} = nodeViewProps
+	const [showTips, setShowTips] = useState(false)
+	const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
 	const open = Boolean(anchorEl);
+	const [title, setTitle] = useState(node.title)
+	const [tipSummary, setTipSummary] = useState(node.tips.summary)
+	const [tipContent, setTipContent] = useState(node.tips.content || '请输入Tips')
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		if (!couldUpdate) {
+		if (!couldUpdate || editorMode) {
 			return;
 		}
 		if (node.status == NodeStatusEnum.DONE) {
@@ -50,7 +57,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	};
 
 	const getColorFromNodeStatus = () => {
-		if (!couldUpdate) {
+		if (!couldUpdate || editorMode) {
 			return "#6C6C6C"
 		}
 		switch (node.status) {
@@ -89,6 +96,10 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		return items;
 	}
 
+	const handleRemoveNode = (event: React.MouseEvent<HTMLElement>) => {
+		onNodeRemove(node)
+	}
+
 	const getTipsButton = () => {
 		if (showTips) {
 			return "收起"
@@ -97,21 +108,31 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		}
 	}
 
+	const getTipSummary = () => {
+		if (!editorMode) {
+			return <Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
+		} else {
+			return <Input sx={{fontSize: 14, maxWidth: 120, fontWeight: 600, color: 'white'}} id="template-simple" value={tipSummary} onChange={handleNodeTipSummaryChange} />
+		}
+	}
+
 	const getTipsContent = () => {
-		let tips = []
-		if (showTips) {
-			for (const tip of node.tips.content) {
-				tips.push(
-					<Typography sx={{fontSize: 14}}>
-						{'- ' + tip}
-					</Typography>
-				)
+		if (!editorMode) {
+			if (showTips) {
+				return <Typography sx={{fontSize: 14}}>{tipContent}</Typography>
+			} else {
+				return false
 			}
 		}
-		return tips;
+		else {
+			return <Input sx={{fontSize: 14, color: 'white'}} id="template-simple" value={tipContent} onChange={handleNodeTipContentChange} />
+		}
 	}
 
 	const getTimeDetails = () => {
+		if (editorMode) {
+			return false;
+		}
 		let details = []
 		switch (node.status) {
 			case NodeStatusEnum.DONE:
@@ -139,6 +160,48 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		return details
 	}
 
+	const handleNodeNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setTitle(event.target.value)
+		node.title = event.target.value
+		onNodeUpdate()
+	}
+
+	const handleNodeTipSummaryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setTipSummary(event.target.value)
+		node.tips.summary = event.target.value
+		onNodeUpdate()
+	}
+
+	const handleNodeTipContentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setTipContent(event.target.value)
+		node.tips.content = event.target.value
+		onNodeUpdate()
+	}
+
+	const getTitleView = () => {
+		if (!editorMode) {
+			return <Typography sx={{fontSize: 14, fontWeight: 600}}>{title}</Typography>
+		} else {
+			return <Input sx={{fontSize: 14, maxWidth: 120, fontWeight: 600, color: 'white'}} id="template-simple" value={title} onChange={handleNodeNameChange} />
+		}
+	}
+
+	const getActionView = () => {
+		if (!editorMode) {
+			return (
+				<Box sx={{backgroundColor: getColorFromNodeStatus(), paddingX: 1, borderRadius: 1}}>
+					<Typography onClick={handleStatusClick} sx={{fontSize: 14, fontWeight: 600, color:'white'}}>{node.status}</Typography>
+				</Box>
+			)
+		} else {
+			return (
+				<Box sx={{paddingX: 1, borderRadius: 1}} onClick={() => onNodeRemove(node)}>
+					<DeleteForeverOutlinedIcon/>
+				</Box>
+			)
+		}
+	}
+
 	return (
 		<Box sx={{width: 180, bgcolor: 'background.paper', padding: 1, borderRadius: 1, boxShadow: 1, id: node.id}}>
 			<Box sx={{
@@ -148,11 +211,8 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				justifyContent: 'space-between',
 				marginBottom: 1
 			}}>
-				<Typography sx={{fontSize: 14, fontWeight: 600}}>{node.title}</Typography>
-				<Box sx={{backgroundColor: getColorFromNodeStatus(), paddingX: 1, borderRadius: 1}}>
-					<Typography onClick={handleStatusClick} sx={{fontSize: 14, fontWeight: 600, color:'white'}}>{node.status}</Typography>
-				</Box>
-
+				{getTitleView()}
+				{getActionView()}
 				<Menu
 					aria-labelledby="node-manage"
 					anchorEl={anchorEl}
@@ -168,13 +228,11 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			<Divider sx={{marginY: '1px'}}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
 				<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-					<Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
+					{getTipSummary()}
 					<Typography sx={{fontSize: 14, minWidth: 40, fontWeight: '600', color: "#6c6c6c"}} onClick={()=>{setShowTips(!showTips)}}>{getTipsButton()}</Typography>
 				</Box>
 				<Box>
-					<Typography sx={{fontSize: 14}}>
-						{getTipsContent()}
-					</Typography>
+					{getTipsContent()}
 				</Box>
 			</Box>
 			<Divider sx={{marginY: '1px'}}/>

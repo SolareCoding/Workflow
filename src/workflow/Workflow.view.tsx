@@ -1,13 +1,15 @@
-import {Box, Stack} from "@mui/material";
+import {Box, Divider, Stack} from "@mui/material";
 import * as React from "react";
 import WorkflowKanbanView from "./WorkflowKanban.view";
 import PipelineView from "../pipeline/Pipeline.view";
 import {WorkflowModel} from "./Workflow.model";
 import {PipelineModel, PipelinesModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import PipelineColors from "../common/Pipeline.colors";
 
 export interface WorkflowProps {
+	editorMode?: boolean
 	workflows: WorkflowModel
 	templates: PipelinesModel
 	saveData: () => void;
@@ -15,11 +17,13 @@ export interface WorkflowProps {
 
 export default function WorkflowView(props: WorkflowProps) {
 
-	const { workflows, templates, saveData } = props
+	const { editorMode, workflows, templates, saveData } = props
+	const pipelines = workflows.data
+	const templatePLs = templates.data
 
-	const getKanbanPipelines = (type: NodeStatusEnum, workflowModel: WorkflowModel) => {
+	const getKanbanPipelines = (type: NodeStatusEnum) => {
 		const result = []
-		for (const pipeline of workflowModel.data) {
+		for (const pipeline of pipelines) {
 			if (pipeline.status == type) {
 				result.push(pipeline);
 			}
@@ -28,34 +32,41 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getFocusPipeline = () => {
+		console.log("focusPL: " + JSON.stringify(focusPL))
 		if (focusPL) {
-			console.log("Focused pipeline: " + JSON.stringify(focusPL))
 			return <Box>
-				<PipelineView data={focusPL} onPipelineUpdate={onPipelineUpdate} />
+				<PipelineView pipeline={focusPL} editorMode={editorMode} onPipelineUpdate={onPipelineUpdate} onPipelineRemove={onPipelineRemove}/>
 			</Box>
 		}
 		return null
 	}
 
 	const getDefaultPL = () => {
-		if (workflows.data?.length > 0) {
-			return workflows.data[0]
+		if (!editorMode && pipelines?.length > 0) {
+			return pipelines[0]
+		} else if (editorMode && templatePLs?.length > 0) {
+			return templatePLs[0]
+		} else {
+			return null
 		}
-		return null
 	}
 
 	const [focusPL, setFocusPL] = useState(getDefaultPL())
 	const [flag, setFlag] = useState(false)
-	const [pendingWF, setPendingWF] = useState(getKanbanPipelines(NodeStatusEnum.PENDING, props.workflows))
-	const [workingWF, setWorkingWF] = useState(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
-	const [doneWF, setDoneWF] = useState(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
+	const [pendingWF, setPendingWF] = useState(getKanbanPipelines(NodeStatusEnum.PENDING))
+	const [workingWF, setWorkingWF] = useState(getKanbanPipelines(NodeStatusEnum.WORKING))
+	const [doneWF, setDoneWF] = useState(getKanbanPipelines(NodeStatusEnum.DONE))
+	const [templateWF, setTemplateWF] = useState(templatePLs)
+
+	useEffect(()=> setFocusPL(getDefaultPL()))
 
 	// update workflows
 	const save = () => {
-		setPendingWF(getKanbanPipelines(NodeStatusEnum.PENDING, props.workflows))
-		setWorkingWF(getKanbanPipelines(NodeStatusEnum.WORKING, props.workflows))
-		setDoneWF(getKanbanPipelines(NodeStatusEnum.DONE, props.workflows))
-		props.saveData()
+		setPendingWF(getKanbanPipelines(NodeStatusEnum.PENDING))
+		setWorkingWF(getKanbanPipelines(NodeStatusEnum.WORKING))
+		setDoneWF(getKanbanPipelines(NodeStatusEnum.DONE))
+		setTemplateWF(templatePLs)
+		saveData()
 	}
 
 	/**
@@ -65,28 +76,50 @@ export default function WorkflowView(props: WorkflowProps) {
 		save()
 	}
 
-	const insertPipeline = (pipeline: PipelineModel) => {
-		props.workflows.data.push(pipeline)
+	const onPipelineRemove = (pipeline: PipelineModel, editorMode?: boolean) => {
+		if (!editorMode) {
+			pipelines.remove(pipeline)
+		} else {
+			templatePLs.remove(pipeline)
+		}
+		setFocusPL(getDefaultPL)
 		save()
 	}
 
+	const insertPipeline = (pipeline: PipelineModel, editorMode: boolean) => {
+		if (!editorMode) {
+			pipelines.push(pipeline)
+		} else {
+			templatePLs.push(pipeline)
+		}
+		save()
+	}
 	const selectPipeline = (pipeline: PipelineModel) => {
 		setFocusPL(pipeline)
 		setFlag(!flag)
 	}
 
-	const pendingKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.PENDING} workflows={pendingWF} selectPipeline={selectPipeline} templates={props.templates.data} addNewPipeline={insertPipeline} />
-	const workingKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.WORKING} workflows={workingWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={insertPipeline}/>
-	const doneKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.DONE} workflows={doneWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={insertPipeline}/>
+	const pendingKanban = <WorkflowKanbanView allowAddNew={true} kanbanTitle={NodeStatusEnum.PENDING} pipelines={pendingWF} selectPipeline={selectPipeline} templates={templatePLs} addNewPipeline={(pipeline) => insertPipeline(pipeline, false)} />
+	const workingKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.WORKING} pipelines={workingWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={(pipeline) => insertPipeline(pipeline, false)}/>
+	const doneKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.DONE} pipelines={doneWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={(pipeline) => insertPipeline(pipeline, false)}/>
+	const templateKanban = <WorkflowKanbanView editorMode={true} kanbanTitle={'Template'} pipelines={templateWF} selectPipeline={selectPipeline} templates={templatePLs} addNewPipeline={(pipeline) => insertPipeline(pipeline, true)} />
 
-	return(
-		<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.paper', margin: 3}}>
-			{ getFocusPipeline() }
-			<Stack spacing={3} sx={{alignItems: 'center'}} direction='row' >
+	const getKanbanViews = () => {
+		if (!editorMode) {
+			return <Stack spacing={3} sx={{alignItems: 'center'}} direction='row' >
 				{pendingKanban}
 				{workingKanban}
 				{doneKanban}
 			</Stack>
+		} else {
+			return templateKanban
+		}
+	}
+
+	return(
+		<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.paper', margin: 3}}>
+			{ getKanbanViews() }
+			{ getFocusPipeline() }
 		</Box>
 	)
 }

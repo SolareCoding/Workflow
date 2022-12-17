@@ -8,6 +8,7 @@ import Box from "@mui/material/Box";
 import {Button, FormControl, Input, InputLabel, MenuItem, TextField, Typography} from "@mui/material";
 import {TimeUtils} from "../utils/Time.utils";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import UUIDUtils from "../utils/UUID.utils";
 
 const emails = ['username@gmail.com', 'user02@gmail.com'];
 
@@ -33,7 +34,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 		copied.createTime = Date.now()
 		copied.status = NodeStatusEnum.PENDING
 		copied.isTemplate = false
-		copied.id = Date.now().toString() + (Math.random() * 1000).toFixed(0)
+		copied.id = UUIDUtils.getUUID()
 		props.createNewTask(copied)
 	}
 

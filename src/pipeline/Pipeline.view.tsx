@@ -1,16 +1,21 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import {Stack, Typography,} from "@mui/material";
+import {Input, Stack, Typography,} from "@mui/material";
 import SectionView from "./Section.view";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import {PipelineModel, PipelineNodeModel} from "./Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
-import NodeView from "../nodes/Node.view";
 import PipelineColors from "../common/Pipeline.colors";
+import {AddCircle} from "@mui/icons-material";
+import {number} from "prop-types";
+import {useState} from "react";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 
 export interface PipelineProps {
-	data: PipelineModel
+	pipeline: PipelineModel
+	editorMode?: boolean;
 	onPipelineUpdate: () => void;
+	onPipelineRemove: (pipeline: PipelineModel, editorMode?: boolean) => void;
 }
 
 /**
@@ -20,37 +25,80 @@ export interface PipelineProps {
  */
 export default function PipelineView(props: PipelineProps) {
 
-	const pipeline = props.data
+	const { pipeline, editorMode, onPipelineUpdate, onPipelineRemove } = props
 	const sections = pipeline.sections
-	const onPipelineUpdate = props.onPipelineUpdate
+
+	const [flag, setFlag] = useState(false)
+	const [title, setTitle] = useState(pipeline.title)
 
 	const getDividerView = () => {
-		return(<KeyboardDoubleArrowRightIcon />)
+		if (!editorMode) {
+			return (<KeyboardDoubleArrowRightIcon/>)
+		}
+		return false
 	}
 
 	const getColor = () => {
 		return PipelineColors.COLOR_MAP[pipeline.status]
 	}
 
-	const getTitle = () => {
-		return <Typography sx={{fontSize: 20, fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'任务: ' + props.data.title}</Typography>
+	const handlePipelineNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setTitle(event.target.value)
+		pipeline.title = event.target.value
+		onPipelineUpdate()
 	}
 
-	const getSubTitle = () => {
+	const getActionView = () => {
+		return <Box sx={{paddingX: 1, borderRadius: 1}} onClick={() => onPipelineRemove(pipeline, editorMode)}>
+			<DeleteForeverOutlinedIcon/>
+		</Box>
+	}
+
+	const getTitleView = () => {
+		if (!editorMode) {
+			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
+				<Typography sx={{fontSize: 20, fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'任务: ' + props.pipeline.title}</Typography>
+				{ getActionView() }
+			</Box>
+		} else {
+			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
+				<Input sx={{fontSize: 20, fontWeight: 600, color: 'white'}} id="template-simple" value={title} onChange={handlePipelineNameChange} />
+				{ getActionView() }
+			</Box>
+		}
+	}
+
+	const getSubTitleView = () => {
 		if (!pipeline.isTemplate) {
-			return <Typography sx={{fontSize: 18, color: getColor(), fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'工作流: ' + props.data.templateTitle}</Typography>
+			return <Typography sx={{fontSize: 18, color: getColor(), fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'工作流: ' + props.pipeline.templateTitle}</Typography>
 		}
 		return null
 	}
 
+	const getAddSectionView = (index: number) => {
+		if (!props.editorMode) return false
+		return <Box onClick={() => {insertNewSection(index)}}>
+			<AddCircle/>
+		</Box>
+	}
+
+	const insertNewSection = (index: number) => {
+		props.pipeline.sections.splice(index, 0, PipelineNodeModel.newInstance())
+		onPipelineUpdate()
+		setFlag(!flag)
+	}
+
 	const getSectionViews = () => {
 		let sectionViews = []
+		sectionViews.push(getAddSectionView(0))
 		for (let i = 0; i < sections.length; i++) {
 			let couldUpdate = i == 0 ? true : sections[i - 1].status == NodeStatusEnum.DONE
-			sectionViews.push(<SectionView data={sections[i]} couldUpdate={couldUpdate} onSectionUpdate = {onSectionUpdate}/>)
+			sectionViews.push(<SectionView data={sections[i]} couldUpdate={couldUpdate} editorMode={editorMode} onSectionUpdate = {onSectionUpdate} onSectionRemove={onSectionRemove}/>)
+			sectionViews.push(getAddSectionView(i + 1))
 		}
 		return sectionViews
 	}
+
 	const isPending = (section: PipelineNodeModel) => section.status == NodeStatusEnum.PENDING
 	const isDone = (section: PipelineNodeModel) => section.status == NodeStatusEnum.DONE
 
@@ -67,6 +115,13 @@ export default function PipelineView(props: PipelineProps) {
 
 	const onSectionUpdate = () => {
 		pipeline.status = getPipelineStatus()
+		setFlag(!flag)
+		onPipelineUpdate()
+	}
+
+	const onSectionRemove = (section: PipelineNodeModel) => {
+		pipeline.sections.remove(section)
+		setFlag(!flag)
 		onPipelineUpdate()
 	}
 
@@ -75,8 +130,8 @@ export default function PipelineView(props: PipelineProps) {
 	 */
 	return (
 		<Box sx={{overflow: 'scroll', margin: 3}}>
-			{getTitle()}
-			{getSubTitle()}
+			{getTitleView()}
+			{getSubTitleView()}
 			<Stack spacing={1} sx={{alignItems: 'center'}} direction='row' divider={getDividerView()}>
 				{getSectionViews()}
 			</Stack>

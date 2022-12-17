@@ -2,7 +2,7 @@ import {NodeStatusEnum} from "./NodeStatus.enum";
 
 export class NodeTip {
 	summary: string
-	content: string[]
+	content: string
 }
 
 export class NodeModel {
@@ -13,16 +13,12 @@ export class NodeModel {
 	startTime: number
 	finishTime: number
 
-	static getDummyNode() {
+	static newInstance() {
 		let node = new NodeModel()
-		node.id = '123';
-		node.title = "Dummy"
+		node.title = "请输入"
 		node.tips = {
 			summary: "开发",
-			content: [
-				'记得写业务',
-				'记得写埋点'
-			]
+			content: '记得写业务'
 		}
 		node.status = NodeStatusEnum.PENDING
 		return node
