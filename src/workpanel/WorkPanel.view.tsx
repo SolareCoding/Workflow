@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import {WorkPanelEnum} from "./WorkPanel.enum";
 import WorkflowView from "../workflow/Workflow.view";
+import PomodoroPanelView from "../pomodoro/PomodoroPanel.view";
 
 /**
  * This is the main interface of workflows.
@@ -41,17 +42,18 @@ export default function WorkPanelView(props: WorkPanelProps) {
 		})
 	}
 
+	const pomodoroView = <PomodoroPanelView pomodoroData={data.pomodoros} saveData={()=>{}}/>
 	const workflowView = <WorkflowView workflows={data.workflows} templates={data.pipelines} saveData={savePipelines}/>
 	const templateView = <WorkflowView workflows={data.workflows} templates={data.pipelines} saveData={savePipelines} editorMode={true}/>
 
 	const getContent = (index: WorkPanelEnum) => {
 		switch (index) {
-			case WorkPanelEnum.NODES:
-				return <NodeManagerView/>;
+			case WorkPanelEnum.POMODORO:
+				return pomodoroView
 			case WorkPanelEnum.PIPELINES:
-				return templateView;
+				return templateView
 			case WorkPanelEnum.WORKFLOWS:
-				return workflowView;
+				return workflowView
 		}
 	}
 
@@ -70,7 +72,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 							setPanelIndex(newValue);
 						}}
 					>
-						<BottomNavigationAction sx={{paddingY: 3}} label="Nodes" icon={<DnsIcon />} />
+						<BottomNavigationAction sx={{paddingY: 3}} label="Pomodoro" icon={<DnsIcon />} />
 						<BottomNavigationAction sx={{paddingY: 3}} label="Workflows" icon={<DvrIcon />} />
 						<BottomNavigationAction sx={{paddingY: 3}} label="Pipelines" icon={<AccountTreeIcon />} />
 					</BottomNavigation>

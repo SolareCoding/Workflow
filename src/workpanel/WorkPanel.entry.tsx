@@ -1,9 +1,9 @@
 import {TextFileView, TFile} from "obsidian";
 import {createRoot} from "react-dom/client";
 import * as React from "react";
-import {PomodoroView} from "../pomodoro/Pomodoro.view";
-import {WORK_FLOW_VIEW} from "../pomodoro/Pomodoro.entry";
 import WorkPanelView from "./WorkPanel.view";
+
+export const WORK_FLOW_VIEW = 'WorkFlowView'
 
 /**
  * 主页面，从workflow文件进入的初始页面
@@ -17,7 +17,6 @@ export class WorkPanelEntry extends TextFileView {
 	}
 
 	async onOpen() {
-		console.log('on open')
 	}
 
 	async onClose() {
@@ -25,7 +24,6 @@ export class WorkPanelEntry extends TextFileView {
 	}
 
 	override onLoadFile(file: TFile): Promise<void> {
-		console.log("onLoadFile")
 		return super.onLoadFile(file);
 	}
 

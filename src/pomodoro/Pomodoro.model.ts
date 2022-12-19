@@ -1,23 +1,28 @@
 import {htmlToMarkdown} from "obsidian";
+import UUIDUtils from "../utils/UUID.utils";
+import {NodeModel} from "../nodes/Node.model";
 
 export class PomodoroModel {
 	title: string;
 	duration: number;
 	startTime: number;
-	timeLeft: string;
+	nodeID: string;
+	pomodoroID: string;
+	finished: boolean;
 
-	public static getDummyModel(): PomodoroModel {
-		return {
-			title: "Dummy",
-			duration: 15 * 60 * 1000,
-			startTime: Date.now(),
-			timeLeft: '0'
-		}
+	public static newInstance(node: NodeModel): PomodoroModel {
+		let pomodoroModel = new PomodoroModel()
+		pomodoroModel.nodeID = node.id
+		pomodoroModel.pomodoroID = UUIDUtils.getUUID()
+		pomodoroModel.title = node.title
+		pomodoroModel.duration = 15 * 60 * 1000
+		pomodoroModel.startTime = Date.now()
+		pomodoroModel.finished = false
+		return pomodoroModel
 	}
+}
 
-	public static parseData(data: string): PomodoroModel {
-		let model: PomodoroModel =  JSON.parse(data);
-		model.startTime = Date.now();
-		return model;
-	}
+export class PomodorosModel {
+	data: PomodoroModel[];
+	running: boolean;
 }

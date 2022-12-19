@@ -32,7 +32,6 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getFocusPipeline = () => {
-		console.log("focusPL: " + JSON.stringify(focusPL))
 		if (focusPL) {
 			return <Box>
 				<PipelineView pipeline={focusPL} editorMode={editorMode} onPipelineUpdate={onPipelineUpdate} onPipelineRemove={onPipelineRemove}/>

@@ -1,70 +1,58 @@
 import * as React from "react";
 import {PomodoroModel} from "./Pomodoro.model";
 import {PomodoroStyle} from "./Pomodoro.style.tx";
+import Box from "@mui/material/Box";
+import {Card, CardContent, CardHeader, Typography} from "@mui/material";
+import {useEffect, useState} from "react";
 
 
-export interface PomodoroProperty {
-	data: string,
-	updateData: (data: string) => void
+export interface PomodoroProps {
+	pomodoro: PomodoroModel,
+	updateData?: (data: string) => void
 }
 
-export class PomodoroView extends React.Component<PomodoroProperty, PomodoroModel>{
+export default function PomodoroView(props: PomodoroProps) {
 
-	private timerID: any;
+	const pomodoro = props.pomodoro
 
-	constructor(props: any) {
-		super(props);
-	}
-
-	componentDidMount() {
-		this.setState(PomodoroModel.parseData(this.props.data))
-		this.startTimer();
-	}
-
-	componentWillUnmount() {
-		if (this.timerID) {
-			clearInterval(this.timerID);
-		}
-	}
-
-	render() {
-		return ( null
-			// <Container>
-			// 	<Card style={PomodoroStyle.root}>
-			// 		<CardHeader style={PomodoroStyle.header} title={this.state?.title}/>
-			// 		<CardContent>
-			// 			<Typography>
-			// 				{this.state?.timeLeft}
-			// 			</Typography>
-			// 		</CardContent>
-			// 	</Card>
-			// </Container>
-		);
-	}
-
-	private startTimer() {
-		if (this.timerID) {
-			clearInterval(this.timerID);
-		}
-		this.timerID = setInterval(
-			() => this.tick(),
-			1000
-		)
-	}
-
-	private tick() {
-		this.setState(
-			{
-				timeLeft: this.getTimeLeft()
-			}
-		)
-	}
-
-	private getTimeLeft(): string {
-		let leftTime = this.state.startTime + this.state.duration - new Date().getTime();
+	const getTimeLeft = (pomodoro: PomodoroModel): string => {
+		let leftTime = pomodoro.startTime + pomodoro.duration - new Date().getTime();
 		let minutes = (leftTime / 1000 / 60).toFixed(0);
 		let seconds = (leftTime % 60000 / 1000).toFixed(0);
 		return minutes + ':' + seconds;
 	}
+
+	const [timeLeft, setTimeleft] = useState(getTimeLeft(pomodoro))
+
+	let timerID: any
+
+	useEffect(()=> startTimer())
+
+	const startTimer = () => {
+		if (timerID) {
+			clearInterval(this.timerID);
+		}
+		timerID = setInterval(
+			() => tick(),
+			1000
+		)
+	}
+
+	const tick = () => {
+		setTimeleft(getTimeLeft(pomodoro))
+	}
+
+	return (
+		<Box>
+			<Card style={PomodoroStyle.root}>
+				<CardHeader style={PomodoroStyle.header} title={pomodoro?.title}/>
+				<CardContent>
+					<Typography>
+						{timeLeft}
+					</Typography>
+				</CardContent>
+			</Card>
+		</Box>
+	);
 
 }

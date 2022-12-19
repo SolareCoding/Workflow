@@ -11,8 +11,7 @@ import {
 	Setting,
 } from 'obsidian';
 import {workflowIcon} from "./resources/icons/workflow.icon";
-import {WORK_FLOW_VIEW} from "./src/pomodoro/Pomodoro.entry";
-import {WorkPanelEntry} from "./src/workpanel/WorkPanel.entry";
+import {WORK_FLOW_VIEW, WorkPanelEntry} from "./src/workpanel/WorkPanel.entry";
 
 // Remember to rename these classes and interfaces!
 

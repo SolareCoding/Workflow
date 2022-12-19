@@ -4,7 +4,6 @@ import * as React from "react";
 import {PipelineModel, PipelineNodeModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import {TimeUtils} from "../utils/Time.utils";
-import {useEffect} from "react";
 import NewPipelineDialog from "./NewPipelineDialog.view";
 
 export interface WorkflowKanbanProps {
@@ -61,13 +60,13 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 
 	const addNewView = <Box onClick={(event) => openNewPipelineDialog()}>
 		<Typography variant="body2" sx={{fontWeight: '600', color: "#336666", textAlign: 'center'}}>
-			Add new
+			Add a new pipeline
 		</Typography>
 	</Box>
 
 	const addNewTemplateView = <Box onClick={(event) => handCreateNewTemplate()}>
 		<Typography variant="body2" sx={{fontWeight: '600', color: "#336666", textAlign: 'center'}}>
-			Add new template
+			Add a new template
 		</Typography>
 	</Box>
 

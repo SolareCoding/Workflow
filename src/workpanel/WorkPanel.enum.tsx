@@ -1,5 +1,5 @@
 export enum WorkPanelEnum {
-	NODES,
+	POMODORO,
 	WORKFLOWS,
 	PIPELINES
 }

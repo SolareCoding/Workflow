@@ -17,8 +17,8 @@ export class NodeModel {
 		let node = new NodeModel()
 		node.title = "请输入"
 		node.tips = {
-			summary: "开发",
-			content: '记得写业务'
+			summary: "Tip summary",
+			content: 'Tip content'
 		}
 		node.status = NodeStatusEnum.PENDING
 		return node
