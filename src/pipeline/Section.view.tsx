@@ -9,6 +9,7 @@ import {NodeModel} from "../nodes/Node.model";
 import PipelineColors from "../common/Pipeline.colors";
 import {AddCircle} from "@mui/icons-material";
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import AdjustIcon from '@mui/icons-material/Adjust';
 
 
 export interface PipelineNodeProps {
@@ -61,13 +62,7 @@ export default function SectionView(props: PipelineNodeProps) {
 
 	const getAddNodeView = (index: number) => {
 		if (!editorMode) return false
-		return <Box sx={{
-			display: 'flex',
-			padding: 1,
-			borderRadius: 1,
-			alignItems: 'center',
-			justifyContent: 'center'
-		}} onClick={() => {
+		return <Box onClick={() => {
 			insertNewSection(index)
 		}}>
 			<AddCircle/>
@@ -87,15 +82,15 @@ export default function SectionView(props: PipelineNodeProps) {
 
 	const getSectionTitleView = () => {
 		if (!editorMode) {
-			return <Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600, color: 'white'}}>{title}</Typography>
+			return <Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600}}>{title}</Typography>
 		} else {
-			return <Input sx={{fontSize: 16, maxWidth: 120, fontWeight: 600, color: 'white'}} id="template-simple" value={title} onChange={handleSectionNameChange} />
+			return <input style={{fontSize: 16, maxWidth: 120, fontWeight: 600}} id="template-simple" value={title} onChange={handleSectionNameChange} />
 		}
 	}
 
 	const getActionView = () => {
 		if (editorMode) {
-			return <Box sx={{paddingX: 1, borderRadius: 1}} onClick={() => onSectionRemove(section)}>
+			return <Box onClick={() => onSectionRemove(section)}>
 				<DeleteForeverOutlinedIcon/>
 			</Box>
 		} else {
@@ -114,7 +109,7 @@ export default function SectionView(props: PipelineNodeProps) {
 	}
 
 	return (
-		<Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: 1, backgroundColor: bgColor, borderRadius: 1}}>
+		<Box className={'workflow-container-outer'} sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: 1, borderRadius: 1}}>
 			<Box sx={{
 				display: 'flex',
 				flexDirection: 'row',

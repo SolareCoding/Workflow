@@ -29,7 +29,8 @@
 		"@fontsource/roboto": "^4.5.8",
 		"@mui/icons-material": "^5.10.9",
 		"@mui/material": "^5.10.12",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"preact": "^10.8.2",
+		"react": "npm:@preact/compat",
+		"react-dom": "npm:@preact/compat"
 	}
 }

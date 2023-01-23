@@ -1,15 +1,4 @@
 import * as React from 'react';
-import DnsIcon from '@mui/icons-material/Dns';
-import DvrIcon from '@mui/icons-material/Dvr';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import Box from '@mui/material/Box';
-import NodeManagerView from "../nodes/NodeManager.view";
-import {
-	BottomNavigation,
-	BottomNavigationAction,
-	CssBaseline,
-	Paper
-} from "@mui/material";
 import {WorkPanelEnum} from "./WorkPanel.enum";
 import WorkflowView from "../workflow/Workflow.view";
 import PomodoroPanelView from "../pomodoro/PomodoroPanel.view";
@@ -59,25 +48,16 @@ export default function WorkPanelView(props: WorkPanelProps) {
 
 	return (
 		<WorkPanelContext.Provider value={data} >
-			<Box sx={{ pb: 7, overflow: 'scroll'}} ref={ref}>
-				<CssBaseline />
-				<Box sx={{alignItems: 'center'}}>
+			<div style={{ display: 'flex', flexDirection:'column', width: '100%', height: '100%'}} ref={ref}>
+				<div style={{height: '100%', width: '100%', overflow: 'scroll', paddingTop: 0}}>
 					{getContent(panelIndex)}
-				</Box>
-				<Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, paddingY: 1}} elevation={3}>
-					<BottomNavigation
-						showLabels
-						value={panelIndex}
-						onChange={(event, newValue) => {
-							setPanelIndex(newValue);
-						}}
-					>
-						<BottomNavigationAction sx={{paddingY: 3}} label="Pomodoro" icon={<DnsIcon />} />
-						<BottomNavigationAction sx={{paddingY: 3}} label="Workflows" icon={<DvrIcon />} />
-						<BottomNavigationAction sx={{paddingY: 3}} label="Pipelines" icon={<AccountTreeIcon />} />
-					</BottomNavigation>
-				</Paper>
-			</Box>
+				</div>
+				<div className={'workflow-container-bg'} style={{ height: 60, width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', padding: 10}}>
+					<button onClick={() => setPanelIndex(WorkPanelEnum.POMODORO)}> Pomodoro </button>
+					<button style={{marginLeft: 10, marginRight: 10}} onClick={() => setPanelIndex(WorkPanelEnum.WORKFLOWS)}> Workflows </button>
+					<button onClick={() => setPanelIndex(WorkPanelEnum.PIPELINES)}> Pipelines </button>
+				</div>
+			</div>
 		</WorkPanelContext.Provider>
 	);
 }

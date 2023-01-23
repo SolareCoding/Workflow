@@ -1,10 +1,14 @@
 import * as React from "react";
 import {PomodoroModel} from "./Pomodoro.model";
-import {PomodoroStyle} from "./Pomodoro.style.tx";
-import Box from "@mui/material/Box";
-import {Card, CardContent, CardHeader, Typography} from "@mui/material";
 import {useEffect, useState} from "react";
-
+import ListSubheader from '@mui/material/ListSubheader';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import {Typography} from "@mui/material";
 
 export interface PomodoroProps {
 	pomodoro: PomodoroModel,
@@ -26,7 +30,7 @@ export default function PomodoroView(props: PomodoroProps) {
 
 	let timerID: any
 
-	useEffect(()=> startTimer())
+	useEffect(() => startTimer())
 
 	const startTimer = () => {
 		if (timerID) {
@@ -43,16 +47,18 @@ export default function PomodoroView(props: PomodoroProps) {
 	}
 
 	return (
-		<Box>
-			<Card style={PomodoroStyle.root}>
-				<CardHeader style={PomodoroStyle.header} title={pomodoro?.title}/>
-				<CardContent>
-					<Typography>
-						{timeLeft}
-					</Typography>
-				</CardContent>
-			</Card>
-		</Box>
+		<div
+			className={'workflow-container-outer'}
+			style={{
+			marginTop: 30,
+			maxWidth: 345,
+			display: 'flex',
+			flexDirection: 'column',
+		}}>
+			<div style={{width: '100%', }}> {pomodoro?.title} </div>
+			<p>
+				{timeLeft}
+			</p>
+		</div>
 	);
-
 }

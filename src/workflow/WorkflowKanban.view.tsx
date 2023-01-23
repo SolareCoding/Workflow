@@ -1,17 +1,29 @@
 import Box from "@mui/material/Box";
-import {Divider, IconButton, Stack, Typography} from "@mui/material";
+import {Divider, Drawer, IconButton, Stack, Typography} from "@mui/material";
 import * as React from "react";
 import {PipelineModel, PipelineNodeModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import {TimeUtils} from "../utils/Time.utils";
 import NewPipelineDialog from "./NewPipelineDialog.view";
+import {useState} from "react";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import Collapse from "@mui/material/Collapse";
+
+export interface SectionPipelines {
+	sectionName: string;
+	pipelines: PipelineModel[];
+}
 
 export interface WorkflowKanbanProps {
-	allowAddNew?: boolean,
 	editorMode?: boolean,
 	kanbanTitle: string,
-	pipelines: PipelineModel[],
+	sectionPipelines: SectionPipelines[],
 	templates: PipelineModel[],
+	selectedPipeline?: PipelineModel,
 	selectPipeline: (pipeline: PipelineModel) => void,
 	addNewPipeline: (pipeline: PipelineModel) => void
 }
@@ -22,9 +34,11 @@ export interface WorkflowKanbanProps {
  */
 export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 
-	const { allowAddNew, editorMode, kanbanTitle, pipelines, templates, selectPipeline, addNewPipeline } = props
-
-	const [open, setOpen] = React.useState(false);
+	const {editorMode, kanbanTitle, sectionPipelines, selectedPipeline, templates, selectPipeline, addNewPipeline } = props
+	const [openDialog, setOpenDialog] = useState(false);
+	const [pendingCollapse, setPendingCollapse] = useState(true);
+	const [workingCollapse, setWorkingCollapse] = useState(true);
+	const [doneCollapse, setDoneCollapse] = useState(true);
 
 	const getProgress = (pipeline: PipelineModel) => {
 		let totalNodes = 0;
@@ -41,81 +55,139 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 	}
 
 	const handleClose = () => {
-		setOpen(false);
+		setOpenDialog(false);
 	}
 
 	// show a dialog for user to choose a template, and add it to the current Kanban
 	const handleCreateNewTask = (pipeline: PipelineModel) => {
-		setOpen(false);
+		setOpenDialog(false);
 		addNewPipeline(pipeline)
 	}
 
 	const openNewPipelineDialog = () => {
-		setOpen(true);
+		setOpenDialog(true);
 	}
 
-	const handCreateNewTemplate = () => {
+	const handleCreateNewTemplate = () => {
 		addNewPipeline(PipelineModel.newInstance())
 	}
 
-	const addNewView = <Box onClick={(event) => openNewPipelineDialog()}>
-		<Typography variant="body2" sx={{fontWeight: '600', color: "#336666", textAlign: 'center'}}>
-			Add a new pipeline
-		</Typography>
-	</Box>
+	const addNewView = <Box className='workflow-accent' sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}} onClick={()=>{
+			!editorMode ? openNewPipelineDialog() : handleCreateNewTemplate()
+		}}>
+			<Typography variant="body1">
+				{ !editorMode ? 'Add a new pipeline' : 'Add a new template' }
+			</Typography>
+		</Box>
 
-	const addNewTemplateView = <Box onClick={(event) => handCreateNewTemplate()}>
-		<Typography variant="body2" sx={{fontWeight: '600', color: "#336666", textAlign: 'center'}}>
-			Add a new template
-		</Typography>
-	</Box>
+	const getFoldStatus = (sectionName: string) => {
+		switch (sectionName) {
+			case NodeStatusEnum.PENDING:
+				return pendingCollapse
+			case NodeStatusEnum.WORKING:
+				return workingCollapse
+			case NodeStatusEnum.DONE:
+				return doneCollapse
+			default:
+				return true
+		}
+	}
 
-	const getPipelines = () => {
-		let pipelineViews = []
-		if (allowAddNew) {
-			pipelineViews.push(addNewView)
+	const setFoldStatus = (sectionName: string) => {
+		switch (sectionName) {
+			case NodeStatusEnum.PENDING:
+				setPendingCollapse(!pendingCollapse)
+				break
+			case NodeStatusEnum.WORKING:
+				setWorkingCollapse(!workingCollapse)
+				break
+			case NodeStatusEnum.DONE:
+				setDoneCollapse(!doneCollapse)
+				break
+			default:
+				break
 		}
-		if (editorMode) {
-			pipelineViews.push(addNewTemplateView)
-		}
-		for (const pipeline of pipelines) {
-			pipelineViews.push(
-				<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', id: pipeline.id}} onClick={()=>{
-					selectPipeline(pipeline)}}>
-					<Box>
-						<Typography>
-							{pipeline.title}
-						</Typography>
-					</Box>
-					<Box sx={{width: 110, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-						<Typography variant="body2">
-							{TimeUtils.getDateTimeStr(pipeline.createTime)}
-						</Typography>
-						<Typography variant="body2" sx={{fontWeight: '600', color: "#336666"}}>
-							{getProgress(pipeline)}
-						</Typography>
-					</Box>
-				</Box>
+	}
+
+	const getPipelineMenuItems = () => {
+		const menuItemViews = []
+		menuItemViews.push(
+			<ListItemButton>
+				{addNewView}
+			</ListItemButton>)
+		for (const sectionPipeline of sectionPipelines) {
+			const {sectionName, pipelines} = sectionPipeline
+			// create a new fordable item
+			menuItemViews.push(
+				<ListItemButton onClick={() => {setFoldStatus(sectionName)}}>
+					<ListItemText primary={sectionName} />
+					{getFoldStatus(sectionName) ? <ExpandLess /> : <ExpandMore />}
+				</ListItemButton>
 			)
+			const sectionItemViews = []
+			for (const pipeline of pipelines) {
+				sectionItemViews.push(
+					<ListItemButton sx={{ pl: 4 }}>
+						<Box className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', id: pipeline.id}} onClick={()=>{
+							selectPipeline(pipeline)}}>
+							<Typography variant="body2">
+								{pipeline.title}
+							</Typography>
+							<Box sx={{width: 110, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+								<Typography variant="body2">
+									{TimeUtils.getDateTimeStr(pipeline.createTime)}
+								</Typography>
+								<Typography variant="body2" sx={{fontWeight: '600', color: "#336666"}}>
+									{getProgress(pipeline)}
+								</Typography>
+							</Box>
+						</Box>
+					</ListItemButton>
+				)
+			}
+			menuItemViews.push(
+				<Collapse in={getFoldStatus(sectionName)} timeout="auto" unmountOnExit>
+					<List component="div" disablePadding dense = {true}>
+						{sectionItemViews}
+					</List>
+				</Collapse>
+			);
 		}
-		return pipelineViews
+		return menuItemViews
+	}
+
+	const [openItem, setOpenItem] = React.useState(true);
+
+	const handleClick = () => {
+		setOpenItem(!openItem);
+	};
+
+	const getListView = () => {
+		return (
+			<List
+				sx={{ width: '100%', maxWidth: 360 }}
+				component="nav"
+				aria-labelledby="nested-list-subheader"
+				dense = {true}
+			>
+				{getPipelineMenuItems()}
+			</List>
+		);
 	}
 
 	return (
-		<Box sx={{width: 300, bgcolor: 'background.paper', padding: 1, borderRadius: 1, boxShadow: 1, height: 300, overflow: 'scroll'}}>
-			<Typography variant="h5" gutterBottom color={'#333366'}>
+		<div className={'workflow-container-outer'} style={{width: 300, height: '100%', overflow: 'scroll'}}>
+			<Typography variant="h5" gutterBottom>
 				{'Kanban: ' + kanbanTitle}
 			</Typography>
-			<Divider sx={{marginY: 1}}/>
-			<Stack spacing={1} divider={<Divider orientation="horizontal" flexItem />}>
-				{getPipelines()}
-			</Stack>
+			<Divider/>
+			{getListView()}
 			<NewPipelineDialog
 				templates={templates}
-				open={open}
+				open={openDialog}
 				closeDialog={handleClose}
 				createNewTask={handleCreateNewTask}
 			/>
-		</Box>
+		</div>
 	);
 }

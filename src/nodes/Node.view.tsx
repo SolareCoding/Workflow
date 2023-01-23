@@ -112,7 +112,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
 		} else {
-			return <Input sx={{fontSize: 14, maxWidth: 120, fontWeight: 600, color: 'white'}} id="template-simple" value={tipSummary} onChange={handleNodeTipSummaryChange} />
+			return <input style={{fontSize: 14, maxWidth: 120, fontWeight: 600}} id="template-simple" value={tipSummary} onChange={handleNodeTipSummaryChange} />
 		}
 	}
 
@@ -125,7 +125,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			}
 		}
 		else {
-			return <Input sx={{fontSize: 14, color: 'white'}} id="template-simple" value={tipContent} onChange={handleNodeTipContentChange} />
+			return <input style={{fontSize: 14}} id="template-simple" value={tipContent} onChange={handleNodeTipContentChange} />
 		}
 	}
 
@@ -182,7 +182,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: 600}}>{title}</Typography>
 		} else {
-			return <Input sx={{fontSize: 14, maxWidth: 120, fontWeight: 600, color: 'white'}} id="template-simple" value={title} onChange={handleNodeNameChange} />
+			return <input style={{fontSize: 14, maxWidth: 120, fontWeight: 600}} id="template-simple" value={title} onChange={handleNodeNameChange} />
 		}
 	}
 
@@ -203,7 +203,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	}
 
 	return (
-		<Box sx={{width: 180, bgcolor: 'background.paper', padding: 1, borderRadius: 1, boxShadow: 1, id: node.id}}>
+		<Box className={'workflow-container-inner'} sx={{width: 180, padding: 1, borderRadius: 1, boxShadow: 1, id: node.id}}>
 			<Box sx={{
 				display: 'flex',
 				flexDirection: 'row',
@@ -226,12 +226,12 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				</Menu>
 			</Box>
 			<Divider sx={{marginY: '1px'}}/>
-			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginY: 1}}>
 				<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
 					{getTipSummary()}
 					<Typography sx={{fontSize: 14, minWidth: 40, fontWeight: '600', color: "#6c6c6c"}} onClick={()=>{setShowTips(!showTips)}}>{getTipsButton()}</Typography>
 				</Box>
-				<Box>
+				<Box sx={{marginTop: 1}}>
 					{getTipsContent()}
 				</Box>
 			</Box>

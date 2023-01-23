@@ -22,11 +22,9 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 		return result;
 	}
 
-	const getFocusPipeline = () => {
+	const getPomodoroView = () => {
 		if (focusPomodoro) {
-			return <Box>
-				<PomodoroView pomodoro={focusPomodoro}/>
-			</Box>
+			return <PomodoroView pomodoro={focusPomodoro}/>
 		}
 		return null
 	}
@@ -82,9 +80,8 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 	// const templateKanban = <WorkflowKanbanView editorMode={true} kanbanTitle={'Template'} pipelines={templateWF} selectPipeline={selectPipeline} templates={templatePLs} addNewPipeline={(pipeline) => insertPipeline(pipeline, true)} />
 
 	return(
-		<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.paper', margin: 3}}>
-			{/*{ getKanbanViews() }*/}
-			{ getFocusPipeline() }
-		</Box>
+		<div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', margin: 3}}>
+			{ getPomodoroView() }
+		</div>
 	)
 }

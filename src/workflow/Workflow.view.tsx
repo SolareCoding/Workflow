@@ -1,12 +1,13 @@
-import {Box, Divider, Stack} from "@mui/material";
+import {Box} from "@mui/material";
 import * as React from "react";
-import WorkflowKanbanView from "./WorkflowKanban.view";
+import {useState} from "react";
+import WorkflowKanbanView, {SectionPipelines} from "./WorkflowKanban.view";
 import PipelineView from "../pipeline/Pipeline.view";
 import {WorkflowModel} from "./Workflow.model";
 import {PipelineModel, PipelinesModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
-import {useEffect, useState} from "react";
-import PipelineColors from "../common/Pipeline.colors";
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 
 export interface WorkflowProps {
 	editorMode?: boolean
@@ -17,28 +18,9 @@ export interface WorkflowProps {
 
 export default function WorkflowView(props: WorkflowProps) {
 
-	const { editorMode, workflows, templates, saveData } = props
+	const {editorMode, workflows, templates, saveData} = props
 	const pipelines = workflows.data
 	const templatePLs = templates.data
-
-	const getKanbanPipelines = (type: NodeStatusEnum) => {
-		const result = []
-		for (const pipeline of pipelines) {
-			if (pipeline.status == type) {
-				result.push(pipeline);
-			}
-		}
-		return result;
-	}
-
-	const getFocusPipeline = () => {
-		if (focusPL) {
-			return <Box>
-				<PipelineView pipeline={focusPL} editorMode={editorMode} onPipelineUpdate={onPipelineUpdate} onPipelineRemove={onPipelineRemove}/>
-			</Box>
-		}
-		return null
-	}
 
 	const getDefaultPL = () => {
 		if (!editorMode && pipelines?.length > 0) {
@@ -46,25 +28,58 @@ export default function WorkflowView(props: WorkflowProps) {
 		} else if (editorMode && templatePLs?.length > 0) {
 			return templatePLs[0]
 		} else {
-			return null
+			return undefined
 		}
 	}
 
-	const [focusPL, setFocusPL] = useState(getDefaultPL())
+	const [foldKanban, setFoldKanban] = useState(true)
 	const [flag, setFlag] = useState(false)
-	const [pendingWF, setPendingWF] = useState(getKanbanPipelines(NodeStatusEnum.PENDING))
-	const [workingWF, setWorkingWF] = useState(getKanbanPipelines(NodeStatusEnum.WORKING))
-	const [doneWF, setDoneWF] = useState(getKanbanPipelines(NodeStatusEnum.DONE))
-	const [templateWF, setTemplateWF] = useState(templatePLs)
+	const [focusPL, setFocusPL] = useState(getDefaultPL())
 
-	useEffect(()=> setFocusPL(getDefaultPL()))
+	const getKanbanPipelines = () => {
+		const sectionPipelines:SectionPipelines[] = []
+		const pendingPipelines = []
+		const workingPipelines = []
+		const donePipelines = []
+		for (const pipeline of pipelines) {
+			switch (pipeline.status) {
+				case NodeStatusEnum.PENDING:
+					pendingPipelines.push(pipeline)
+					break
+				case NodeStatusEnum.WORKING:
+					workingPipelines.push(pipeline)
+					break
+				case NodeStatusEnum.DONE:
+					donePipelines.push(pipeline)
+					break
+				default:
+					break
+			}
+		}
+		sectionPipelines.push({sectionName: NodeStatusEnum.PENDING, pipelines: pendingPipelines});
+		sectionPipelines.push({sectionName: NodeStatusEnum.WORKING, pipelines: workingPipelines});
+		sectionPipelines.push({sectionName: NodeStatusEnum.DONE, pipelines: donePipelines});
+		return sectionPipelines;
+	}
+
+	const getTemplatePipelines = () => {
+		const sectionPipelines:SectionPipelines[] = []
+		sectionPipelines.push({sectionName: 'Template', pipelines: templatePLs});
+		return sectionPipelines;
+	}
+
+	const getFocusPipeline = () => {
+		if (focusPL) {
+			return <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+				<PipelineView pipeline={focusPL} editorMode={editorMode} onPipelineUpdate={onPipelineUpdate}
+							  onPipelineRemove={onPipelineRemove}/>
+			</Box>
+		}
+		return null
+	}
 
 	// update workflows
 	const save = () => {
-		setPendingWF(getKanbanPipelines(NodeStatusEnum.PENDING))
-		setWorkingWF(getKanbanPipelines(NodeStatusEnum.WORKING))
-		setDoneWF(getKanbanPipelines(NodeStatusEnum.DONE))
-		setTemplateWF(templatePLs)
 		saveData()
 	}
 
@@ -72,6 +87,7 @@ export default function WorkflowView(props: WorkflowProps) {
 	 * 更新Selected Pipeline
 	 */
 	const onPipelineUpdate = () => {
+		setFocusPL(getDefaultPL)
 		save()
 	}
 
@@ -81,6 +97,7 @@ export default function WorkflowView(props: WorkflowProps) {
 		} else {
 			templatePLs.remove(pipeline)
 		}
+		setFlag(!flag)
 		setFocusPL(getDefaultPL)
 		save()
 	}
@@ -91,34 +108,59 @@ export default function WorkflowView(props: WorkflowProps) {
 		} else {
 			templatePLs.push(pipeline)
 		}
+		setFlag(!flag)
 		save()
 	}
 	const selectPipeline = (pipeline: PipelineModel) => {
 		setFocusPL(pipeline)
-		setFlag(!flag)
 	}
 
-	const pendingKanban = <WorkflowKanbanView allowAddNew={true} kanbanTitle={NodeStatusEnum.PENDING} pipelines={pendingWF} selectPipeline={selectPipeline} templates={templatePLs} addNewPipeline={(pipeline) => insertPipeline(pipeline, false)} />
-	const workingKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.WORKING} pipelines={workingWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={(pipeline) => insertPipeline(pipeline, false)}/>
-	const doneKanban = <WorkflowKanbanView kanbanTitle={NodeStatusEnum.DONE} pipelines={doneWF} selectPipeline={selectPipeline} templates={[]} addNewPipeline={(pipeline) => insertPipeline(pipeline, false)}/>
-	const templateKanban = <WorkflowKanbanView editorMode={true} kanbanTitle={'Template'} pipelines={templateWF} selectPipeline={selectPipeline} templates={templatePLs} addNewPipeline={(pipeline) => insertPipeline(pipeline, true)} />
+	const workflowKanban = <WorkflowKanbanView kanbanTitle={'workflow'}
+											  sectionPipelines={getKanbanPipelines()} selectedPipeline={focusPL}
+											  selectPipeline={selectPipeline} templates={templatePLs}
+											  addNewPipeline={(pipeline) => insertPipeline(pipeline, false)}/>
+	const templateKanban = <WorkflowKanbanView editorMode={true} kanbanTitle={'template'} sectionPipelines={getTemplatePipelines()}
+											   selectPipeline={selectPipeline} templates={templatePLs}
+											   addNewPipeline={(pipeline) => insertPipeline(pipeline, true)}/>
+
+	const getFoldKanbanView = () => {
+		return <div style={{height: '100%', display: 'flex', alignItems:'center'}} onClick={() => setFoldKanban(!foldKanban)}>
+			{foldKanban ? <KeyboardDoubleArrowRightIcon/> : <KeyboardDoubleArrowLeftIcon/> }
+		</div>
+	}
+
+	const getWorkflowKanbans = () => {
+		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
+					{!foldKanban ? workflowKanban : false}
+					{getFoldKanbanView()}
+			</div>
+	}
+
+	const getTemplateKanbans = () => {
+		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10, alignItems: 'center'}}>
+			{!foldKanban ? templateKanban : false}
+			{getFoldKanbanView()}
+		</div>
+	}
 
 	const getKanbanViews = () => {
 		if (!editorMode) {
-			return <Stack spacing={3} sx={{alignItems: 'center'}} direction='row' >
-				{pendingKanban}
-				{workingKanban}
-				{doneKanban}
-			</Stack>
+			return getWorkflowKanbans()
 		} else {
-			return templateKanban
+			return getTemplateKanbans()
 		}
 	}
 
-	return(
-		<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.paper', margin: 3}}>
-			{ getKanbanViews() }
-			{ getFocusPipeline() }
-		</Box>
+	return (
+		<div style={{
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			height: '100%',
+			width: '100%',
+		}}>
+			{getKanbanViews()}
+			{getFocusPipeline()}
+		</div>
 	)
 }

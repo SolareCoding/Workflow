@@ -49,20 +49,20 @@ export default function PipelineView(props: PipelineProps) {
 	}
 
 	const getActionView = () => {
-		return <Box sx={{paddingX: 1, borderRadius: 1}} onClick={() => onPipelineRemove(pipeline, editorMode)}>
+		return <Box onClick={() => onPipelineRemove(pipeline, editorMode)}>
 			<DeleteForeverOutlinedIcon/>
 		</Box>
 	}
 
 	const getTitleView = () => {
 		if (!editorMode) {
-			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
-				<Typography sx={{fontSize: 20, fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'任务: ' + props.pipeline.title}</Typography>
+			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', marginBottom: 1}}>
+				<Typography sx={{fontSize: 20, fontWeight: 600, textAlign: 'center'}}>{'任务: ' + props.pipeline.title}</Typography>
 				{ getActionView() }
 			</Box>
 		} else {
-			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
-				<Input sx={{fontSize: 20, fontWeight: 600, color: 'white'}} id="template-simple" value={title} onChange={handlePipelineNameChange} />
+			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', marginBottom: 2}}>
+				<input style={{fontSize: 20, fontWeight: 600}} id="template-simple" value={title} onChange={handlePipelineNameChange} />
 				{ getActionView() }
 			</Box>
 		}

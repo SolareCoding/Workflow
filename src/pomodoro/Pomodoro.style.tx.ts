@@ -2,9 +2,12 @@ export const PomodoroStyle = {
 	root: {
 		marginTop: 30,
 		maxWidth: 345,
+		display: 'flex',
+		flexDirection: 'column',
 	},
 	header: {
-		color: "white",
-		backgroundColor: "#1975d0"
+		width: '100%',
+		height: 'auto',
+		backgroundColor: 'primary',
 	}
 };

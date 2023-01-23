@@ -1,16 +1,11 @@
 import * as React from 'react';
-import List from '@mui/material/List';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import {PipelineModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
-import Box from "@mui/material/Box";
-import {Button, FormControl, Input, InputLabel, MenuItem, TextField, Typography} from "@mui/material";
-import {TimeUtils} from "../utils/Time.utils";
+import {FormControl, InputLabel, MenuItem} from "@mui/material";
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import UUIDUtils from "../utils/UUID.utils";
-
-const emails = ['username@gmail.com', 'user02@gmail.com'];
 
 export interface NewPipelineProps {
 	open: boolean;
@@ -30,6 +25,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 			return
 		}
 		let copied = Object.assign({}, templates[Number.parseInt(templateIndex)])
+		copied.templateTitle = copied.title
 		copied.title = taskName
 		copied.createTime = Date.now()
 		copied.status = NodeStatusEnum.PENDING
@@ -43,7 +39,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 		for (let i = 0; i < templates.length; i++) {
 			let pipeline = templates[i]
 			pipelines.push(
-				<MenuItem value={i}>{pipeline.title}</MenuItem>
+				<MenuItem sx={{color: 'var(--text-normal)', fontSize: '13px'}} value={i}>{pipeline.title}</MenuItem>
 			)
 		}
 		return pipelines
@@ -58,32 +54,48 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 	};
 
 	return (
-		<Dialog onClose={closeDialog} open={open}>
-			<DialogTitle>Create a new pipeline</DialogTitle>
+		<Dialog onClose={closeDialog} open={open}
+				PaperProps={{
+					style: {
+						backgroundColor: 'var(--background-secondary)',
+						boxShadow: 'none',
+						color: 'var(--text-normal)'
+					},
+				}}>
+			<DialogTitle className={'workflow-text-normal'}>
+				Create a new pipeline
+			</DialogTitle>
 			<FormControl variant="standard" sx={{margin:1}}>
-				<InputLabel id="template-select-label">Template</InputLabel>
+				<InputLabel id="template-select-label" sx={{color: 'var(--text-normal)'}}>Select template</InputLabel>
 				<Select
-					labelId="template-select-label"
+					style={{
+						color: 'var(--text-normal)',
+						fontSize: '13px'
+					}}
+					MenuProps={{ PaperProps: {
+							sx: {
+								backgroundColor: 'var(--background-secondary)',
+								color: '#FFFFFF',
+							},},
+						}}
 					id="template-select"
 					value={templateIndex}
-					label="Template"
 					onChange={handleTemplateChange}
 				>
 					{getTemplateViews()}
 				</Select>
 			</FormControl>
 			<FormControl variant="standard" sx={{margin:1}}>
-				<InputLabel htmlFor="template-simple">Task Name</InputLabel>
-				<Input id="template-simple" value={taskName} onChange={handleTaskNameChange} />
-				<Button
-					sx={{marginY: 1}}
+				<input style={{fontSize: '13px'}} id="template-simple" value={taskName} onChange={handleTaskNameChange} />
+				<button
+					style={{marginTop: 10}}
 					onClick={() => {
 						handleCreateNew()
 					}}
 					disabled ={templateIndex === ''}
 				>
 					OK!
-				</Button>
+				</button>
 			</FormControl>
 		</Dialog>
 	);

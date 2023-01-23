@@ -6,3 +6,45 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.workflow-container-outer {
+	background: var(--background-secondary);
+	display: flex;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	flex-direction: column;
+	padding: 6px;
+}
+.workflow-container-inner {
+	background: var(--background-primary);
+	display: flex;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	flex-direction: column;
+	padding: 6px;
+}
+.workflow-container-inner-accent-border {
+	background: var(--background-primary);
+	display: flex;
+	border-radius: 6px;
+	border: 1px solid var(--interactive-accent);
+	flex-direction: column;
+	padding: 6px;
+}
+.workflow-container-bg {
+	background: var(--background-secondary);
+	display: flex;
+}
+.workflow-accent {
+	background: var(--interactive-accent);
+	display: flex;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	flex-direction: column;
+	padding: 6px;
+}
+.workflow-text-accent {
+	color: var(--interactive-accent);
+}
+.workflow-text-normal {
+	color: var(--text-normal)
+}
