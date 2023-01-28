@@ -7,5 +7,5 @@ export interface WorkPanelModel {
 	nodes: NodesModel,
 	pipelines: PipelinesModel,
 	workflows: WorkflowModel,
-	pomodoros: PomodorosModel,
+	pomodoroes: PomodorosModel,
 }

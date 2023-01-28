@@ -1,14 +1,6 @@
 import * as React from "react";
 import {PomodoroModel} from "./Pomodoro.model";
 import {useEffect, useState} from "react";
-import ListSubheader from '@mui/material/ListSubheader';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Collapse from '@mui/material/Collapse';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import {Typography} from "@mui/material";
 
 export interface PomodoroProps {
 	pomodoro: PomodoroModel,

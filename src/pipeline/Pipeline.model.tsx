@@ -34,7 +34,7 @@ export class PipelineNodeModel {
 
 	static newInstance(): PipelineNodeModel {
 		let section = new PipelineNodeModel();
-		section.title = '请输入';
+		section.title = 'Section Title';
 		section.status = NodeStatusEnum.PENDING;
 		section.nodes = [];
 		return section;

@@ -15,7 +15,7 @@ export class NodeModel {
 
 	static newInstance() {
 		let node = new NodeModel()
-		node.title = "请输入"
+		node.title = "Node Title"
 		node.tips = {
 			summary: "Tip summary",
 			content: 'Tip content'
