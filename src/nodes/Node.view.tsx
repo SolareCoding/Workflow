@@ -6,6 +6,8 @@ import {NodeModel} from "./Node.model";
 import {TimeUtils} from "../utils/Time.utils";
 import {useState} from "react";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+import {execSync} from "child_process";
 
 interface NodeProps {
 	node: NodeModel,
@@ -22,8 +24,10 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
 	const open = Boolean(anchorEl);
 	const [title, setTitle] = useState(node.title)
-	const [tipSummary, setTipSummary] = useState(node.tips.summary)
-	const [tipContent, setTipContent] = useState(node.tips.content || '请输入Tips')
+	const [tipSummary, setTipSummary] = useState(node.tips?.summary || 'Input tip summary')
+	const [tipContent, setTipContent] = useState(node.tips?.content || 'Input tip content')
+	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '请输入快捷指令名称')
+	const [shortCutCmd, setShortCutCmd] = useState(node.shortcut?.command || '')
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		if (!couldUpdate || editorMode) {
@@ -108,16 +112,34 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		}
 	}
 
-	const getTipSummary = () => {
+	const getTipsView = () => {
+		if (!editorMode && !node.tips.summary) {
+			return false
+		}
+		return <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginY: 1}}>
+			<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+				{getTipSummaryView()}
+				<Typography sx={{fontSize: 14, minWidth: 40, fontWeight: '600', color: "#6c6c6c"}} onClick={()=>{setShowTips(!showTips)}}>{getTipsButton()}</Typography>
+			</Box>
+			<Box sx={{marginTop: 1}}>
+				{getTipsContentView()}
+			</Box>
+		</Box>
+	}
+
+	const getTipSummaryView = () => {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
 		} else {
-			return <input style={{fontSize: 14, maxWidth: 120, fontWeight: 600}} id="template-simple" value={tipSummary} onChange={handleNodeTipSummaryChange} />
+			return <input style={{fontSize: 14, maxWidth: 120, fontWeight: 600}} id="tip-summary" value={tipSummary} onChange={handleNodeTipSummaryChange} />
 		}
 	}
 
-	const getTipsContent = () => {
+	const getTipsContentView = () => {
 		if (!editorMode) {
+			if (!node.tips.content) {
+				return false
+			}
 			if (showTips) {
 				return <Typography sx={{fontSize: 14}}>{tipContent}</Typography>
 			} else {
@@ -125,7 +147,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			}
 		}
 		else {
-			return <input style={{fontSize: 14}} id="template-simple" value={tipContent} onChange={handleNodeTipContentChange} />
+			return <input style={{fontSize: 12}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
 		}
 	}
 
@@ -158,6 +180,52 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				break;
 		}
 		return details
+	}
+
+	// execute the stored command
+	const onShortcutClick = () => {
+		const execSync = require('child_process').execSync;
+		const output = execSync(node.shortcut.command, { encoding: 'utf-8' });  // the default is 'buffer'
+		console.log('Output was:\n', output);
+	}
+
+	const handleNodeShortcutNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setShortcutName(event.target.value)
+		node.shortcut.name = event.target.value
+		onNodeUpdate()
+	}
+
+	const handleNodeShortcutCommandChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setShortCutCmd(event.target.value)
+		node.shortcut.command = event.target.value
+		onNodeUpdate()
+	}
+
+
+	const getNodeShortCutView = () => {
+		// if is editorMode, introduce the user to input shortcut name command
+		if (editorMode) {
+			return <div style={{
+				display: 'flex',
+				flexDirection: 'column',
+			}}>
+				<input style={{fontSize: 12, fontWeight: 600, marginBottom: 3}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
+				<input style={{fontSize: 12}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
+			</div>
+        }
+		if (!shortCutCmd) {
+			return false
+		}
+		return <div style={{
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			marginBottom: 1
+		}} onClick={()=> {onShortcutClick()}}>
+			<PlayCircleFilledWhiteIcon />
+			<Typography sx={{fontSize: 12}}>{shortCutName} </Typography>
+		</div>
 	}
 
 	const handleNodeNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,18 +294,13 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				</Menu>
 			</Box>
 			<Divider sx={{marginY: '1px'}}/>
-			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginY: 1}}>
-				<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-					{getTipSummary()}
-					<Typography sx={{fontSize: 14, minWidth: 40, fontWeight: '600', color: "#6c6c6c"}} onClick={()=>{setShowTips(!showTips)}}>{getTipsButton()}</Typography>
-				</Box>
-				<Box sx={{marginTop: 1}}>
-					{getTipsContent()}
-				</Box>
-			</Box>
+			{getTipsView()}
 			<Divider sx={{marginY: '1px'}}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
 				{getTimeDetails()}
+			</Box>
+			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+				{getNodeShortCutView()}
 			</Box>
 		</Box>
 	);

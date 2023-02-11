@@ -5,10 +5,16 @@ export class NodeTip {
 	content: string
 }
 
+export class NodeShortcut {
+	name: string
+	command: string
+}
+
 export class NodeModel {
 	id: string
 	title: string
 	tips: NodeTip
+	shortcut: NodeShortcut
 	status: NodeStatusEnum
 	startTime: number
 	finishTime: number
@@ -17,8 +23,12 @@ export class NodeModel {
 		let node = new NodeModel()
 		node.title = "Node Title"
 		node.tips = {
-			summary: "Tip summary",
-			content: 'Tip content'
+			summary: '',
+			content: ''
+		}
+		node.shortcut = {
+			name: "Shortcut",
+			command: ''
 		}
 		node.status = NodeStatusEnum.PENDING
 		return node
