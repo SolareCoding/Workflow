@@ -175,7 +175,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			}
 		}
 		else {
-			return <input placeholder={'Tip summary'} style={{fontSize: 12, marginTop: 1}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
+			return <textarea placeholder={'Tip content'} style={{fontSize: 12, marginTop: 1, minWidth: 160, maxWidth: 160}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
 		}
 	}
 
@@ -285,7 +285,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		onNodeUpdate()
 	}
 
-	const handleNodeTipContentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleNodeTipContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setTipContent(event.target.value)
 		node.tips.content = event.target.value
 		onNodeUpdate()

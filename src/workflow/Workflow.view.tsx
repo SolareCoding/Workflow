@@ -99,20 +99,18 @@ export default function WorkflowView(props: WorkflowProps) {
 	 * 更新Selected Pipeline
 	 */
 	const onPipelineUpdate = () => {
-		setFocusPL(getDefaultPL())
-		setFocusTL(getDefaultPL)
 		save()
 	}
 
 	const onPipelineRemove = (pipeline: PipelineModel, editorMode?: boolean) => {
 		if (!editorMode) {
 			pipelines.remove(pipeline)
+			setFocusPL(getDefaultPL())
 		} else {
 			templatePLs.remove(pipeline)
+			setFocusTL(getDefaultPL())
 		}
 		setFlag(!flag)
-		setFocusPL(getDefaultPL())
-		setFocusTL(getDefaultPL)
 		save()
 	}
 
