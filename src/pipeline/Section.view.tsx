@@ -8,8 +8,7 @@ import Box from "@mui/material/Box";
 import {NodeModel} from "../nodes/Node.model";
 import PipelineColors from "../common/Pipeline.colors";
 import {AddCircle} from "@mui/icons-material";
-import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
-import AdjustIcon from '@mui/icons-material/Adjust';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 export interface PipelineNodeProps {
@@ -62,7 +61,7 @@ export default function SectionView(props: PipelineNodeProps) {
 
 	const getAddNodeView = (index: number) => {
 		if (!editorMode) return false
-		return <Box onClick={() => {
+		return <Box key={'addNode-' + index} onClick={() => {
 			insertNewSection(index)
 		}}>
 			<AddCircle/>
@@ -91,7 +90,7 @@ export default function SectionView(props: PipelineNodeProps) {
 	const getActionView = () => {
 		if (editorMode) {
 			return <Box onClick={() => onSectionRemove(section)}>
-				<DeleteForeverOutlinedIcon/>
+				<DeleteIcon/>
 			</Box>
 		} else {
 			return false
@@ -102,7 +101,7 @@ export default function SectionView(props: PipelineNodeProps) {
 		let nodeViews = []
 		nodeViews.push(getAddNodeView(0))
 		for (let i = 0; i <nodes.length; i++) {
-			nodeViews.push(<NodeView node={nodes[i]} couldUpdate={couldUpdate} editorMode={editorMode} onNodeUpdate={onNodeUpdate} onNodeRemove={onNodeRemoved}/>)
+			nodeViews.push(<NodeView key={'node-' + i} node={nodes[i]} couldUpdate={couldUpdate} editorMode={editorMode} onNodeUpdate={onNodeUpdate} onNodeRemove={onNodeRemoved}/>)
 			nodeViews.push(getAddNodeView(i + 1))
 		}
 		return nodeViews;

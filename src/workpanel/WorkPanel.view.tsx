@@ -53,9 +53,9 @@ export default function WorkPanelView(props: WorkPanelProps) {
 					{getContent(panelIndex)}
 				</div>
 				<div className={'workflow-container-bg'} style={{ height: 60, width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', padding: 10}}>
-					<button onClick={() => setPanelIndex(WorkPanelEnum.POMODORO)}> Pomodoro </button>
-					<button style={{marginLeft: 10, marginRight: 10}} onClick={() => setPanelIndex(WorkPanelEnum.WORKFLOWS)}> Workflows </button>
-					<button onClick={() => setPanelIndex(WorkPanelEnum.PIPELINES)}> Pipelines </button>
+					{/*<button onClick={() => setPanelIndex(WorkPanelEnum.POMODORO)}> Pomodoro </button>*/}
+					<button onClick={() => setPanelIndex(WorkPanelEnum.WORKFLOWS)} style={{marginRight: 5}}> Workflows </button>
+					<button onClick={() => setPanelIndex(WorkPanelEnum.PIPELINES)}> Templates </button>
 				</div>
 			</div>
 		</WorkPanelContext.Provider>

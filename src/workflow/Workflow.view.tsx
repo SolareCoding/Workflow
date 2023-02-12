@@ -1,6 +1,6 @@
 import {Box} from "@mui/material";
 import * as React from "react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import WorkflowKanbanView, {SectionPipelines} from "./WorkflowKanban.view";
 import PipelineView from "../pipeline/Pipeline.view";
 import {WorkflowModel} from "./Workflow.model";
@@ -35,6 +35,7 @@ export default function WorkflowView(props: WorkflowProps) {
 	const [foldKanban, setFoldKanban] = useState(true)
 	const [flag, setFlag] = useState(false)
 	const [focusPL, setFocusPL] = useState(getDefaultPL())
+	const [focusTL, setFocusTL] = useState(getDefaultPL)
 
 	const getKanbanPipelines = () => {
 		const sectionPipelines:SectionPipelines[] = []
@@ -69,13 +70,24 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getFocusPipeline = () => {
-		if (focusPL) {
-			return <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-				<PipelineView pipeline={focusPL} editorMode={editorMode} onPipelineUpdate={onPipelineUpdate}
-							  onPipelineRemove={onPipelineRemove}/>
-			</Box>
+		if (!editorMode) {
+			if (focusPL) {
+				return <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+					<PipelineView pipeline={focusPL} editorMode={editorMode} onPipelineUpdate={onPipelineUpdate}
+								  onPipelineRemove={onPipelineRemove}/>
+				</Box>
+			}
+			return false
 		}
-		return null
+		else {
+			if (focusTL) {
+				return <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+					<PipelineView pipeline={focusTL} editorMode={editorMode} onPipelineUpdate={onPipelineUpdate}
+								  onPipelineRemove={onPipelineRemove}/>
+				</Box>
+			}
+			return false
+		}
 	}
 
 	// update workflows
@@ -87,7 +99,8 @@ export default function WorkflowView(props: WorkflowProps) {
 	 * 更新Selected Pipeline
 	 */
 	const onPipelineUpdate = () => {
-		setFocusPL(getDefaultPL)
+		setFocusPL(getDefaultPL())
+		setFocusTL(getDefaultPL)
 		save()
 	}
 
@@ -98,7 +111,8 @@ export default function WorkflowView(props: WorkflowProps) {
 			templatePLs.remove(pipeline)
 		}
 		setFlag(!flag)
-		setFocusPL(getDefaultPL)
+		setFocusPL(getDefaultPL())
+		setFocusTL(getDefaultPL)
 		save()
 	}
 
@@ -112,7 +126,11 @@ export default function WorkflowView(props: WorkflowProps) {
 		save()
 	}
 	const selectPipeline = (pipeline: PipelineModel) => {
-		setFocusPL(pipeline)
+		if (!editorMode) {
+			setFocusPL(pipeline)
+		} else {
+			setFocusTL(pipeline)
+		}
 	}
 
 	const workflowKanban = <WorkflowKanbanView kanbanTitle={'workflow'}

@@ -39,7 +39,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 		for (let i = 0; i < templates.length; i++) {
 			let pipeline = templates[i]
 			pipelines.push(
-				<MenuItem sx={{color: 'var(--text-normal)', fontSize: '13px'}} value={i}>{pipeline.title}</MenuItem>
+				<MenuItem key={'template-' + pipeline.id} sx={{color: 'var(--text-normal)', fontSize: '13px'}} value={i}>{pipeline.title}</MenuItem>
 			)
 		}
 		return pipelines

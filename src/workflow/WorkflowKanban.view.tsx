@@ -112,14 +112,14 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 	const getPipelineMenuItems = () => {
 		const menuItemViews = []
 		menuItemViews.push(
-			<ListItemButton>
+			<ListItemButton key={'add new'}>
 				{addNewView}
 			</ListItemButton>)
 		for (const sectionPipeline of sectionPipelines) {
 			const {sectionName, pipelines} = sectionPipeline
 			// create a new fordable item
 			menuItemViews.push(
-				<ListItemButton onClick={() => {setFoldStatus(sectionName)}}>
+				<ListItemButton key={'section-' + sectionName} onClick={() => {setFoldStatus(sectionName)}}>
 					<ListItemText primary={sectionName} />
 					{getFoldStatus(sectionName) ? <ExpandLess /> : <ExpandMore />}
 				</ListItemButton>
@@ -127,7 +127,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 			const sectionItemViews = []
 			for (const pipeline of pipelines) {
 				sectionItemViews.push(
-					<ListItemButton sx={{ pl: 4 }}>
+					<ListItemButton sx={{ pl: 4 }} key={pipeline.id}>
 						<Box className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', id: pipeline.id}} onClick={()=>{
 							selectPipeline(pipeline)}}>
 							<Typography variant="body2">
@@ -146,7 +146,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 				)
 			}
 			menuItemViews.push(
-				<Collapse in={getFoldStatus(sectionName)} timeout="auto" unmountOnExit>
+				<Collapse key={'collapse-' + sectionName} in={getFoldStatus(sectionName)} timeout="auto" unmountOnExit>
 					<List component="div" disablePadding dense = {true}>
 						{sectionItemViews}
 					</List>

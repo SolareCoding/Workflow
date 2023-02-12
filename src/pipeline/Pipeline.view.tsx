@@ -9,7 +9,7 @@ import PipelineColors from "../common/Pipeline.colors";
 import {AddCircle} from "@mui/icons-material";
 import {number} from "prop-types";
 import {useState} from "react";
-import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export interface PipelineProps {
 	pipeline: PipelineModel
@@ -50,7 +50,7 @@ export default function PipelineView(props: PipelineProps) {
 
 	const getActionView = () => {
 		return <Box onClick={() => onPipelineRemove(pipeline, editorMode)}>
-			<DeleteForeverOutlinedIcon/>
+			<DeleteIcon/>
 		</Box>
 	}
 
@@ -77,7 +77,7 @@ export default function PipelineView(props: PipelineProps) {
 
 	const getAddSectionView = (index: number) => {
 		if (!props.editorMode) return false
-		return <Box onClick={() => {insertNewSection(index)}}>
+		return <Box key = {'addCircle-' + index} onClick={() => {insertNewSection(index)}}>
 			<AddCircle/>
 		</Box>
 	}
@@ -93,7 +93,7 @@ export default function PipelineView(props: PipelineProps) {
 		sectionViews.push(getAddSectionView(0))
 		for (let i = 0; i < sections.length; i++) {
 			let couldUpdate = i == 0 ? true : sections[i - 1].status == NodeStatusEnum.DONE
-			sectionViews.push(<SectionView data={sections[i]} couldUpdate={couldUpdate} editorMode={editorMode} onSectionUpdate = {onSectionUpdate} onSectionRemove={onSectionRemove}/>)
+			sectionViews.push(<SectionView key={'section-' + i} data={sections[i]} couldUpdate={couldUpdate} editorMode={editorMode} onSectionUpdate = {onSectionUpdate} onSectionRemove={onSectionRemove}/>)
 			sectionViews.push(getAddSectionView(i + 1))
 		}
 		return sectionViews

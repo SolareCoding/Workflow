@@ -1,13 +1,17 @@
 import * as React from "react";
+import {useState} from "react";
 import Box from "@mui/material/Box";
-import {Button, Divider, Input, Menu, MenuItem, Typography} from "@mui/material";
+import {Divider, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
 import {NodeModel} from "./Node.model";
 import {TimeUtils} from "../utils/Time.utils";
-import {useState} from "react";
-import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
+import DeleteIcon from '@mui/icons-material/Delete';
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
-import {execSync} from "child_process";
+import WatchLaterIcon from '@mui/icons-material/WatchLater';
+import RunCircleIcon from '@mui/icons-material/RunCircle';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 
 interface NodeProps {
 	node: NodeModel,
@@ -21,7 +25,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	const {node, couldUpdate, editorMode, onNodeUpdate, onNodeRemove} = nodeViewProps
 	const [showTips, setShowTips] = useState(false)
-	const [anchorEl, setAnchorEl] = useState<null | HTMLButtonElement>(null);
+	const [anchorEl, setAnchorEl] = useState<null | HTMLDivElement>(null);
 	const open = Boolean(anchorEl);
 	const [title, setTitle] = useState(node.title)
 	const [tipSummary, setTipSummary] = useState(node.tips?.summary || 'Input tip summary')
@@ -29,7 +33,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '请输入快捷指令名称')
 	const [shortCutCmd, setShortCutCmd] = useState(node.shortcut?.command || '')
 
-	const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const handleStatusClick = (event: React.MouseEvent<HTMLDivElement>) => {
 		if (!couldUpdate || editorMode) {
 			return;
 		}
@@ -74,22 +78,33 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		}
 	};
 
+	const getStatusIcon = () => {
+		switch (node.status) {
+			case NodeStatusEnum.PENDING:
+				return <WatchLaterIcon htmlColor={getColorFromNodeStatus()}/>
+			case NodeStatusEnum.WORKING:
+				return <RunCircleIcon htmlColor={getColorFromNodeStatus()}/>
+			case NodeStatusEnum.DONE:
+				return <CheckCircleIcon htmlColor={getColorFromNodeStatus()}/>
+		}
+	}
+
 	const getMenuItems = () => {
 		let items = []
 		switch (node.status) {
 			case NodeStatusEnum.PENDING:
 				items.push([
-					<MenuItem onClick={() => {
+					<MenuItem sx={{fontSize: 13}} onClick={() => {
 						handleClose(NodeActionEnum.WORK)
 					}}>{NodeActionEnum.WORK}</MenuItem>,
 				])
 				break;
 			case NodeStatusEnum.WORKING:
 				items.push([
-					<MenuItem onClick={() => {
+					<MenuItem sx={{fontSize: 13}} onClick={() => {
 						handleClose(NodeActionEnum.CANCEL)
 					}}>{NodeActionEnum.CANCEL}</MenuItem>,
-					<MenuItem onClick={() => {
+					<MenuItem sx={{fontSize: 13}} onClick={() => {
 						handleClose(NodeActionEnum.FINISH)
 					}}>{NodeActionEnum.FINISH}</MenuItem>
 				])
@@ -106,9 +121,9 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	const getTipsButton = () => {
 		if (showTips) {
-			return "收起"
+			return <UnfoldLessIcon onClick={()=>{setShowTips(!showTips)}}/>
 		} else {
-			return "展开"
+			return <UnfoldMoreIcon onClick={()=>{setShowTips(!showTips)}}/>
 		}
 	}
 
@@ -116,22 +131,28 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		if (!editorMode && !node.tips.summary) {
 			return false
 		}
-		return <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginY: 1}}>
-			<Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-				{getTipSummaryView()}
-				<Typography sx={{fontSize: 14, minWidth: 40, fontWeight: '600', color: "#6c6c6c"}} onClick={()=>{setShowTips(!showTips)}}>{getTipsButton()}</Typography>
-			</Box>
-			<Box sx={{marginTop: 1}}>
+		return <div>
+			<Divider sx={{marginY: '1px'}}/>
+			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+				<Box sx={{
+					display: 'flex',
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'space-between',
+				}}>
+					{getTipSummaryView()}
+					{getTipsButton()}
+				</Box>
 				{getTipsContentView()}
 			</Box>
-		</Box>
+		</div>
 	}
 
 	const getTipSummaryView = () => {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
 		} else {
-			return <input style={{fontSize: 14, maxWidth: 120, fontWeight: 600}} id="tip-summary" value={tipSummary} onChange={handleNodeTipSummaryChange} />
+			return <input style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="tip-summary" value={tipSummary} onChange={handleNodeTipSummaryChange} />
 		}
 	}
 
@@ -141,13 +162,13 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				return false
 			}
 			if (showTips) {
-				return <Typography sx={{fontSize: 14}}>{tipContent}</Typography>
+				return <Typography sx={{fontSize: 12}}>{tipContent}</Typography>
 			} else {
 				return false
 			}
 		}
 		else {
-			return <input style={{fontSize: 12}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
+			return <input style={{fontSize: 12, marginTop: 1}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
 		}
 	}
 
@@ -159,19 +180,19 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		switch (node.status) {
 			case NodeStatusEnum.DONE:
 				details.push(
-					<Typography sx={{fontSize: 14}}>
+					<Typography sx={{fontSize: 12}}>
 						{'Finish: ' + TimeUtils.getDateTimeStr(node.finishTime)}
 					</Typography>
 				)
 				details.push(
-					<Typography sx={{fontSize: 14}}>
+					<Typography sx={{fontSize: 12}}>
 						{'Start: ' + TimeUtils.getDateTimeStr(node.startTime)}
 					</Typography>
 				)
 				break;
 			case NodeStatusEnum.WORKING:
 				details.push(
-					<Typography sx={{fontSize: 14}}>
+					<Typography sx={{fontSize: 12}}>
 						{'Start: ' + TimeUtils.getDateTimeStr(node.startTime)}
 					</Typography>
 				)
@@ -179,7 +200,13 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			case NodeStatusEnum.PENDING:
 				break;
 		}
-		return details
+		if (!details || details.length == 0) {
+			return false
+		}
+		return <div>
+			<Divider sx={{marginY: '1px'}}/>
+			{ details }
+		</div>
 	}
 
 	// execute the stored command
@@ -205,27 +232,38 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const getNodeShortCutView = () => {
 		// if is editorMode, introduce the user to input shortcut name command
 		if (editorMode) {
-			return <div style={{
-				display: 'flex',
-				flexDirection: 'column',
-			}}>
-				<input style={{fontSize: 12, fontWeight: 600, marginBottom: 3}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
-				<input style={{fontSize: 12}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
-			</div>
+			return (
+				<div>
+					<Divider sx={{marginY: '1px'}}/>
+					<div style={{
+						display: 'flex',
+						flexDirection: 'column',
+					}}>
+						<input style={{fontSize: 12, fontWeight: 600, marginBottom: 3}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
+						<input style={{fontSize: 12}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
+					</div>
+				</div>
+			)
         }
 		if (!shortCutCmd) {
 			return false
 		}
-		return <div style={{
-			display: 'flex',
-			flexDirection: 'row',
-			alignItems: 'center',
-			justifyContent: 'space-between',
-			marginBottom: 1
-		}} onClick={()=> {onShortcutClick()}}>
-			<PlayCircleFilledWhiteIcon />
-			<Typography sx={{fontSize: 12}}>{shortCutName} </Typography>
-		</div>
+		return (
+			<div>
+				<Divider sx={{marginY: '1px'}}/>
+				<div style={{
+					display: 'flex',
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'flex-start',
+					marginBottom: 1,
+					marginTop: 1
+				}} onClick={()=> {onShortcutClick()}}>
+					<PlayCircleFilledWhiteIcon sx={{width: 16, height: 16, marginRight: 1}}/>
+					<Typography sx={{fontSize: 12}}>{shortCutName} </Typography>
+				</div>
+			</div>
+		)
 	}
 
 	const handleNodeNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -246,62 +284,62 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		onNodeUpdate()
 	}
 
+	const getHeaderView = () => {
+		return <div>
+			<Box sx={{
+				display: 'flex',
+				flexDirection: 'row',
+				alignItems: 'center',
+				justifyContent: 'space-between',
+			}}>
+				{getTitleView()}
+				{getActionView()}
+			</Box>
+		</div>
+
+	}
+
 	const getTitleView = () => {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: 600}}>{title}</Typography>
 		} else {
-			return <input style={{fontSize: 14, maxWidth: 120, fontWeight: 600}} id="template-simple" value={title} onChange={handleNodeNameChange} />
+			return <input style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="title" value={title} onChange={handleNodeNameChange} />
 		}
 	}
 
 	const getActionView = () => {
 		if (!editorMode) {
 			return (
-				<Box sx={{backgroundColor: getColorFromNodeStatus(), paddingX: 1, borderRadius: 1}}>
-					<Typography onClick={handleStatusClick} sx={{fontSize: 14, fontWeight: 600, color:'white'}}>{node.status}</Typography>
-				</Box>
+				<div>
+					<div onClick={handleStatusClick}>
+						{ getStatusIcon() }
+					</div>
+					<Menu
+						aria-labelledby="node-manage"
+						anchorEl={anchorEl}
+						open={open}
+						onClose={() => {
+							handleClose()
+						}
+						}
+					>
+						{getMenuItems()}
+					</Menu>
+				</div>
 			)
 		} else {
 			return (
-				<Box sx={{paddingX: 1, borderRadius: 1}} onClick={() => onNodeRemove(node)}>
-					<DeleteForeverOutlinedIcon/>
-				</Box>
+				<DeleteIcon onClick={() => onNodeRemove(node)}/>
 			)
 		}
 	}
 
 	return (
 		<Box className={'workflow-container-inner'} sx={{width: 180, padding: 1, borderRadius: 1, boxShadow: 1, id: node.id}}>
-			<Box sx={{
-				display: 'flex',
-				flexDirection: 'row',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				marginBottom: 1
-			}}>
-				{getTitleView()}
-				{getActionView()}
-				<Menu
-					aria-labelledby="node-manage"
-					anchorEl={anchorEl}
-					open={open}
-					onClose={() => {
-						handleClose()
-					}
-					}
-				>
-					{getMenuItems()}
-				</Menu>
-			</Box>
-			<Divider sx={{marginY: '1px'}}/>
+			{getHeaderView()}
 			{getTipsView()}
-			<Divider sx={{marginY: '1px'}}/>
-			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-				{getTimeDetails()}
-			</Box>
-			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
-				{getNodeShortCutView()}
-			</Box>
+			{getTimeDetails()}
+			{getNodeShortCutView()}
 		</Box>
 	);
 }
