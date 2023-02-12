@@ -2,7 +2,7 @@ import {NodeModel} from "../nodes/Node.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import UUIDUtils from "../utils/UUID.utils";
 
-export interface PipelinesModel {
+export class PipelinesModel {
 	data: PipelineModel[]
 }
 

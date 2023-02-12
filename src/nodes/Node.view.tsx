@@ -12,6 +12,7 @@ import RunCircleIcon from '@mui/icons-material/RunCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 interface NodeProps {
 	node: NodeModel,
@@ -28,9 +29,9 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLDivElement>(null);
 	const open = Boolean(anchorEl);
 	const [title, setTitle] = useState(node.title)
-	const [tipSummary, setTipSummary] = useState(node.tips?.summary || 'Input tip summary')
-	const [tipContent, setTipContent] = useState(node.tips?.content || 'Input tip content')
-	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '请输入快捷指令名称')
+	const [tipSummary, setTipSummary] = useState(node.tips?.summary || '')
+	const [tipContent, setTipContent] = useState(node.tips?.content || '')
+	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '')
 	const [shortCutCmd, setShortCutCmd] = useState(node.shortcut?.command || '')
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -115,15 +116,21 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		return items;
 	}
 
-	const handleRemoveNode = (event: React.MouseEvent<HTMLElement>) => {
-		onNodeRemove(node)
+	const clearTips = () => {
+		setTipSummary('')
+		setTipContent('')
 	}
 
 	const getTipsButton = () => {
-		if (showTips) {
-			return <UnfoldLessIcon onClick={()=>{setShowTips(!showTips)}}/>
-		} else {
-			return <UnfoldMoreIcon onClick={()=>{setShowTips(!showTips)}}/>
+		if (!editorMode) {
+			if (showTips) {
+				return <UnfoldLessIcon onClick={()=>{setShowTips(!showTips)}}/>
+			} else {
+				return <UnfoldMoreIcon onClick={()=>{setShowTips(!showTips)}}/>
+			}
+		}
+		else {
+			return <HighlightOffIcon onClick={() => clearTips()} />
 		}
 	}
 
@@ -152,7 +159,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
 		} else {
-			return <input style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="tip-summary" value={tipSummary} onChange={handleNodeTipSummaryChange} />
+			return <input placeholder={'Tip summary'} style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="tip-summary" value={tipSummary} onChange={handleNodeTipSummaryChange} />
 		}
 	}
 
@@ -168,7 +175,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			}
 		}
 		else {
-			return <input style={{fontSize: 12, marginTop: 1}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
+			return <input placeholder={'Tip summary'} style={{fontSize: 12, marginTop: 1}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
 		}
 	}
 
@@ -239,8 +246,8 @@ export default function NodeView(nodeViewProps: NodeProps) {
 						display: 'flex',
 						flexDirection: 'column',
 					}}>
-						<input style={{fontSize: 12, fontWeight: 600, marginBottom: 3}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
-						<input style={{fontSize: 12}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
+						<input placeholder={'Shortcut name here'} style={{fontSize: 12, fontWeight: 600, marginBottom: 3}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
+						<input placeholder={'Command here'} style={{fontSize: 12}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
 					</div>
 				</div>
 			)

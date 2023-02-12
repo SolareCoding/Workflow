@@ -1,11 +1,16 @@
-import {NodeModel, NodesModel} from "../nodes/Node.model";
 import {PipelinesModel} from "../pipeline/Pipeline.model";
 import {WorkflowModel} from "../workflow/Workflow.model";
-import {PomodorosModel} from "../pomodoro/Pomodoro.model";
 
-export interface WorkPanelModel {
-	nodes: NodesModel,
-	pipelines: PipelinesModel,
-	workflows: WorkflowModel,
-	pomodoroes: PomodorosModel,
+export class WorkPanelModel {
+	pipelines: PipelinesModel;
+	workflows: WorkflowModel;
+
+	static newInstance() {
+		let newModel = new WorkPanelModel();
+		newModel.pipelines = new PipelinesModel();
+		newModel.pipelines.data = []
+		newModel.workflows = new WorkflowModel();
+		newModel.workflows.data = []
+		return newModel
+	}
 }

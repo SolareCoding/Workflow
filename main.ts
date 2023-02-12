@@ -1,28 +1,12 @@
 import {
 	addIcon,
-	App,
-	Editor,
-	MarkdownView,
-	Menu,
-	Modal,
-	Notice,
 	Plugin,
-	PluginSettingTab,
-	Setting,
 } from 'obsidian';
 import {workflowIcon} from "./resources/icons/workflow.icon";
 import {WORK_FLOW_VIEW, WorkPanelEntry} from "./src/workpanel/WorkPanel.entry";
 import {MainModal} from "./src/main/views/MainModal";
-
-// Remember to rename these classes and interfaces!
-
-interface WorkflowSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: WorkflowSettings = {
-	mySetting: 'default'
-}
+import {DEFAULT_SETTINGS, WorkflowSettings, WorkflowSettingTab} from "./src/settings/WorkflowSettings";
+import {openWorkflowPanel} from "./src/settings/WorkflowRibbonHelper";
 
 export default class WorkflowPlugin extends Plugin {
 
@@ -51,20 +35,20 @@ export default class WorkflowPlugin extends Plugin {
 		this.registerView(WORK_FLOW_VIEW,
 			(leaf) => new WorkPanelEntry(leaf));
 
-		this.registerExtensions(["wf"], WORK_FLOW_VIEW);
+		this.registerExtensions(["workflow"], WORK_FLOW_VIEW);
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('workflow', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('workflow', 'Open workflow panel', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			this.activateView();
-			// new MainModal(this.app).open();
+			// this.activateView();
+			openWorkflowPanel(this.app, this)
 		});
 		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		ribbonIconEl.addClass('workflow-ribbon-class');
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Workflow is running');
+		// const statusBarItemEl = this.addStatusBarItem();
+		// statusBarItemEl.setText('Workflow is running');
 
 		// This adds a simple command that can be triggered anywhere
 		// this.addCommand({
@@ -76,7 +60,7 @@ export default class WorkflowPlugin extends Plugin {
 		// });
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		// this.addSettingTab(new WorkflowSettingTab(this.app, this));
+		this.addSettingTab(new WorkflowSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -103,31 +87,4 @@ export default class WorkflowPlugin extends Plugin {
 
 
 
-class WorkflowSettingTab extends PluginSettingTab {
-	plugin: WorkflowPlugin;
 
-	constructor(app: App, plugin: WorkflowPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
-}

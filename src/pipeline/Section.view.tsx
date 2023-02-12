@@ -29,9 +29,6 @@ export default function SectionView(props: PipelineNodeProps) {
 	const section = props.data
 	const nodes = section.nodes
 
-	const [bgColor, setBgColor] = useState(PipelineColors.COLOR_MAP[section.status])
-	useEffect(()=> setBgColor(PipelineColors.COLOR_MAP[section.status]))
-
 	const [title, setTitle] = useState(section.title)
 
 	const isPending = (node: NodeModel) => node.status == NodeStatusEnum.PENDING
@@ -50,7 +47,6 @@ export default function SectionView(props: PipelineNodeProps) {
 	const onNodeUpdate = () => {
 		let status: NodeStatusEnum = getSectionStatus()
 		section.status = status
-		setBgColor(PipelineColors.COLOR_MAP[status])
 		onSectionUpdate()
 	}
 

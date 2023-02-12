@@ -156,12 +156,6 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 		return menuItemViews
 	}
 
-	const [openItem, setOpenItem] = React.useState(true);
-
-	const handleClick = () => {
-		setOpenItem(!openItem);
-	};
-
 	const getListView = () => {
 		return (
 			<List
