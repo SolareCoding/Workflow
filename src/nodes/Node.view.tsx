@@ -13,6 +13,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import {Platform} from "obsidian";
 
 interface NodeProps {
 	node: NodeModel,
@@ -33,6 +34,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [tipContent, setTipContent] = useState(node.tips?.content || '')
 	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '')
 	const [shortCutCmd, setShortCutCmd] = useState(node.shortcut?.command || '')
+	const [shortCutMacCmd, setShortcutMacCmd] = useState(node.shortcut?.macCommand || '')
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLDivElement>) => {
 		if (!couldUpdate || editorMode) {
@@ -218,9 +220,8 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	// execute the stored command
 	const onShortcutClick = () => {
-		const execSync = require('child_process').execSync;
-		const output = execSync(node.shortcut.command, { encoding: 'utf-8' });  // the default is 'buffer'
-		console.log('Output was:\n', output);
+		const command = Platform.isMacOS ? node.shortcut.macCommand : node.shortcut.command
+		require('child_process').exec(command, { encoding: 'utf-8' })
 	}
 
 	const handleNodeShortcutNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,6 +236,11 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		onNodeUpdate()
 	}
 
+	const handleNodeShortcutMacCommandChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setShortcutMacCmd(event.target.value)
+        node.shortcut.macCommand = event.target.value
+        onNodeUpdate()
+    }
 
 	const getNodeShortCutView = () => {
 		// if is editorMode, introduce the user to input shortcut name command
@@ -246,13 +252,19 @@ export default function NodeView(nodeViewProps: NodeProps) {
 						display: 'flex',
 						flexDirection: 'column',
 					}}>
-						<input placeholder={'Shortcut name here'} style={{fontSize: 12, fontWeight: 600, marginBottom: 3}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
-						<input placeholder={'Command here'} style={{fontSize: 12}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
+						<input placeholder={'Shortcut name here'} style={{fontSize: 12, fontWeight: 600}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
+						<input placeholder={'Command here'} style={{fontSize: 12, marginTop: 3}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
+						<input placeholder={'Mac command here'} style={{fontSize: 12, marginTop: 3}} id="shortcut-mac-command" value={shortCutMacCmd} onChange={handleNodeShortcutMacCommandChange} />
 					</div>
 				</div>
 			)
         }
-		if (!shortCutCmd) {
+		// PC 且没有shortcut，直接返回
+		if (!shortCutCmd && !Platform.isMacOS) {
+			return false
+		}
+		// Mac且没有macShortCut,直接返回
+		if (!shortCutMacCmd && Platform.isMacOS) {
 			return false
 		}
 		return (

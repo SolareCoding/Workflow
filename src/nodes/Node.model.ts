@@ -8,6 +8,7 @@ export class NodeTip {
 export class NodeShortcut {
 	name: string
 	command: string
+	macCommand: string
 }
 
 export class NodeModel {
@@ -28,7 +29,8 @@ export class NodeModel {
 		}
 		node.shortcut = {
 			name: "Shortcut",
-			command: ''
+			command: '',
+			macCommand: ''
 		}
 		node.status = NodeStatusEnum.PENDING
 		return node
