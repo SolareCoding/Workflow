@@ -1,16 +1,13 @@
-import {PipelinesModel} from "../pipeline/Pipeline.model";
-import {WorkflowModel} from "../workflow/Workflow.model";
+import {PipelineModel} from "../pipeline/Pipeline.model";
 
 export class WorkPanelModel {
-	pipelines: PipelinesModel;
-	workflows: WorkflowModel;
+	templates: PipelineModel[];
+	workflows: PipelineModel[];
 
 	static newInstance() {
 		let newModel = new WorkPanelModel();
-		newModel.pipelines = new PipelinesModel();
-		newModel.pipelines.data = []
-		newModel.workflows = new WorkflowModel();
-		newModel.workflows.data = []
+		newModel.templates = []
+		newModel.workflows = []
 		return newModel
 	}
 }

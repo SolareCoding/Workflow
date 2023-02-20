@@ -1,17 +1,17 @@
 Arguments: 
-  /usr/local/Cellar/node/19.1.0/bin/node /usr/local/Cellar/yarn/1.22.17_2/libexec/bin/yarn.js
+  C:\Program Files\nodejs\node.exe C:\Users\solar\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add immutable
 
 PATH: 
-  /Users/huangtianhe/.rvm/gems/ruby-3.0.0/bin:/Users/huangtianhe/.rvm/gems/ruby-3.0.0@global/bin:/Users/huangtianhe/.rvm/rubies/ruby-3.0.0/bin:/opt/apache-maven-3.8.4/bin:/Users/huangtianhe/bin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/huangtianhe/Library/Python/3.8/bin:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Users/huangtianhe/Codes/Typescript/ObsidianDevelopVault-master/.obsidian/plugins/Workflow/node_modules/.bin:/Users/huangtianhe/Library/Android/sdk/tools:/Users/huangtianhe/Library/Android/sdk/platform-tools:/Users/huangtianhe/DevelopmentTools:/Users/huangtianhe/Library/Android/sdk/tools/bin:/Users/huangtianhe/Library/Android/sdk/emulator:/Users/huangtianhe/.rvm/bin:/Users/huangtianhe/.rvm/bin
+  C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Program Files\nodejs\;C:\Program Files\Google\Chrome\Application;C:\Users\solar\AppData\Local\Microsoft\WindowsApps;C:\Users\solar\AppData\Local\JetBrains\Toolbox\scripts;C:\Users\solar\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\solar\AppData\Local\Microsoft\WindowsApps;C:\Users\solar\AppData\Roaming\npm;D:\Obsidian\PluginDevelopment\插件开发仓库\.obsidian\plugins\Workflow-master\node_modules\.bin
 
 Yarn version: 
-  1.22.17
+  1.22.19
 
 Node version: 
-  19.1.0
+  18.12.0
 
 Platform: 
-  darwin x64
+  win32 x64
 
 Trace: 
   Error: getaddrinfo ENOTFOUND npm.corp.kuaishou.com
@@ -937,7 +937,7 @@ Lockfile:
     resolved "https://registry.npmmirror.com/lines-and-columns/-/lines-and-columns-1.2.4.tgz#eca284f75d2965079309dc0ad9255abb2ebc1632"
     integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
   
-  loose-envify@^1.1.0, loose-envify@^1.4.0:
+  loose-envify@^1.4.0:
     version "1.4.0"
     resolved "https://registry.npmmirror.com/loose-envify/-/loose-envify-1.4.0.tgz"
     integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
@@ -1019,6 +1019,11 @@ Lockfile:
     resolved "https://registry.npmmirror.com/picomatch/-/picomatch-2.3.1.tgz"
     integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
   
+  preact@^10.8.2:
+    version "10.11.3"
+    resolved "https://npm.corp.kuaishou.com/preact/-/preact-10.11.3.tgz#8a7e4ba19d3992c488b0785afcc0f8aa13c78d19"
+    integrity sha512-eY93IVpod/zG3uMF22Unl8h9KkrcKIRs2EGar8hwLZZDU1lkjph303V9HZBwufh2s736U6VXuhD109LYqPoffg==
+  
   prop-types@^15.6.2, prop-types@^15.8.1:
     version "15.8.1"
     resolved "https://registry.npmmirror.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
@@ -1033,13 +1038,10 @@ Lockfile:
     resolved "https://registry.npmmirror.com/queue-microtask/-/queue-microtask-1.2.3.tgz"
     integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
   
-  react-dom@^18.2.0:
-    version "18.2.0"
-    resolved "https://registry.npmmirror.com/react-dom/-/react-dom-18.2.0.tgz"
-    integrity sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==
-    dependencies:
-      loose-envify "^1.1.0"
-      scheduler "^0.23.0"
+  "react-dom@npm:@preact/compat", "react@npm:@preact/compat":
+    version "17.1.2"
+    resolved "https://npm.corp.kuaishou.com/@preact%2fcompat/-/compat-17.1.2.tgz#928756713b07af6faf7812f6a56840d8ce6fed37"
+    integrity sha512-7pOZN9lMDDRQ+6aWvjwTp483KR8/zOpfS83wmOo3zfuLKdngS8/5RLbsFWzFZMGdYlotAhX980hJ75bjOHTwWg==
   
   react-is@^16.13.1, react-is@^16.7.0:
     version "16.13.1"
@@ -1060,13 +1062,6 @@ Lockfile:
       dom-helpers "^5.0.1"
       loose-envify "^1.4.0"
       prop-types "^15.6.2"
-  
-  react@^18.2.0:
-    version "18.2.0"
-    resolved "https://registry.npmmirror.com/react/-/react-18.2.0.tgz"
-    integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
-    dependencies:
-      loose-envify "^1.1.0"
   
   regenerator-runtime@^0.13.10:
     version "0.13.10"
@@ -1103,13 +1098,6 @@ Lockfile:
     integrity sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==
     dependencies:
       queue-microtask "^1.2.2"
-  
-  scheduler@^0.23.0:
-    version "0.23.0"
-    resolved "https://registry.npmmirror.com/scheduler/-/scheduler-0.23.0.tgz"
-    integrity sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==
-    dependencies:
-      loose-envify "^1.1.0"
   
   semver@^7.3.7:
     version "7.3.8"

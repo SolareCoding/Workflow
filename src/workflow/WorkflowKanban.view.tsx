@@ -1,17 +1,19 @@
 import Box from "@mui/material/Box";
-import {Divider, Drawer, IconButton, Stack, Typography} from "@mui/material";
+import {Divider, Typography} from "@mui/material";
 import * as React from "react";
-import {PipelineModel, PipelineNodeModel} from "../pipeline/Pipeline.model";
+import {useContext, useState} from "react";
+import {PipelineModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import {TimeUtils} from "../utils/Time.utils";
 import NewPipelineDialog from "./NewPipelineDialog.view";
-import {useState} from "react";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Collapse from "@mui/material/Collapse";
+import {WorkPanelContext} from "../workpanel/WorkPanel.view";
+import {UpdateMode} from "../workpanel/WorkPanel.controller";
 
 export interface SectionPipelines {
 	sectionName: string;
@@ -25,7 +27,6 @@ export interface WorkflowKanbanProps {
 	templates: PipelineModel[],
 	selectedPipeline?: PipelineModel,
 	selectPipeline: (pipeline: PipelineModel) => void,
-	addNewPipeline: (pipeline: PipelineModel) => void
 }
 
 /**
@@ -34,11 +35,13 @@ export interface WorkflowKanbanProps {
  */
 export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 
-	const {editorMode, kanbanTitle, sectionPipelines, selectedPipeline, templates, selectPipeline, addNewPipeline } = props
+	const {editorMode, kanbanTitle, sectionPipelines, selectedPipeline, templates, selectPipeline } = props
 	const [openDialog, setOpenDialog] = useState(false);
 	const [pendingCollapse, setPendingCollapse] = useState(true);
 	const [workingCollapse, setWorkingCollapse] = useState(true);
 	const [doneCollapse, setDoneCollapse] = useState(true);
+
+	const workPanelController = useContext(WorkPanelContext)
 
 	const getProgress = (pipeline: PipelineModel) => {
 		let totalNodes = 0;
@@ -61,7 +64,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 	// show a dialog for user to choose a template, and add it to the current Kanban
 	const handleCreateNewTask = (pipeline: PipelineModel) => {
 		setOpenDialog(false);
-		addNewPipeline(pipeline)
+		workPanelController.updatePipeline(pipeline, UpdateMode.ADD)
 	}
 
 	const openNewPipelineDialog = () => {
@@ -69,7 +72,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 	}
 
 	const handleCreateNewTemplate = () => {
-		addNewPipeline(PipelineModel.newInstance())
+		workPanelController.updatePipeline(PipelineModel.newInstance(), UpdateMode.ADD)
 	}
 
 	const addNewView = <Box className='workflow-accent' sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}} onClick={()=>{

@@ -2,6 +2,9 @@ import {TextFileView, TFile} from "obsidian";
 import {createRoot} from "react-dom/client";
 import * as React from "react";
 import WorkPanelView from "./WorkPanel.view";
+import DummyView from "../dummy/Dummy.view";
+import DummyListView from "../dummy/DummyList.view";
+import {DummyListModel} from "../dummy/DummyModel";
 
 export const WORK_FLOW_VIEW = 'WorkFlowView'
 
@@ -46,6 +49,7 @@ export class WorkPanelEntry extends TextFileView {
 		this.root.render(
 			<React.StrictMode>
 				<WorkPanelView data={this.data} saveData={(data) => {this.updateData(data)}}/>
+				{/*<DummyListView dummyList={DummyListModel.newInstance()}/>*/}
 			</React.StrictMode>
 		)
 	}

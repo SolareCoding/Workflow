@@ -1,35 +1,36 @@
 import * as React from "react";
-import {useEffect, useState} from "react";
+import {useContext, useState} from "react";
 import NodeView from "../nodes/Node.view";
-import {Input, Stack, TextField, Typography} from "@mui/material";
-import {PipelineNodeModel} from "./Pipeline.model";
+import {Stack, Typography} from "@mui/material";
+import {PipelineModel, SectionModel} from "./Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import Box from "@mui/material/Box";
 import {NodeModel} from "../nodes/Node.model";
-import PipelineColors from "../common/Pipeline.colors";
 import {AddCircle} from "@mui/icons-material";
-import DeleteIcon from '@mui/icons-material/Delete';
+import {WorkPanelContext} from "../workpanel/WorkPanel.view";
+import {UpdateMode} from "../workpanel/WorkPanel.controller";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 
-export interface PipelineNodeProps {
-	data: PipelineNodeModel
+export interface SectionProps {
+	pipeline: PipelineModel
+	section: SectionModel
 	couldUpdate: boolean
 	editorMode?: boolean
-	onSectionUpdate: () => void
-	onSectionRemove: (section: PipelineNodeModel) => void
 }
 
 /**
- * One node in pipeline may consist of multiple nodes
- * @constructor
+ * A section in the pipeline contains multiple nodes.
+ * It manages the name, delete of the section.
+ * And it provides the entrance to add new nodes.
  */
-export default function SectionView(props: PipelineNodeProps) {
+export default function SectionView(props: SectionProps) {
 
-	const { couldUpdate, editorMode, onSectionUpdate, onSectionRemove } = props
-	const section = props.data
+	const { pipeline, section, couldUpdate, editorMode} = props
 	const nodes = section.nodes
 
 	const [title, setTitle] = useState(section.title)
+	const workPanelController = useContext(WorkPanelContext)
 
 	const isPending = (node: NodeModel) => node.status == NodeStatusEnum.PENDING
 	const isDone = (node: NodeModel) => node.status == NodeStatusEnum.DONE
@@ -44,63 +45,69 @@ export default function SectionView(props: PipelineNodeProps) {
 		}
 	}
 
+	const onRemoveSection = () => {
+		workPanelController.updateSection(pipeline, section, UpdateMode.DELETE)
+	}
+
+	const onNodeRemoved = (node: NodeModel) => {}
+
 	const onNodeUpdate = () => {
-		let status: NodeStatusEnum = getSectionStatus()
-		section.status = status
-		onSectionUpdate()
-	}
-
-	const onNodeRemoved = (node: NodeModel) => {
-		section.nodes.remove(node);
-		onSectionUpdate()
-	}
-
-	const getAddNodeView = (index: number) => {
-		if (!editorMode) return false
-		return <Box key={'addNode-' + index} onClick={() => {
-			insertNewSection(index)
-		}}>
-			<AddCircle/>
-		</Box>
-	}
-
-	const insertNewSection = (index: number) => {
-		nodes.splice(index, 0, NodeModel.newInstance())
-		onSectionUpdate()
+		// nothing changed, return immediately
+		if (section.status == getSectionStatus()) {
+			return
+		}
+		const newSection = Object.assign(section, {status: getSectionStatus()})
+		workPanelController.updateSection(pipeline, newSection)
 	}
 
 	const handleSectionNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTitle(event.target.value)
-		props.data.title = event.target.value
-		onSectionUpdate()
+		props.section.title = event.target.value
+		const newSection = Object.assign({}, section, {title: event.target.value})
+		workPanelController.updateSection(pipeline, newSection)
 	};
 
 	const getSectionTitleView = () => {
 		if (!editorMode) {
-			return <Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600}}>{title}</Typography>
+			return <Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600}}>{section.title}</Typography>
 		} else {
 			return <input style={{fontSize: 16, maxWidth: 120, fontWeight: 600}} id="template-simple" value={title} onChange={handleSectionNameChange} />
 		}
 	}
 
 	const getActionView = () => {
-		if (editorMode) {
-			return <Box onClick={() => onSectionRemove(section)}>
-				<DeleteIcon/>
-			</Box>
-		} else {
-			return false
+		if (!editorMode) {
+			return null;
 		}
+		return <Box onClick={() => onRemoveSection()}>
+			<DeleteIcon/>
+		</Box>
 	}
 
 	const getNodeViews = () => {
 		let nodeViews = []
+		const nodeKey = editorMode ? 'editorNode-' : 'node-';
 		nodeViews.push(getAddNodeView(0))
 		for (let i = 0; i <nodes.length; i++) {
-			nodeViews.push(<NodeView key={'node-' + i} node={nodes[i]} couldUpdate={couldUpdate} editorMode={editorMode} onNodeUpdate={onNodeUpdate} onNodeRemove={onNodeRemoved}/>)
+			nodeViews.push(<NodeView key={nodeKey + nodes[i].id} node={nodes[i]} couldUpdate={couldUpdate} editorMode={editorMode} onNodeUpdate={onNodeUpdate} onNodeRemove={onNodeRemoved}/>)
 			nodeViews.push(getAddNodeView(i + 1))
 		}
 		return nodeViews;
+	}
+
+	const getAddNodeView = (index: number) => {
+		if (!editorMode) return false
+		return <Box key={'addNode-' + index} onClick={() => {
+			insertNewNode(index)
+		}}>
+			<AddCircle/>
+		</Box>
+	}
+
+	const insertNewNode = (index: number) => {
+		nodes.splice(index, 0, NodeModel.newInstance())
+		const newSection = Object.assign({}, section)
+		workPanelController.updateSection(pipeline, newSection)
 	}
 
 	return (

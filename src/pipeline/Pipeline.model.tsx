@@ -1,11 +1,6 @@
 import {NodeModel} from "../nodes/Node.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import UUIDUtils from "../utils/UUID.utils";
-
-export class PipelinesModel {
-	data: PipelineModel[]
-}
-
 export class PipelineModel {
 	id: string;
 	title: string;
@@ -13,7 +8,7 @@ export class PipelineModel {
 	isTemplate: boolean;
 	status: NodeStatusEnum;
 	createTime: number;
-	sections: PipelineNodeModel[];
+	sections: SectionModel[];
 
 	static newInstance(): PipelineModel {
 		let pipeline = new PipelineModel();
@@ -27,13 +22,15 @@ export class PipelineModel {
 	}
 }
 
-export class PipelineNodeModel {
+export class SectionModel {
+	id: string;
 	title: string;
 	status: NodeStatusEnum;
 	nodes: NodeModel[];
 
-	static newInstance(): PipelineNodeModel {
-		let section = new PipelineNodeModel();
+	static newInstance(): SectionModel {
+		let section = new SectionModel();
+		section.id = UUIDUtils.getUUID();
 		section.title = 'Section Title';
 		section.status = NodeStatusEnum.PENDING;
 		section.nodes = [];

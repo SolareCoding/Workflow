@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {Divider, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
@@ -35,6 +35,15 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '')
 	const [shortCutCmd, setShortCutCmd] = useState(node.shortcut?.command || '')
 	const [shortCutMacCmd, setShortcutMacCmd] = useState(node.shortcut?.macCommand || '')
+
+	useEffect(() => {
+		setTitle(node.title)
+		setTipSummary(node.tips?.summary || '')
+		setTipContent(node.tips?.content || '')
+		setShortcutName(node.shortcut?.name || '')
+		setShortCutCmd(node.shortcut?.command || '')
+		setShortcutMacCmd(node.shortcut?.macCommand || '')
+	}, [editorMode])
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLDivElement>) => {
 		if (!couldUpdate || editorMode) {
