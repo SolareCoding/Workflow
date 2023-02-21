@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import NodeView from "../nodes/Node.view";
 import {Stack, Typography} from "@mui/material";
 import {PipelineModel, SectionModel} from "./Pipeline.model";
@@ -45,19 +45,21 @@ export default function SectionView(props: SectionProps) {
 		}
 	}
 
+	useEffect(() => {
+		if (section.status == getSectionStatus()) {
+			return
+		}
+		workPanelController.updateSection(pipeline, Object.assign({}, section, {status: getSectionStatus()}))
+	}, [section])
+
 	const onRemoveSection = () => {
 		workPanelController.updateSection(pipeline, section, UpdateMode.DELETE)
 	}
 
-	const onNodeRemoved = (node: NodeModel) => {}
-
-	const onNodeUpdate = () => {
-		// nothing changed, return immediately
-		if (section.status == getSectionStatus()) {
-			return
-		}
-		const newSection = Object.assign(section, {status: getSectionStatus()})
-		workPanelController.updateSection(pipeline, newSection)
+	const onInsertNewNode = (index: number) => {
+		props.section.nodes.splice(index, 0, NodeModel.newInstance())
+		const newSection = Object.assign({}, section, {nodes: props.section.nodes})
+		workPanelController.updateSection(pipeline, newSection, UpdateMode.UPDATE)
 	}
 
 	const handleSectionNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,30 +86,29 @@ export default function SectionView(props: SectionProps) {
 		</Box>
 	}
 
-	const getNodeViews = () => {
-		let nodeViews = []
-		const nodeKey = editorMode ? 'editorNode-' : 'node-';
-		nodeViews.push(getAddNodeView(0))
-		for (let i = 0; i <nodes.length; i++) {
-			nodeViews.push(<NodeView key={nodeKey + nodes[i].id} node={nodes[i]} couldUpdate={couldUpdate} editorMode={editorMode} onNodeUpdate={onNodeUpdate} onNodeRemove={onNodeRemoved}/>)
-			nodeViews.push(getAddNodeView(i + 1))
-		}
-		return nodeViews;
-	}
-
 	const getAddNodeView = (index: number) => {
-		if (!editorMode) return false
+		if (!editorMode) return null
 		return <Box key={'addNode-' + index} onClick={() => {
-			insertNewNode(index)
+			onInsertNewNode(index)
 		}}>
 			<AddCircle/>
 		</Box>
 	}
 
-	const insertNewNode = (index: number) => {
-		nodes.splice(index, 0, NodeModel.newInstance())
-		const newSection = Object.assign({}, section)
-		workPanelController.updateSection(pipeline, newSection)
+	const getNodeViews = () => {
+		let nodeViews = []
+		const nodeKey = editorMode ? 'editorNode-' : 'node-';
+		nodeViews.push(getAddNodeView(0))
+		for (let i = 0; i <nodes.length; i++) {
+			nodeViews.push(<NodeView key={nodeKey + nodes[i].id}
+									 pipeline={pipeline}
+									 section={section}
+									 node={nodes[i]}
+									 couldUpdate={couldUpdate}
+									 editorMode={editorMode} />)
+			nodeViews.push(getAddNodeView(i + 1))
+		}
+		return nodeViews;
 	}
 
 	return (

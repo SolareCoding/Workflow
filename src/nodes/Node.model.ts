@@ -1,4 +1,5 @@
 import {NodeStatusEnum} from "./NodeStatus.enum";
+import UUIDUtils from "../utils/UUID.utils";
 
 export class NodeTip {
 	summary: string
@@ -22,6 +23,7 @@ export class NodeModel {
 
 	static newInstance() {
 		let node = new NodeModel()
+		node.id = UUIDUtils.getUUID()
 		node.title = "Node Title"
 		node.tips = {
 			summary: '',

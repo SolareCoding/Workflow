@@ -15,8 +15,6 @@ export interface WorkflowProps {
 
 export default function WorkflowView(props: WorkflowProps) {
 
-
-
 	const [workflowKanbanFold, setWorkflowKanbanFold] = useState(true)
 	const [templateKanbanFold, setTemplateKanbanFold] = useState(true)
 	const [focusPipeline, setFocusPipeline] = useState(props.workflows.length > 0 ? props.workflows[0] : undefined)
@@ -28,15 +26,23 @@ export default function WorkflowView(props: WorkflowProps) {
 			return
 		}
 		if (!focusPipeline.isTemplate && !props.workflows.contains(focusPipeline)) {
-			setFocusPipeline(props.workflows.length > 0 ? props.workflows[0] : undefined)
+			const samePipelineIndex = props.workflows.findIndex((value, index, object) => value.id === focusPipeline.id)
+			if (samePipelineIndex === -1) {
+				setFocusPipeline(props.workflows.length > 0 ? props.workflows[0] : undefined)
+			} else {
+				setFocusPipeline(props.workflows[samePipelineIndex])
+			}
 			return
 		}
 		if (focusPipeline.isTemplate && !props.templates.contains(focusPipeline)) {
-			console.log("reset a new pipeline")
-			setFocusPipeline(props.templates.length > 0? props.templates[0] : undefined)
+			const samePipelineIndex = props.templates.findIndex((value, index, object) => value.id === focusPipeline.id)
+			if (samePipelineIndex === -1) {
+				setFocusPipeline(props.templates.length > 0? props.templates[0] : undefined)
+			} else {
+				setFocusPipeline(props.templates[samePipelineIndex])
+			}
 			return
 		}
-		console.log("reset focus pipeline", focusPipeline)
 	}, [props])
 
 	const getKanbanPipelines = () => {
@@ -75,9 +81,7 @@ export default function WorkflowView(props: WorkflowProps) {
 		if (!focusPipeline) {
 			return null
 		}
-		return <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll'}}>
-			<PipelineView pipeline={focusPipeline} />
-		</Box>
+		return <PipelineView pipeline={focusPipeline} />
 	}
 
 	const selectPipeline = (pipeline: PipelineModel) => {
@@ -96,7 +100,7 @@ export default function WorkflowView(props: WorkflowProps) {
 											   templates={props.templates}/>
 
 	const getFoldWorkflowKanbanView = () => {
-		return <div style={{height: '100%', display: 'flex', alignItems: 'center'}}
+		return <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}
 					onClick={() => {
 						setWorkflowKanbanFold(!workflowKanbanFold)
 					}}>
@@ -114,7 +118,7 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getWorkflowKanban = () => {
-		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
+		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 0}}>
 				{!workflowKanbanFold ? workflowKanban : null}
 				{getFoldWorkflowKanbanView()}
 		</div>
@@ -136,7 +140,9 @@ export default function WorkflowView(props: WorkflowProps) {
 			width: '100%',
 		}}>
 			{getWorkflowKanban()}
-			{getFocusPipeline()}
+			<Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll'}}>
+				{getFocusPipeline()}
+			</Box>
 			{getTemplateKanban()}
 		</div>
 	)

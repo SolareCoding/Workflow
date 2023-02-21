@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {Divider, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
@@ -14,18 +14,23 @@ import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {Platform} from "obsidian";
+import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
+import {WorkPanelContext} from "../workpanel/WorkPanel.view";
+import {UpdateMode} from "../workpanel/WorkPanel.controller";
 
 interface NodeProps {
+	pipeline: PipelineModel,
+	section: SectionModel,
 	node: NodeModel,
 	couldUpdate: boolean,
 	editorMode?: boolean,
-	onNodeUpdate: () => void,
-	onNodeRemove: (node: NodeModel) => void,
 }
 
 export default function NodeView(nodeViewProps: NodeProps) {
 
-	const {node, couldUpdate, editorMode, onNodeUpdate, onNodeRemove} = nodeViewProps
+	const workPanelController = useContext(WorkPanelContext)
+
+	const {pipeline, section, node, couldUpdate, editorMode} = nodeViewProps
 	const [showTips, setShowTips] = useState(false)
 	const [anchorEl, setAnchorEl] = useState<null | HTMLDivElement>(null);
 	const open = Boolean(anchorEl);
@@ -54,6 +59,15 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		}
 		setAnchorEl(event.currentTarget);
 	};
+
+	const onNodeUpdate = () => {
+		const newNode = Object.assign({}, node)
+		workPanelController.updateNode(pipeline, section, newNode)
+	}
+
+	const onNodeDelete = () => {
+		workPanelController.updateNode(pipeline, section, node, UpdateMode.DELETE)
+	}
 
 	const handleClose = (action?: NodeActionEnum) => {
 		setAnchorEl(null);
@@ -357,7 +371,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			)
 		} else {
 			return (
-				<DeleteIcon onClick={() => onNodeRemove(node)}/>
+				<DeleteIcon onClick={() => onNodeDelete()}/>
 			)
 		}
 	}

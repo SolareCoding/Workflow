@@ -56,6 +56,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 				newPipelines.push(pipeline)
 			}
 			setWorkPanelData(Object.assign({}, workPanelData, pipeline.isTemplate ? {templates: newPipelines} : {workflows: newPipelines}))
+			savePipelines()
 		},
 		updateSection(pipeline: PipelineModel, section: SectionModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
 			const originalSections = pipeline.sections
