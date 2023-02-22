@@ -1,4 +1,4 @@
-import {Box} from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import * as React from "react";
 import {useEffect, useState} from "react";
 import WorkflowKanbanView, {SectionPipelines} from "./WorkflowKanban.view";
@@ -79,7 +79,11 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	const getFocusPipeline = () => {
 		if (!focusPipeline) {
-			return null
+			return <Typography>
+				Open the left drawer to choose a workflow.
+				<br/>
+				Open the right drawer to manage templates.
+			</Typography>
 		}
 		return <PipelineView pipeline={focusPipeline} />
 	}
@@ -118,7 +122,7 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getWorkflowKanban = () => {
-		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 0}}>
+		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
 				{!workflowKanbanFold ? workflowKanban : null}
 				{getFoldWorkflowKanbanView()}
 		</div>

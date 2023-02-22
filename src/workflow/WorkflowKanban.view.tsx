@@ -57,22 +57,25 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 		return doneNodes + '/' + totalNodes
 	}
 
-	const handleClose = () => {
-		setOpenDialog(false);
-	}
-
-	// show a dialog for user to choose a template, and add it to the current Kanban
-	const handleCreateNewTask = (pipeline: PipelineModel) => {
-		setOpenDialog(false);
-		workPanelController.updatePipeline(pipeline, UpdateMode.ADD)
-	}
-
 	const openNewPipelineDialog = () => {
 		setOpenDialog(true);
 	}
 
+	const closeNewPipelineDialog = () => {
+		setOpenDialog(false);
+	}
+
+	// show a dialog for user to choose a template, and add it to the current Kanban
+	const handleCreateNewPipeline = (pipeline: PipelineModel) => {
+		setOpenDialog(false);
+		selectPipeline(pipeline)
+		workPanelController.updatePipeline(pipeline, UpdateMode.ADD)
+	}
+
 	const handleCreateNewTemplate = () => {
-		workPanelController.updatePipeline(PipelineModel.newInstance(), UpdateMode.ADD)
+		const newTemplatePipeline = PipelineModel.newInstance()
+		selectPipeline(newTemplatePipeline)
+		workPanelController.updatePipeline(newTemplatePipeline, UpdateMode.ADD)
 	}
 
 	const addNewView = <Box className='workflow-accent' sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}} onClick={()=>{
@@ -182,8 +185,8 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 			<NewPipelineDialog
 				templates={templates}
 				open={openDialog}
-				closeDialog={handleClose}
-				createNewTask={handleCreateNewTask}
+				closeDialog={closeNewPipelineDialog}
+				createNewTask={handleCreateNewPipeline}
 			/>
 		</div>
 	);

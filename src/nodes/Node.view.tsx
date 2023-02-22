@@ -31,15 +31,17 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const workPanelController = useContext(WorkPanelContext)
 
 	const {pipeline, section, node, couldUpdate, editorMode} = nodeViewProps
+
 	const [showTips, setShowTips] = useState(false)
 	const [anchorEl, setAnchorEl] = useState<null | HTMLDivElement>(null);
-	const open = Boolean(anchorEl);
 	const [title, setTitle] = useState(node.title)
 	const [tipSummary, setTipSummary] = useState(node.tips?.summary || '')
 	const [tipContent, setTipContent] = useState(node.tips?.content || '')
 	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '')
 	const [shortCutCmd, setShortCutCmd] = useState(node.shortcut?.command || '')
 	const [shortCutMacCmd, setShortcutMacCmd] = useState(node.shortcut?.macCommand || '')
+
+	const open = Boolean(anchorEl);
 
 	useEffect(() => {
 		setTitle(node.title)
@@ -48,7 +50,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		setShortcutName(node.shortcut?.name || '')
 		setShortCutCmd(node.shortcut?.command || '')
 		setShortcutMacCmd(node.shortcut?.macCommand || '')
-	}, [editorMode])
+	}, [node])
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLDivElement>) => {
 		if (!couldUpdate || editorMode) {
@@ -191,12 +193,12 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const getTipsContentView = () => {
 		if (!editorMode) {
 			if (!node.tips.content) {
-				return false
+				return null
 			}
 			if (showTips) {
-				return <Typography sx={{fontSize: 12}}>{tipContent}</Typography>
+				return <Typography sx={{fontSize: 12}}>{node.tips.content}</Typography>
 			} else {
-				return false
+				return null
 			}
 		}
 		else {
@@ -302,7 +304,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 					marginTop: 1
 				}} onClick={()=> {onShortcutClick()}}>
 					<PlayCircleFilledWhiteIcon sx={{width: 16, height: 16, marginRight: 1}}/>
-					<Typography sx={{fontSize: 12}}>{shortCutName} </Typography>
+					<Typography sx={{fontSize: 12}}>{node.shortcut.name} </Typography>
 				</div>
 			</div>
 		)
@@ -343,7 +345,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	const getTitleView = () => {
 		if (!editorMode) {
-			return <Typography sx={{fontSize: 14, fontWeight: 600}}>{title}</Typography>
+			return <Typography sx={{fontSize: 14, fontWeight: 600}}>{node.title}</Typography>
 		} else {
 			return <input style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="title" value={title} onChange={handleNodeNameChange} />
 		}

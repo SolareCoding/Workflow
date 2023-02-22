@@ -4,6 +4,7 @@ import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
 import {UpdateMode, WorkPanelController} from "./WorkPanel.controller";
 import {WorkPanelModel} from "./WorkPanel.model";
 import {NodeModel} from "../nodes/Node.model";
+import {useEffect} from "react";
 
 /**
  * This is the main interface of workflows.
@@ -33,13 +34,11 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	const ref = React.useRef<HTMLDivElement>(null);
 
 	/**
-	 * 异步保存
+	 * 保存文件
 	 */
-	const savePipelines = ()=> {
-		return new Promise((resolve, reject) => {
-			props.saveData(JSON.stringify(workPanelData))
-		})
-	}
+	useEffect(() => {
+		props.saveData(JSON.stringify(workPanelData))
+	}, [workPanelData])
 
 	const workPanelController: WorkPanelController = {
 		updatePipeline(pipeline: PipelineModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
@@ -56,7 +55,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 				newPipelines.push(pipeline)
 			}
 			setWorkPanelData(Object.assign({}, workPanelData, pipeline.isTemplate ? {templates: newPipelines} : {workflows: newPipelines}))
-			savePipelines()
+			// savePipelines()
 		},
 		updateSection(pipeline: PipelineModel, section: SectionModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
 			const originalSections = pipeline.sections
