@@ -9,7 +9,7 @@ export interface WorkflowSettings {
 }
 
 export const DEFAULT_SETTINGS: WorkflowSettings = {
-	filePath: '/'
+	filePath: '/',
 }
 
 export const WORKFLOW_FILE_NAME = 'Workflow.workflow'
@@ -17,19 +17,19 @@ export const WORKFLOW_FILE_NAME = 'Workflow.workflow'
 export class WorkflowSettingTab extends PluginSettingTab {
 
 	plugin: WorkflowPlugin;
-	pathOptions: Record<string, string> = {}
 
 	constructor(app: App, plugin: WorkflowPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
-		this.getDropdownOptions()
 	}
 
 	getDropdownOptions() {
-		let folders = getFolderChoices(this.app);
+		const folders = getFolderChoices(this.app);
+		const pathOptions: Record<string, string> = {}
 		for (const folder of folders) {
-			this.pathOptions[folder.label] = folder.value
+			pathOptions[folder.label] = folder.value
 		}
+		return pathOptions;
 	}
 
 	createWorkflowFile() {
@@ -50,9 +50,7 @@ export class WorkflowSettingTab extends PluginSettingTab {
 
 	display(): void {
 		const {containerEl} = this;
-
 		containerEl.empty();
-
 		containerEl.createEl('h2', {text: 'Workflow settings'});
 
 		new Setting(containerEl)
@@ -60,7 +58,7 @@ export class WorkflowSettingTab extends PluginSettingTab {
 			.setDesc('Choose the path where the workflow file is saved')
 			.addDropdown(dropDown => {
 				dropDown
-					.addOptions(this.pathOptions)
+					.addOptions(this.getDropdownOptions())
 					.setValue(this.plugin.settings.filePath)
 					.onChange(async (value) => {
 						this.plugin.settings.filePath = value;

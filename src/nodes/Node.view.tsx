@@ -3,20 +3,19 @@ import {useContext, useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {Divider, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
-import {NodeModel} from "./Node.model";
+import {NodeModel, NodeShortcut} from "./Node.model";
 import {TimeUtils} from "../utils/Time.utils";
 import DeleteIcon from '@mui/icons-material/Delete';
-import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
 import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import RunCircleIcon from '@mui/icons-material/RunCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import {Platform} from "obsidian";
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import {UpdateMode} from "../workpanel/WorkPanel.controller";
+import NodeShortcutView from "./NodeShortcut.view";
 
 interface NodeProps {
 	pipeline: PipelineModel,
@@ -37,9 +36,6 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [title, setTitle] = useState(node.title)
 	const [tipSummary, setTipSummary] = useState(node.tips?.summary || '')
 	const [tipContent, setTipContent] = useState(node.tips?.content || '')
-	const [shortCutName, setShortcutName] = useState(node.shortcut?.name || '')
-	const [shortCutCmd, setShortCutCmd] = useState(node.shortcut?.command || '')
-	const [shortCutMacCmd, setShortcutMacCmd] = useState(node.shortcut?.macCommand || '')
 
 	const open = Boolean(anchorEl);
 
@@ -47,9 +43,6 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		setTitle(node.title)
 		setTipSummary(node.tips?.summary || '')
 		setTipContent(node.tips?.content || '')
-		setShortcutName(node.shortcut?.name || '')
-		setShortCutCmd(node.shortcut?.command || '')
-		setShortcutMacCmd(node.shortcut?.macCommand || '')
 	}, [node])
 
 	const handleStatusClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -202,7 +195,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			}
 		}
 		else {
-			return <textarea placeholder={'Tip content'} style={{fontSize: 12, marginTop: 1, minWidth: 160, maxWidth: 160}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
+			return <textarea placeholder={'Tip content'} style={{fontSize: 12, marginTop: 3, minWidth: 160, maxWidth: 160}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
 		}
 	}
 
@@ -243,73 +236,6 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		</div>
 	}
 
-	// execute the stored command
-	const onShortcutClick = () => {
-		const command = Platform.isMacOS ? node.shortcut.macCommand : node.shortcut.command
-		require('child_process').exec(command, { encoding: 'utf-8' })
-	}
-
-	const handleNodeShortcutNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setShortcutName(event.target.value)
-		node.shortcut.name = event.target.value
-		onNodeUpdate()
-	}
-
-	const handleNodeShortcutCommandChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setShortCutCmd(event.target.value)
-		node.shortcut.command = event.target.value
-		onNodeUpdate()
-	}
-
-	const handleNodeShortcutMacCommandChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setShortcutMacCmd(event.target.value)
-        node.shortcut.macCommand = event.target.value
-        onNodeUpdate()
-    }
-
-	const getNodeShortCutView = () => {
-		// if is editorMode, introduce the user to input shortcut name command
-		if (editorMode) {
-			return (
-				<div>
-					<Divider sx={{marginY: '1px'}}/>
-					<div style={{
-						display: 'flex',
-						flexDirection: 'column',
-					}}>
-						<input placeholder={'Shortcut name here'} style={{fontSize: 12, fontWeight: 600}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
-						<input placeholder={'Command here'} style={{fontSize: 12, marginTop: 3}} id="shortcut-command" value={shortCutCmd} onChange={handleNodeShortcutCommandChange} />
-						<input placeholder={'Mac command here'} style={{fontSize: 12, marginTop: 3}} id="shortcut-mac-command" value={shortCutMacCmd} onChange={handleNodeShortcutMacCommandChange} />
-					</div>
-				</div>
-			)
-        }
-		// PC 且没有shortcut，直接返回
-		if (!shortCutCmd && !Platform.isMacOS) {
-			return false
-		}
-		// Mac且没有macShortCut,直接返回
-		if (!shortCutMacCmd && Platform.isMacOS) {
-			return false
-		}
-		return (
-			<div>
-				<Divider sx={{marginY: '1px'}}/>
-				<div style={{
-					display: 'flex',
-					flexDirection: 'row',
-					alignItems: 'center',
-					justifyContent: 'flex-start',
-					marginBottom: 1,
-					marginTop: 1
-				}} onClick={()=> {onShortcutClick()}}>
-					<PlayCircleFilledWhiteIcon sx={{width: 16, height: 16, marginRight: 1}}/>
-					<Typography sx={{fontSize: 12}}>{node.shortcut.name} </Typography>
-				</div>
-			</div>
-		)
-	}
-
 	const handleNodeNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTitle(event.target.value)
 		node.title = event.target.value
@@ -325,6 +251,12 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const handleNodeTipContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setTipContent(event.target.value)
 		node.tips.content = event.target.value
+		onNodeUpdate()
+	}
+
+	const handleNodeShortCutChange = (nodeShortCutModel: NodeShortcut) => {
+		node.shortcut = nodeShortCutModel
+		console.log('update shortcut', JSON.stringify(node))
 		onNodeUpdate()
 	}
 
@@ -383,7 +315,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			{getHeaderView()}
 			{getTipsView()}
 			{getTimeDetails()}
-			{getNodeShortCutView()}
+			<NodeShortcutView editorMode={editorMode} nodeShortCutModel={node.shortcut} onUpdateShortCut={handleNodeShortCutChange} />
 		</Box>
 	);
 }

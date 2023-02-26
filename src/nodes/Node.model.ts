@@ -1,5 +1,6 @@
 import {NodeStatusEnum} from "./NodeStatus.enum";
 import UUIDUtils from "../utils/UUID.utils";
+import {CommandType, ShortCutCommand} from "./Command";
 
 export class NodeTip {
 	summary: string
@@ -7,9 +8,9 @@ export class NodeTip {
 }
 
 export class NodeShortcut {
-	name: string
-	command: string
-	macCommand: string
+	name: string;
+	command: ShortCutCommand;
+	macCommand: ShortCutCommand;
 }
 
 export class NodeModel {
@@ -31,8 +32,16 @@ export class NodeModel {
 		}
 		node.shortcut = {
 			name: "Shortcut",
-			command: '',
-			macCommand: ''
+			command: {
+				type: CommandType.SHELL,
+				commandFolder: '',
+				commandFile: ''
+			},
+			macCommand: {
+				type: CommandType.SHELL,
+				commandFolder: '',
+				commandFile: ''
+			},
 		}
 		node.status = NodeStatusEnum.PENDING
 		return node
