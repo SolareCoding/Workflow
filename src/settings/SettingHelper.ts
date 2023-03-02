@@ -1,4 +1,4 @@
-import {App, PluginSettingTab, Setting, TFolder, Vault} from "obsidian";
+import {App, FileSystemAdapter, PluginSettingTab, Setting, TFolder, Vault} from "obsidian";
 
 
 export interface Choice {
@@ -30,4 +30,20 @@ export function getFolderChoices(app: App) {
 	});
 
 	return folderList;
+}
+
+export function getVaultBasePath(app: App): string {
+	const adapter = app.vault.adapter;
+	if (adapter instanceof FileSystemAdapter) {
+		return adapter.getBasePath();
+	}
+	return '';
+}
+
+export function replaceAllSlashes(path: string): string {
+	let result = path;
+	while (result.contains('/')) {
+		result = result.replace("/", "\\")
+	}
+	return result;
 }

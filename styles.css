@@ -48,3 +48,7 @@ If your plugin does not need CSS, delete this file.
 .workflow-text-normal {
 	color: var(--text-normal)
 }
+.workflow-input {
+	border-radius: 3px;
+	border: 1px solid var(--background-modifier-border);
+}

@@ -159,7 +159,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			return false
 		}
 		return <div>
-			<Divider sx={{marginY: '1px'}}/>
+			<Divider sx={{marginY: '3px'}}/>
 			<Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
 				<Box sx={{
 					display: 'flex',
@@ -179,7 +179,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: '600'}}>{node.tips.summary}</Typography>
 		} else {
-			return <input placeholder={'Tip summary'} style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="tip-summary" value={tipSummary} onChange={handleNodeTipSummaryChange} />
+			return <input className={'workflow-input'} placeholder={'Tip summary'} style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="tip-summary" value={tipSummary} onChange={handleNodeTipSummaryChange} />
 		}
 	}
 
@@ -231,7 +231,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			return false
 		}
 		return <div>
-			<Divider sx={{marginY: '1px'}}/>
+			<Divider sx={{marginY: '3px'}}/>
 			{ details }
 		</div>
 	}
@@ -256,7 +256,6 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	const handleNodeShortCutChange = (nodeShortCutModel: NodeShortcut) => {
 		node.shortcut = nodeShortCutModel
-		console.log('update shortcut', JSON.stringify(node))
 		onNodeUpdate()
 	}
 
@@ -279,7 +278,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 14, fontWeight: 600}}>{node.title}</Typography>
 		} else {
-			return <input style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="title" value={title} onChange={handleNodeNameChange} />
+			return <input className={'workflow-input'} style={{fontSize: 14, maxWidth: 130, fontWeight: 600}} id="title" value={title} onChange={handleNodeNameChange} />
 		}
 	}
 

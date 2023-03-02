@@ -1,6 +1,6 @@
-import {WorkPanelModel} from "./WorkPanel.model";
 import {NodeModel} from "../nodes/Node.model";
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
+import WorkflowPlugin from "../../main";
 
 export enum UpdateMode {
 	ADD,
@@ -8,6 +8,8 @@ export enum UpdateMode {
     DELETE,
 }
 export class WorkPanelController {
+
+	plugin?: WorkflowPlugin
 
 	updateNode(pipeline: PipelineModel, section: SectionModel, node: NodeModel, updateMode: UpdateMode = UpdateMode.UPDATE):void  {}
 

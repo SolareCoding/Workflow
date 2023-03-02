@@ -73,7 +73,7 @@ export default function SectionView(props: SectionProps) {
 		if (!editorMode) {
 			return <Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600}}>{section.title}</Typography>
 		} else {
-			return <input style={{fontSize: 16, maxWidth: 120, fontWeight: 600}} id="template-simple" value={title} onChange={handleSectionNameChange} />
+			return <input className={'workflow-input'} style={{fontSize: 16, maxWidth: 120, fontWeight: 600}} id="template-simple" value={title} onChange={handleSectionNameChange} />
 		}
 	}
 

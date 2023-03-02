@@ -1,11 +1,14 @@
 import {NodeShortcut} from "./Node.model";
 import {Divider, Typography} from "@mui/material";
-import {Platform} from "obsidian";
+import {Platform, TFile, TFolder, Vault} from "obsidian";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import * as React from "react";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {CommandType} from "./Command";
 import {TimeUtils} from "../utils/Time.utils";
+import {getVaultBasePath, replaceAllSlashes} from "../settings/SettingHelper";
+import {WorkPanelContext} from "../workpanel/WorkPanel.view";
+import {getAllFolders, openFileInNewLeaf} from "../utils/File.utils";
 
 export interface ShortCutProps {
 	editorMode?: boolean,
@@ -15,36 +18,75 @@ export interface ShortCutProps {
 
 export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 
+	const workPanelController = useContext(WorkPanelContext)
+
 	const {editorMode, nodeShortCutModel, onUpdateShortCut} = nodeViewProps
 	const shortCutCommand = Platform.isMacOS ? nodeShortCutModel.macCommand : nodeShortCutModel.command
 
 	const [shortCutName, setShortcutName] = useState(nodeShortCutModel.name || '')
+	const [shortCutCommandType, setShortCutCommandType] = useState(shortCutCommand.type)
 
 	useEffect(() => {
 		setShortcutName(nodeShortCutModel?.name || '')
+		setShortCutCommandType(shortCutCommand.type)
 	}, [nodeShortCutModel])
+
+	/**
+	 * here are the order sequence on Windows
+	 * 1. switch volume (like D:)
+	 * 2. cd to the folder that contains the script
+	 * 3. run the script with commandFolder as argument
+	 * Only .bat file is supported
+	 */
+	const getWindowsCommand = (): string => {
+		const vaultPath = getVaultBasePath(app)
+		const commandPath = `${vaultPath}/${shortCutCommand.commandFile}`
+		const commandFolderPath = replaceAllSlashes(commandPath.substring(0, commandPath.lastIndexOf('/')))
+		const scriptName = shortCutCommand.commandFile.substring(shortCutCommand.commandFile.lastIndexOf('/') + 1)
+		const commandFolder = `${vaultPath}/${shortCutCommand.commandFolder}`
+		const commandDescFolderPath = replaceAllSlashes(commandFolder.substring(0, commandFolder.lastIndexOf('/')))
+		let switchVolume = vaultPath.substring(0, vaultPath.lastIndexOf(':')+1)
+		return `${switchVolume} & cd ${commandFolderPath} & ${scriptName} "${commandDescFolderPath}"`
+	}
+
+	/**
+	 * to be decided on MacOS
+	 */
+	const getMacCommand = (): string => {
+		const vaultPath = getVaultBasePath(app)
+		const commandPath = `${vaultPath}/${shortCutCommand.commandFile}`
+		const commandFolderPath = commandPath.substring(0, commandPath.lastIndexOf('/'))
+		const fileName = shortCutCommand.commandFile.substring(shortCutCommand.commandFile.lastIndexOf('/') + 1)
+		const commandFolder = `${vaultPath}/${shortCutCommand.commandFolder}`
+		return `bash ${fileName} "${commandFolder}"`
+	}
 
 	// execute the stored command
 	const onShortcutClick = () => {
 		if (!Platform.isDesktop) {
 			return;
 		}
-		// check if the command is valid
-		if (!shortCutCommand?.commandFolder || !shortCutCommand?.commandFile) {
-			return
-		}
-		// execute the shell command in a sub-process
+		// execute the shell command in a sub-process, folder is passed as an argument
+		// can`t be used because not enter the folder
 		if (shortCutCommand.type === CommandType.SHELL) {
-			const command = `${shortCutCommand.commandFolder} ${shortCutCommand.commandFile}`
+			if (!shortCutCommand.commandFile) {
+				return;
+			}
+			const command = Platform.isMacOS ? getMacCommand() : getWindowsCommand()
 			require('child_process').exec(command, { encoding: 'utf-8' })
 		} else if (shortCutCommand.type === CommandType.COPY_FILE) {
+			if (!shortCutCommand.commandFile || !shortCutCommand.commandFolder) {
+				return;
+			}
 			const originalFileName = shortCutCommand.commandFile.substring(shortCutCommand.commandFile.lastIndexOf('/') + 1)
 			const newFilePath = `${shortCutCommand.commandFolder}${TimeUtils.getDateStr(Date.now())}-${originalFileName}`
 			app.vault.adapter.exists(newFilePath).then((exist) =>{
 				if (exist) {
-					// open the file directly
+					openFileInNewLeaf(newFilePath, app)
 				} else {
-					app.vault.adapter.copy(shortCutCommand.commandFile, newFilePath).then(() => {})
+					app.vault.adapter.copy(shortCutCommand.commandFile, newFilePath).then(() => {
+						openFileInNewLeaf(newFilePath, app)
+					})
 				}
 			})
 		}
@@ -57,12 +99,16 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 	}
 
 	const handleNodeShortcutTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		shortCutCommand.type = event.target.value == CommandType.SHELL ? CommandType.SHELL : CommandType.COPY_FILE
+		const commandType = event.target.value == CommandType.SHELL ? CommandType.SHELL : CommandType.COPY_FILE
+		if (commandType === shortCutCommand.type) {
+			return
+		}
+		setShortCutCommandType(commandType)
+		shortCutCommand.type = commandType
 		onUpdateShortCut(nodeShortCutModel)
 	}
 
 	const handleNodeShortcutFileChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		console.log("file changed: " + event.target.value)
 		shortCutCommand.commandFile = event.target.value
 		onUpdateShortCut(nodeShortCutModel)
 	}
@@ -79,6 +125,22 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 		return options;
 	}
 
+	useEffect(() => {
+		getScriptOptions()
+	})
+
+	const getScriptOptions = () => {
+		const options: JSX.Element[] = []
+		const settings = workPanelController.plugin?.settings
+		const shellFolder = app.vault.getAbstractFileByPath(settings?.scriptPath || '') as TFolder
+		Vault.recurseChildren(shellFolder, (f) => {
+			if (f instanceof TFile && f.extension.toLowerCase() === 'bat') {
+				options.push(<option value={f.path}>{f.path}</option>);
+			}
+		});
+		return options;
+	}
+
 	const getFileOptions = () => {
 		const options = []
 		const files = app.vault.getFiles()
@@ -90,42 +152,33 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 
 	const getFolderOptions = () => {
 		const options = []
-		const folders: string[] = []
-		const files = app.vault.getFiles()
-		for (const file of files) {
-			const folder = file.path.substring(0, file.path.lastIndexOf('/') + 1)
-			if (!folders.includes(folder)) {
-				folders.push(folder)
-			}
-		}
-		for (const folder of folders) {
+		for (const folder of getAllFolders(app)) {
 			options.push(<option key={folder} value={folder}>{folder} </option>)
 		}
 		return options;
 	}
 
 	const getEditorModeView = () => {
-		console.log('getEditorModeView file')
-
 		return (
 			<div style={{
 				display: 'flex',
 				flexDirection: 'column',
 			}}>
+				<Divider sx={{marginY: '3px'}}/>
 				<div style={{display: "flex", flexDirection: 'row', alignItems: 'center'}}>
 					<text style={{fontSize: 12, height: 12, verticalAlign: "bottom", width: 60}}>Name: </text>
-					<input placeholder={'Shortcut name here'} style={{width: '100%', height: 20, fontSize: 12}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
+					<input className={'workflow-input'} placeholder={'Shortcut name here'} style={{width: '100%', height: 20, fontSize: 12}} id="shortcut-name" value={shortCutName} onChange={handleNodeShortcutNameChange} />
 				</div>
 				<div style={{display: "flex", flexDirection: 'row', alignItems: 'center'}}>
 					<text style={{fontSize: 12, height: 12, verticalAlign: "bottom", width: 60}}>Type: </text>
-					<select style={{width: '100%', fontSize: 10, height: 20, marginTop: 3}} name="select-type" onChange={handleNodeShortcutTypeChange}>
+					<select style={{width: '100%', fontSize: 10, height: 20, marginTop: 3}} name="select-type" value={shortCutCommand.type} onChange={handleNodeShortcutTypeChange}>
 						{getTypeOptions()}
 					</select>
 				</div>
 				<div style={{display: "flex", flexDirection: 'row', alignItems: 'center'}}>
 					<text style={{fontSize: 12, height: 12, verticalAlign: "bottom", width: 60}}>File: </text>
 					<select value={shortCutCommand.commandFile} style={{width: '100%', fontSize: 10, height: 20, marginTop: 3}} name="select-type" onChange={handleNodeShortcutFileChange}>
-						{getFileOptions()}
+						{shortCutCommandType == CommandType.SHELL ? getScriptOptions() : getFileOptions()}
 					</select>
 				</div>
 				<div style={{display: "flex", flexDirection: 'row', alignItems: 'center'}}>
@@ -139,25 +192,29 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 		)
 	}
 
+	// modify the conditions here.
 	const getWorkflowModeView = () => {
-		if (!nodeShortCutModel.command && !Platform.isMacOS) {
+		if (shortCutCommand.type == CommandType.SHELL && !shortCutCommand.commandFile) {
 			return null
 		}
 		// Mac且没有macShortCut,直接返回
-		if (!nodeShortCutModel.macCommand && Platform.isMacOS) {
+		if (shortCutCommand.type == CommandType.COPY_FILE && (!shortCutCommand.commandFile || !shortCutCommand.commandFolder)) {
 			return null
 		}
 		return (
-			<div style={{
-				display: 'flex',
-				flexDirection: 'row',
-				alignItems: 'center',
-				justifyContent: 'flex-start',
-				marginBottom: 1,
-				marginTop: 1
-			}} onClick={()=> {onShortcutClick()}}>
-				<PlayCircleFilledWhiteIcon sx={{width: 16, height: 16, marginRight: 1}}/>
-				<Typography sx={{fontSize: 12}}>{nodeShortCutModel.name} </Typography>
+			<div>
+				<Divider sx={{marginY: '3px'}}/>
+				<div style={{
+					display: 'flex',
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'flex-start',
+					marginBottom: 1,
+					marginTop: 1
+				}} onClick={()=> {onShortcutClick()}}>
+					<PlayCircleFilledWhiteIcon sx={{width: 16, height: 16, marginRight: 1}}/>
+					<Typography sx={{fontSize: 12}}>{nodeShortCutModel.name} </Typography>
+				</div>
 			</div>
 		);
 	}
@@ -172,7 +229,6 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 
 	return (
 		<div>
-			<Divider sx={{marginY: '1px'}}/>
 			{ getShortcutView() }
 		</div>
 	);

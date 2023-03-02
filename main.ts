@@ -33,7 +33,7 @@ export default class WorkflowPlugin extends Plugin {
 		addIcon("workflow", workflowIcon)
 
 		this.registerView(WORK_FLOW_VIEW,
-			(leaf) => new WorkPanelEntry(leaf));
+			(leaf) => new WorkPanelEntry(leaf, this));
 
 		this.registerExtensions(["workflow"], WORK_FLOW_VIEW);
 

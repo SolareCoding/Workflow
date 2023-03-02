@@ -6,10 +6,12 @@ import {WorkflowModal} from "./WorkflowModal";
 
 export interface WorkflowSettings {
 	filePath: string;
+	scriptPath: string;
 }
 
 export const DEFAULT_SETTINGS: WorkflowSettings = {
 	filePath: '/',
+	scriptPath: '/',
 }
 
 export const WORKFLOW_FILE_NAME = 'Workflow.workflow'
@@ -75,6 +77,19 @@ export class WorkflowSettingTab extends PluginSettingTab {
 					.onClick(cb => {
 						this.createWorkflowFile()
 					})
-			})
+			});
+
+		new Setting(containerEl)
+			.setName('Scripts storage place')
+			.setDesc('Choose the path where your scripts are stored')
+			.addDropdown(dropDown => {
+				dropDown
+					.addOptions(this.getDropdownOptions())
+					.setValue(this.plugin.settings.scriptPath)
+					.onChange(async (value) => {
+						this.plugin.settings.scriptPath = value;
+						await this.plugin.saveSettings();
+					})
+			});
 	}
 }

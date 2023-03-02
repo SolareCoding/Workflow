@@ -5,6 +5,7 @@ import {UpdateMode, WorkPanelController} from "./WorkPanel.controller";
 import {WorkPanelModel} from "./WorkPanel.model";
 import {NodeModel} from "../nodes/Node.model";
 import {useEffect} from "react";
+import WorkflowPlugin from "../../main";
 
 /**
  * This is the main interface of workflows.
@@ -15,10 +16,12 @@ import {useEffect} from "react";
 interface WorkPanelProps {
 	data: string
 	saveData: (dataStr: string)=>void
+	plugin: WorkflowPlugin
 }
 
 const defaultController: WorkPanelController = {
-	updatePipeline(ipeline: PipelineModel) {},
+	plugin : undefined,
+	updatePipeline(pipeline: PipelineModel) {},
 	updateSection(pipeline: PipelineModel, section: SectionModel) {},
 	updateNode(pipeline: PipelineModel, section: SectionModel, node: NodeModel) {},
 }
@@ -41,6 +44,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	}, [workPanelData])
 
 	const workPanelController: WorkPanelController = {
+		plugin : props.plugin,
 		updatePipeline(pipeline: PipelineModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
 			const originalPipelines = pipeline.isTemplate ? workPanelData.templates : workPanelData.workflows
 			const newPipelines = []

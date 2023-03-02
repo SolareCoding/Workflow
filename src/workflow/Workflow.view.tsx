@@ -79,11 +79,13 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	const getFocusPipeline = () => {
 		if (!focusPipeline) {
-			return <Typography>
-				Open the left drawer to choose a workflow.
-				<br/>
-				Open the right drawer to manage templates.
-			</Typography>
+			return <div className={'workflow-container-outer'}>
+				<Typography sx={{minWidth: 500}}>
+					Open the left drawer to choose a workflow.
+					<br/>
+					Open the right drawer to manage templates.
+				</Typography>
+			</div>
 		}
 		return <PipelineView pipeline={focusPipeline} />
 	}

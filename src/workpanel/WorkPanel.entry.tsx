@@ -1,10 +1,11 @@
-import {TextFileView, TFile} from "obsidian";
+import {TextFileView, TFile, WorkspaceLeaf} from "obsidian";
 import {createRoot} from "react-dom/client";
 import * as React from "react";
 import WorkPanelView from "./WorkPanel.view";
-import DummyView from "../dummy/Dummy.view";
-import DummyListView from "../dummy/DummyList.view";
-import {DummyListModel} from "../dummy/DummyModel";
+import {
+	Plugin,
+} from 'obsidian';
+import WorkflowPlugin from "../../main";
 
 export const WORK_FLOW_VIEW = 'WorkFlowView'
 
@@ -12,6 +13,13 @@ export const WORK_FLOW_VIEW = 'WorkFlowView'
  * 主页面，从workflow文件进入的初始页面
  */
 export class WorkPanelEntry extends TextFileView {
+
+	plugin: WorkflowPlugin;
+
+	constructor(leaf: WorkspaceLeaf, plugin: WorkflowPlugin) {
+		super(leaf);
+		this.plugin = plugin;
+	}
 
 	root = createRoot(this.containerEl)
 
@@ -48,7 +56,7 @@ export class WorkPanelEntry extends TextFileView {
 		this.data = data;
 		this.root.render(
 			<React.StrictMode>
-				<WorkPanelView data={this.data} saveData={(data) => {this.updateData(data)}}/>
+				<WorkPanelView data={this.data} saveData={(data) => {this.updateData(data)}} plugin={this.plugin}/>
 				{/*<DummyListView dummyList={DummyListModel.newInstance()}/>*/}
 			</React.StrictMode>
 		)

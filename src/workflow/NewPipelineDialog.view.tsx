@@ -86,7 +86,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 				</Select>
 			</FormControl>
 			<FormControl variant="standard" sx={{margin:1}}>
-				<input style={{fontSize: '13px'}} id="template-simple" value={taskName} onChange={handleTaskNameChange} />
+				<input className={'workflow-input'} style={{fontSize: '13px'}} id="template-simple" value={taskName} onChange={handleTaskNameChange} />
 				<button
 					style={{marginTop: 10}}
 					onClick={() => {
