@@ -131,7 +131,7 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getTemplateKanban = () => {
-		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10, alignItems: 'center'}}>
+		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
 			{getFoldTemplateKanbanView()}
 			{!templateKanbanFold ? templateKanban : null}
 		</div>
@@ -146,7 +146,7 @@ export default function WorkflowView(props: WorkflowProps) {
 			width: '100%',
 		}}>
 			{getWorkflowKanban()}
-			<Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'scroll'}}>
+			<Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflowX: 'scroll'}}>
 				{getFocusPipeline()}
 			</Box>
 			{getTemplateKanban()}

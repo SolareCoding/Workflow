@@ -55,10 +55,15 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 	const getMacCommand = (): string => {
 		const vaultPath = getVaultBasePath(app)
 		const commandPath = `${vaultPath}/${shortCutCommand.commandFile}`
-		const commandFolderPath = commandPath.substring(0, commandPath.lastIndexOf('/'))
-		const fileName = shortCutCommand.commandFile.substring(shortCutCommand.commandFile.lastIndexOf('/') + 1)
 		const commandFolder = `${vaultPath}/${shortCutCommand.commandFolder}`
-		return `bash ${fileName} "${commandFolder}"`
+		return `${commandPath}`
+	}
+
+	const getMacCommandFolder = (): string => {
+		const vaultPath = getVaultBasePath(app)
+		const commandFolder = `${vaultPath}/${shortCutCommand.commandFolder}`
+		return `"${commandFolder}"`
+
 	}
 
 	// execute the stored command
@@ -72,8 +77,12 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 			if (!shortCutCommand.commandFile) {
 				return;
 			}
-			const command = Platform.isMacOS ? getMacCommand() : getWindowsCommand()
-			require('child_process').exec(command, { encoding: 'utf-8' })
+			if (Platform.isMacOS) {
+				console.log("file path: ", getMacCommand())
+				const result = require('child_process').execFile(getMacCommand(), [getMacCommandFolder()])
+			} else {
+				require('child_process').exec(getWindowsCommand(), { encoding: 'utf-8' })
+			}
 		} else if (shortCutCommand.type === CommandType.COPY_FILE) {
 			if (!shortCutCommand.commandFile || !shortCutCommand.commandFolder) {
 				return;
@@ -134,7 +143,13 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 		const settings = workPanelController.plugin?.settings
 		const shellFolder = app.vault.getAbstractFileByPath(settings?.scriptPath || '') as TFolder
 		Vault.recurseChildren(shellFolder, (f) => {
-			if (f instanceof TFile && f.extension.toLowerCase() === 'bat') {
+			if (f instanceof TFile) {
+				if (!Platform.isMacOS && f.extension.toLowerCase() !== 'bat') {
+					return
+				}
+				if (Platform.isMacOS && f.extension.toLowerCase() !== 'sh') {
+					return
+				}
 				options.push(<option value={f.path}>{f.path}</option>);
 			}
 		});

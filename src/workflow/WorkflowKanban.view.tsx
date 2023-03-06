@@ -176,7 +176,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 	}
 
 	return (
-		<div className={'workflow-container-outer'} style={{width: 300, height: '100%', overflow: 'scroll'}}>
+		<div className={'workflow-container-outer'} style={{width: 300, height: '100%', overflowY: 'scroll'}}>
 			<Typography variant="h5" gutterBottom>
 				{'Kanban: ' + kanbanTitle}
 			</Typography>

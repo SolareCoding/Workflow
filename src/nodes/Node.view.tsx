@@ -58,6 +58,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const onNodeUpdate = () => {
 		const newNode = Object.assign({}, node)
 		workPanelController.updateNode(pipeline, section, newNode)
+		console.log('onNodeUpdate is called')
 	}
 
 	const onNodeDelete = () => {

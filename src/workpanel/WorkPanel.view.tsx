@@ -46,6 +46,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	const workPanelController: WorkPanelController = {
 		plugin : props.plugin,
 		updatePipeline(pipeline: PipelineModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
+			console.log("updatePipeline is called")
 			const originalPipelines = pipeline.isTemplate ? workPanelData.templates : workPanelData.workflows
 			const newPipelines = []
 			for (let i = 0; i < originalPipelines.length; i++) {
@@ -59,7 +60,6 @@ export default function WorkPanelView(props: WorkPanelProps) {
 				newPipelines.push(pipeline)
 			}
 			setWorkPanelData(Object.assign({}, workPanelData, pipeline.isTemplate ? {templates: newPipelines} : {workflows: newPipelines}))
-			// savePipelines()
 		},
 		updateSection(pipeline: PipelineModel, section: SectionModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
 			const originalSections = pipeline.sections

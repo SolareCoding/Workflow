@@ -1,10 +1,11 @@
 import * as React from 'react';
+import {useEffect} from 'react';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import {PipelineModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import {FormControl, InputLabel, MenuItem} from "@mui/material";
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select, {SelectChangeEvent} from '@mui/material/Select';
 import UUIDUtils from "../utils/UUID.utils";
 
 export interface NewPipelineProps {
@@ -20,18 +21,39 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 	const [templateIndex, setTemplateIndex] = React.useState('');
 	const [taskName, setTaskName] = React.useState('新任务')
 
+	useEffect(() => {
+		setTaskName('新任务')
+	}, [open])
+
 	const handleCreateNew = () => {
 		if (templateIndex === '') {
 			return
 		}
-		let copied = Object.assign({}, templates[Number.parseInt(templateIndex)])
-		copied.templateTitle = copied.title
-		copied.title = taskName
-		copied.createTime = Date.now()
-		copied.status = NodeStatusEnum.PENDING
-		copied.isTemplate = false
-		copied.id = UUIDUtils.getUUID()
-		props.createNewTask(copied)
+		const template = templates[Number.parseInt(templateIndex)]
+		// deep copy template and modify uuid
+		const copiedSections = []
+		for (const section of template.sections) {
+			const copiedSection = Object.assign({}, section)
+			copiedSection.id = UUIDUtils.getUUID()
+			const copiedNodes = []
+			for (const node of copiedSection.nodes) {
+				const copiedNode = Object.assign({}, node)
+				copiedNode.id = UUIDUtils.getUUID()
+				copiedNodes.push(copiedNode)
+			}
+			copiedSection.nodes = copiedNodes
+			copiedSections.push(copiedSection)
+		}
+		const copiedPipeline: PipelineModel = {
+			templateTitle: template.title,
+			title: taskName,
+			createTime: Date.now(),
+			status: NodeStatusEnum.PENDING,
+			isTemplate: false,
+			id: UUIDUtils.getUUID(),
+			sections: copiedSections
+		}
+		props.createNewTask(copiedPipeline)
 	}
 
 	const getTemplateViews = () => {
