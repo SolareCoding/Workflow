@@ -115,7 +115,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 		}
 	}
 
-	const getPipelineMenuItems = () => {
+	const getPipelineKanbanItems = () => {
 		const menuItemViews = []
 		menuItemViews.push(
 			<ListItemButton key={'add new'}>
@@ -170,7 +170,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 				aria-labelledby="nested-list-subheader"
 				dense = {true}
 			>
-				{getPipelineMenuItems()}
+				{getPipelineKanbanItems()}
 			</List>
 		);
 	}

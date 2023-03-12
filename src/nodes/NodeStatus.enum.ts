@@ -8,4 +8,5 @@ export enum NodeActionEnum {
 	WORK = 'work',
 	CANCEL = 'cancel',
 	FINISH = 'finish',
+	FINISH_DIRECTLY = 'done'
 }

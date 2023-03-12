@@ -82,6 +82,11 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				node.status = NodeStatusEnum.DONE
 				node.finishTime = Date.now()
 				break;
+			case NodeActionEnum.FINISH_DIRECTLY:
+				node.status = NodeStatusEnum.DONE
+				node.startTime = Date.now()
+				node.finishTime = Date.now()
+				break;
 		}
 		onNodeUpdate();
 	};
@@ -119,6 +124,9 @@ export default function NodeView(nodeViewProps: NodeProps) {
 					<MenuItem sx={{fontSize: 13}} onClick={() => {
 						handleClose(NodeActionEnum.WORK)
 					}}>{NodeActionEnum.WORK}</MenuItem>,
+					<MenuItem sx={{fontSize: 13}} onClick={() => {
+						handleClose(NodeActionEnum.FINISH_DIRECTLY)
+					}}>{NodeActionEnum.FINISH_DIRECTLY}</MenuItem>,
 				])
 				break;
 			case NodeStatusEnum.WORKING:

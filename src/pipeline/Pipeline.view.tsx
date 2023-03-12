@@ -30,7 +30,11 @@ export default function PipelineView(props: PipelineProps) {
 	const workPanelController = useContext(WorkPanelContext)
 
 	const [title, setTitle] = useState(pipeline.title)
-	useEffect(() => setTitle(pipeline.title), [pipeline])
+
+	useEffect(() => {
+		setTitle(pipeline.title)
+		updatePipelineStatus()
+	}, [pipeline])
 
 	const getDividerView = () => {
 		return !isTemplate ? <KeyboardDoubleArrowRightIcon/> : null
@@ -113,6 +117,13 @@ export default function PipelineView(props: PipelineProps) {
 		} else {
 			return NodeStatusEnum.WORKING
 		}
+	}
+
+	const updatePipelineStatus = () => {
+		if (getPipelineStatus() == pipeline.status) {
+			return
+		}
+		workPanelController.updatePipeline(Object.assign({}, pipeline, {status: getPipelineStatus()}))
 	}
 
 	/**

@@ -46,7 +46,6 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	const workPanelController: WorkPanelController = {
 		plugin : props.plugin,
 		updatePipeline(pipeline: PipelineModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
-			console.log("updatePipeline is called")
 			const originalPipelines = pipeline.isTemplate ? workPanelData.templates : workPanelData.workflows
 			const newPipelines = []
 			for (let i = 0; i < originalPipelines.length; i++) {
