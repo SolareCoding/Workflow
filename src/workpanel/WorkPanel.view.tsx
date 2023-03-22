@@ -94,7 +94,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 
 	return (
 		<WorkPanelContext.Provider value={workPanelController} >
-			<div style={{  overflow: 'scroll', width: '100%', height: '100%'}} ref={ref}>
+			<div style={{ width: '100%', height: '100%'}} ref={ref}>
 				<WorkflowView workflows={workPanelData.workflows} templates={workPanelData.templates}/>
 			</div>
 		</WorkPanelContext.Provider>

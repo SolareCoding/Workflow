@@ -36,10 +36,6 @@ export default function PipelineView(props: PipelineProps) {
 		updatePipelineStatus()
 	}, [pipeline])
 
-	const getDividerView = () => {
-		return !isTemplate ? <KeyboardDoubleArrowRightIcon/> : null
-	}
-
 	const getColor = () => {
 		return PipelineColors.COLOR_MAP[pipeline.status]
 	}
@@ -62,12 +58,12 @@ export default function PipelineView(props: PipelineProps) {
 
 	const getTitleView = () => {
 		if (!isTemplate) {
-			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', marginBottom: 1}}>
+			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
 				<Typography sx={{fontSize: 20, fontWeight: 600, textAlign: 'center'}}>{'任务: ' + props.pipeline.title}</Typography>
 				{ getActionView() }
 			</Box>
 		} else {
-			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', marginBottom: 2}}>
+			return <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%'}}>
 				<input className={'workflow-input'} style={{fontSize: 20, fontWeight: 600}} id="template-simple" value={title} onChange={handlePipelineNameChange} />
 				{ getActionView() }
 			</Box>
@@ -76,16 +72,20 @@ export default function PipelineView(props: PipelineProps) {
 
 	const getSubTitleView = () => {
 		if (!isTemplate) {
-			return <Typography sx={{fontSize: 18, color: getColor(), fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'工作流: ' + props.pipeline.templateTitle}</Typography>
+			return <Typography sx={{fontSize: 18, color: getColor(), fontWeight: 600, marginTop: 2, textAlign: 'center'}}>{'工作流: ' + props.pipeline.templateTitle}</Typography>
 		} else {
-			return <Typography sx={{fontSize: 18, fontWeight: 600, marginBottom: 1, textAlign: 'center'}}>{'编辑工作流模板'}</Typography>
+			return <Typography sx={{fontSize: 18, fontWeight: 600, marginTop: 2, textAlign: 'center'}}>{'编辑工作流模板'}</Typography>
 		}
 	}
 
-	const getAddSectionView = (index: number) => {
-		if (!isTemplate) return false
+	const getDividerView = (index: number, end?: number) => {
+		if (!isTemplate) {
+			if (index === 0 || index == end)
+				return false
+			return <KeyboardDoubleArrowRightIcon style={{marginTop: '10px'}}/>
+		}
 		return <Box key = {'addCircle-' + index} onClick={() => {insertNewSection(index)}}>
-			<AddCircle/>
+			<AddCircle style={{marginTop: '10px'}}/>
 		</Box>
 	}
 
@@ -97,11 +97,11 @@ export default function PipelineView(props: PipelineProps) {
 
 	const getSectionViews = () => {
 		let sectionViews = []
-		sectionViews.push(getAddSectionView(0))
+		sectionViews.push(getDividerView(0))
 		for (let i = 0; i < sections.length; i++) {
 			let couldUpdate = i == 0 ? true : sections[i - 1].status == NodeStatusEnum.DONE
 			sectionViews.push(<SectionView key={'section-' + sections[i].id} pipeline={pipeline} section={sections[i]} couldUpdate={couldUpdate} editorMode={isTemplate}/>)
-			sectionViews.push(getAddSectionView(i + 1))
+			sectionViews.push(getDividerView(i + 1, sections.length))
 		}
 		return sectionViews
 	}
@@ -130,12 +130,14 @@ export default function PipelineView(props: PipelineProps) {
 	 * 更新所有Pipelines中的对应节点
 	 */
 	return (
-		<div >
+		<div style={{display: 'flex', width: '100%', alignItems:'center', justifyContent: 'center', height: '100%', paddingTop: '50px', flexDirection: 'column', minHeight: '1px', minWidth: '1px'}}>
 			{getTitleView()}
 			{getSubTitleView()}
-			<Stack spacing={1} sx={{alignItems: 'center'}} direction='row' divider={getDividerView()}>
-				{getSectionViews()}
-			</Stack>
+			<div style={{width: '100%',height: '100%', overflow: 'scroll'}}>
+				<div style={{display: 'inline-flex', flexDirection: 'row', alignItems: 'flex-start', margin: '50px 50px 50px 50px'}}>
+					{getSectionViews()}
+				</div>
+			</div>
 		</div>
 	);
 }

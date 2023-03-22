@@ -71,9 +71,9 @@ export default function SectionView(props: SectionProps) {
 
 	const getSectionTitleView = () => {
 		if (!editorMode) {
-			return <Typography sx={{fontSize: 16, maxWidth: 120, fontWeight: 600}}>{section.title}</Typography>
+			return <Typography sx={{fontSize: 16, width: 150, fontWeight: 600}}>{section.title}</Typography>
 		} else {
-			return <input className={'workflow-input'} style={{fontSize: 16, maxWidth: 120, fontWeight: 600}} id="template-simple" value={title} onChange={handleSectionNameChange} />
+			return <input className={'workflow-input'} style={{fontSize: 16, width: 150, fontWeight: 600}} id="template-simple" value={title} onChange={handleSectionNameChange} />
 		}
 	}
 
@@ -112,8 +112,9 @@ export default function SectionView(props: SectionProps) {
 	}
 
 	return (
-		<Box className={'workflow-container-outer'} sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: 1, borderRadius: 1}}>
+		<Box className={'workflow-container-outer'} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: 1, borderRadius: 1}}>
 			<Box sx={{
+				width: 180,
 				display: 'flex',
 				flexDirection: 'row',
 				alignItems: 'center',

@@ -79,7 +79,7 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	const getFocusPipeline = () => {
 		if (!focusPipeline) {
-			return <div className={'workflow-container-outer'}>
+			return <div className={'workflow-container-outer'} style={{width: '100%', height: '100%', display: "flex", alignItems: 'center', justifyContent: 'center'}}>
 				<Typography sx={{minWidth: 500}}>
 					Open the left drawer to choose a workflow.
 					<br/>
@@ -124,14 +124,14 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getWorkflowKanban = () => {
-		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
+		return <div className={'workflow-container-outer'} style={{position: 'absolute', left: 0, display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
 				{!workflowKanbanFold ? workflowKanban : null}
 				{getFoldWorkflowKanbanView()}
 		</div>
 	}
 
 	const getTemplateKanban = () => {
-		return <div style={{display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
+		return <div className={'workflow-container-outer'} style={{position: 'absolute', right: 0, display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
 			{getFoldTemplateKanbanView()}
 			{!templateKanbanFold ? templateKanban : null}
 		</div>
@@ -145,10 +145,8 @@ export default function WorkflowView(props: WorkflowProps) {
 			height: '100%',
 			width: '100%',
 		}}>
+			{getFocusPipeline()}
 			{getWorkflowKanban()}
-			<Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflowX: 'scroll'}}>
-				{getFocusPipeline()}
-			</Box>
 			{getTemplateKanban()}
 		</div>
 	)
