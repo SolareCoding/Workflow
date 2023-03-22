@@ -133,7 +133,7 @@ export default function PipelineView(props: PipelineProps) {
 		<div style={{display: 'flex', width: '100%', alignItems:'center', justifyContent: 'center', height: '100%', paddingTop: '50px', flexDirection: 'column', minHeight: '1px', minWidth: '1px'}}>
 			{getTitleView()}
 			{getSubTitleView()}
-			<div style={{width: '100%',height: '100%', overflow: 'scroll'}}>
+			<div style={{width: '100%',height: '100%', overflow: 'scroll', marginTop: '10px'}}>
 				<div style={{display: 'inline-flex', flexDirection: 'row', alignItems: 'flex-start', margin: '50px 50px 50px 50px'}}>
 					{getSectionViews()}
 				</div>
