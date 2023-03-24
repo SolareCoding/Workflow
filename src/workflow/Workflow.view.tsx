@@ -125,15 +125,15 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	const getWorkflowKanban = () => {
 		return <div className={'workflow-container-outer'} style={{position: 'absolute', left: 0, display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
-				{!workflowKanbanFold ? workflowKanban : null}
-				{getFoldWorkflowKanbanView()}
+			{getFoldWorkflowKanbanView()}
+			{!workflowKanbanFold ? workflowKanban : null}
 		</div>
 	}
 
 	const getTemplateKanban = () => {
 		return <div className={'workflow-container-outer'} style={{position: 'absolute', right: 0, display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
-			{getFoldTemplateKanbanView()}
 			{!templateKanbanFold ? templateKanban : null}
+			{getFoldTemplateKanbanView()}
 		</div>
 	}
 

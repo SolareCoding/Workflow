@@ -82,10 +82,10 @@ export default function PipelineView(props: PipelineProps) {
 		if (!isTemplate) {
 			if (index === 0 || index == end)
 				return false
-			return <KeyboardDoubleArrowRightIcon style={{marginTop: '10px'}}/>
+			return <KeyboardDoubleArrowRightIcon style={{margin: '10px 10px 10px 10px'}}/>
 		}
 		return <Box key = {'addCircle-' + index} onClick={() => {insertNewSection(index)}}>
-			<AddCircle style={{marginTop: '10px'}}/>
+			<AddCircle style={{margin: '10px 10px 10px 10px'}}/>
 		</Box>
 	}
 
@@ -134,7 +134,7 @@ export default function PipelineView(props: PipelineProps) {
 			{getTitleView()}
 			{getSubTitleView()}
 			<div style={{width: '100%',height: '100%', overflow: 'scroll', marginTop: '10px'}}>
-				<div style={{display: 'inline-flex', flexDirection: 'row', alignItems: 'flex-start', margin: '50px 50px 50px 50px'}}>
+				<div style={{display: 'inline-flex', flexDirection: 'row', alignItems: 'flex-start', margin: '0px 50px 50px 50px'}}>
 					{getSectionViews()}
 				</div>
 			</div>
