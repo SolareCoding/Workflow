@@ -1,87 +1,106 @@
-import {Box, Divider, Stack} from "@mui/material";
 import * as React from "react";
-import {useEffect, useState} from "react";
-import {PomodoroModel, PomodorosModel} from "./Pomodoro.model";
-import PomodoroView from "./Pomodoro.view";
+import {useContext, useState} from "react";
+import {PomodoroModel, PomodoroStatus} from "./Pomodoro.model";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import TocIcon from '@mui/icons-material/Toc';
+import {PipelineModel} from "../pipeline/Pipeline.model";
+import {WorkPanelContext} from "../workpanel/WorkPanel.view";
+import {UpdateMode} from "../workpanel/WorkPanel.controller";
+import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 
+/**
+ * 创建、管理所有的番茄时钟？
+ */
 export interface PomodoroPanelProps {
-	pomodoroData: PomodorosModel
-	saveData: () => void
+	setFocusedPomodoro: (pomodoro: PomodoroModel) => void
+	focusedPipeline?: PipelineModel
+	focusedPomodoro?: PomodoroModel
+	showList: boolean,
+	setShowList: (showList: boolean) => void
+	pomodoroList: PomodoroModel[]
 }
 
 export default function PomodoroPanelView(props: PomodoroPanelProps) {
 
-	const { pomodoroData, saveData } = props
-	const pomodoros = pomodoroData.data
+	const {setFocusedPomodoro, focusedPomodoro, focusedPipeline, pomodoroList,showList, setShowList} = props
+	const workPanelController = useContext(WorkPanelContext)
 
-	const getKanbanPipelines = () => {
-		const result = []
-		for (const pomodoro of pomodoros) {
-			result.push(pomodoro);
+	const addNewPomodoro = () => {
+		// Check focused pipeline, no pipeline or template pipeline should return
+		if (!focusedPipeline || focusedPipeline.isTemplate) {
+			return
 		}
-		return result;
+		// check pomodoro
+		if (focusedPomodoro && !focusedPomodoro.status) {
+			return
+		}
+		const newPomodoro = PomodoroModel.newInstance(focusedPipeline)
+		workPanelController.updatePomodoro(newPomodoro, UpdateMode.ADD)
+		setFocusedPomodoro(newPomodoro)
+		console.log("add new pomodoro")
 	}
 
-	const getPomodoroView = () => {
-		if (focusPomodoro) {
-			return <PomodoroView pomodoro={focusPomodoro}/>
-		}
-		return null
+	const pausePomodoro = () => {
+		updatePomodoroStatus(PomodoroStatus.PAUSED)
 	}
 
-	const getDefaultPomodoro = () => {
-		if (pomodoros.length > 0) {
-			return pomodoros[0]
-		} else {
+	const resumePomodoro = () => {
+		updatePomodoroStatus(PomodoroStatus.RUNNING)
+	}
+
+	const stopPomodoro = () => {
+		updatePomodoroStatus(PomodoroStatus.FINISHED)
+	}
+
+	const updatePomodoroStatus = (status: PomodoroStatus) => {
+		if (!focusedPomodoro || focusedPomodoro.status === PomodoroStatus.FINISHED) {
+			return
+		}
+		const copiedPomodoro = Object.assign({}, focusedPomodoro, {status: status})
+		workPanelController.updatePomodoro(copiedPomodoro)
+	}
+
+	const getAddView = () => {
+		if (focusedPomodoro && focusedPomodoro.status != PomodoroStatus.FINISHED) {
 			return null
 		}
+		return <AddCircleIcon onClick={addNewPomodoro}/>
 	}
 
-	const [focusPomodoro, setFocusPomodoro] = useState(getDefaultPomodoro())
-	const [flag, setFlag] = useState(false)
-
-	useEffect(()=> setFocusPomodoro(getDefaultPomodoro()))
-
-	// update workflows
-	const save = () => {
-		saveData()
+	const getPauseResumeView = () => {
+		if (!focusedPomodoro || focusedPomodoro.status == PomodoroStatus.FINISHED) {
+			return null
+		}
+		if (focusedPomodoro.status == PomodoroStatus.RUNNING) {
+			return <PauseCircleIcon onClick={pausePomodoro}/>
+		} else {
+			return <PlayCircleIcon onClick={resumePomodoro} />
+		}
 	}
 
-	// /**
-	//  * 更新Selected Pipeline
-	//  */
-	// const onPipelineUpdate = () => {
-	// 	save()
-	// }
-	//
-	// const onPipelineRemove = (pipeline: PipelineModel, editorMode?: boolean) => {
-	// 	if (!editorMode) {
-	// 		pipelines.remove(pipeline)
-	// 	} else {
-	// 		templatePLs.remove(pipeline)
-	// 	}
-	// 	setFocusPomodoro(getDefaultPomodoro)
-	// 	save()
-	// }
-	//
-	// const insertPipeline = (pipeline: PipelineModel, editorMode: boolean) => {
-	// 	if (!editorMode) {
-	// 		pipelines.push(pipeline)
-	// 	} else {
-	// 		templatePLs.push(pipeline)
-	// 	}
-	// 	save()
-	// }
-	const selectPipeline = (pomodoro: PomodoroModel) => {
-		setFocusPomodoro(pomodoro)
-		setFlag(!flag)
+	const getStopView = () => {
+		if (!focusedPomodoro || focusedPomodoro.status == PomodoroStatus.FINISHED) {
+			return null
+		}
+		return <StopCircleIcon onClick={stopPomodoro}/>
 	}
 
-	// const templateKanban = <WorkflowKanbanView editorMode={true} kanbanTitle={'Template'} pipelines={templateWF} selectPipeline={selectPipeline} templates={templatePLs} addNewPipeline={(pipeline) => insertPipeline(pipeline, true)} />
+	const getListView = () => {
+		if (!showList) {
+			return <TocIcon onClick={() => setShowList(!showList)}/>
+		}
+		return <AlarmOnIcon onClick={() => setShowList(!showList)}/>
+	}
 
 	return(
-		<div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', margin: 3}}>
-			{ getPomodoroView() }
+		<div style={{width: 345, display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: 1}}>
+			{ getAddView() }
+			{ getPauseResumeView() }
+			{ getStopView() }
+			{ getListView() }
 		</div>
 	)
 }

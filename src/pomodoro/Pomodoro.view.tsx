@@ -1,56 +1,54 @@
 import * as React from "react";
-import {PomodoroModel} from "./Pomodoro.model";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
+import {PomodoroModel, PomodoroStatus} from "./Pomodoro.model";
+import {TimeUtils} from "../utils/Time.utils";
+import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 
 export interface PomodoroProps {
 	pomodoro: PomodoroModel,
-	updateData?: (data: string) => void
 }
 
 export default function PomodoroView(props: PomodoroProps) {
 
-	const pomodoro = props.pomodoro
-
-	const getTimeLeft = (pomodoro: PomodoroModel): string => {
-		let leftTime = pomodoro.startTime + pomodoro.duration - new Date().getTime();
-		let minutes = (leftTime / 1000 / 60).toFixed(0);
-		let seconds = (leftTime % 60000 / 1000).toFixed(0);
-		return minutes + ':' + seconds;
-	}
-
-	const [timeLeft, setTimeleft] = useState(getTimeLeft(pomodoro))
+	const { pomodoro } = props
+	const workPanelController = useContext(WorkPanelContext)
 
 	let timerID: any
 
-	useEffect(() => startTimer())
-
-	const startTimer = () => {
-		if (timerID) {
-			clearInterval(this.timerID);
+	useEffect(() => {
+			timerID = setTimeout(() => tick(), 1000)
+			return () => clearTimeout(timerID)
 		}
-		timerID = setInterval(
-			() => tick(),
-			1000
-		)
-	}
+	)
 
 	const tick = () => {
-		setTimeleft(getTimeLeft(pomodoro))
+		clearTimeout(timerID)
+		if (pomodoro.status != PomodoroStatus.RUNNING) {
+			return
+		}
+		const copiedPomodoro = Object.assign({}, pomodoro, {timeleft: pomodoro.timeleft-1})
+		workPanelController.updatePomodoro(copiedPomodoro)
+		if (copiedPomodoro.timeleft > 0) {
+			timerID = setTimeout(() => tick(), 1000)
+		} else {
+			pomodoro.status = PomodoroStatus.FINISHED
+		}
 	}
 
 	return (
 		<div
-			className={'workflow-container-outer'}
+			className={'workflow-container-inner'}
 			style={{
-			marginTop: 30,
-			maxWidth: 345,
-			display: 'flex',
-			flexDirection: 'column',
+				maxWidth: 400,
+				justifyContent: 'center',
+				alignItems: 'center',
+				display: 'flex',
+				flexDirection: 'row',
 		}}>
-			<div style={{width: '100%', }}> {pomodoro?.title} </div>
-			<p>
-				{timeLeft}
-			</p>
+				<div className={'workflow-text-accent'} style={{width: '100%', fontSize: 16, fontWeight: 600}}> {pomodoro?.title} </div>
+				<div style={{minWidth: 45}}>
+					{TimeUtils.getMMSSStr(pomodoro.timeleft)}
+				</div>
 		</div>
 	);
 }

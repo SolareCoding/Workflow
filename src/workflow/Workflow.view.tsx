@@ -7,10 +7,13 @@ import {PipelineModel} from "../pipeline/Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import FloatingBarView from "../floating/FloatingBar.view";
+import {PomodoroModel} from "../pomodoro/Pomodoro.model";
 
 export interface WorkflowProps {
 	workflows: PipelineModel[]
 	templates: PipelineModel[]
+	pomodoro: PomodoroModel[]
 }
 
 export default function WorkflowView(props: WorkflowProps) {
@@ -137,6 +140,10 @@ export default function WorkflowView(props: WorkflowProps) {
 		</div>
 	}
 
+	const getFloatingBarView = () => {
+		return <FloatingBarView focusedPipeline={focusPipeline} pomodoroArray={props.pomodoro}/>
+	}
+
 	return (
 		<div style={{
 			display: 'flex',
@@ -148,6 +155,7 @@ export default function WorkflowView(props: WorkflowProps) {
 			{getFocusPipeline()}
 			{getWorkflowKanban()}
 			{getTemplateKanban()}
+			{getFloatingBarView()}
 		</div>
 	)
 }

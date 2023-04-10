@@ -6,6 +6,7 @@ import {WorkPanelModel} from "./WorkPanel.model";
 import {NodeModel} from "../nodes/Node.model";
 import {useEffect} from "react";
 import WorkflowPlugin from "../../main";
+import {PomodoroModel} from "../pomodoro/Pomodoro.model";
 
 /**
  * This is the main interface of workflows.
@@ -24,6 +25,7 @@ const defaultController: WorkPanelController = {
 	updatePipeline(pipeline: PipelineModel) {},
 	updateSection(pipeline: PipelineModel, section: SectionModel) {},
 	updateNode(pipeline: PipelineModel, section: SectionModel, node: NodeModel) {},
+	updatePomodoro(pomodoro: PomodoroModel) {},
 }
 export const WorkPanelContext = React.createContext(defaultController)
 
@@ -90,12 +92,28 @@ export default function WorkPanelView(props: WorkPanelProps) {
 			}
 			this.updateSection(pipeline, Object.assign({}, section, {nodes: newNodes}))
 		},
+		updatePomodoro(pomodoro: PomodoroModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
+			const originalPomodoro = workPanelData.pomodoro
+			const newPomodoro = []
+			for (let i = 0; i < originalPomodoro.length; i++) {
+				if (originalPomodoro[i].id != pomodoro.id) {
+					newPomodoro.push(originalPomodoro[i])
+				} else if (updateMode == UpdateMode.UPDATE) {
+					newPomodoro.push(pomodoro)
+				}
+			}
+			if (updateMode == UpdateMode.ADD) {
+				newPomodoro.push(pomodoro)
+			}
+			console.log(JSON.stringify(newPomodoro))
+			setWorkPanelData(Object.assign({}, workPanelData, {pomodoro: newPomodoro}))
+		}
 	}
 
 	return (
 		<WorkPanelContext.Provider value={workPanelController} >
 			<div style={{ width: '100%', height: '100%'}} ref={ref}>
-				<WorkflowView workflows={workPanelData.workflows} templates={workPanelData.templates}/>
+				<WorkflowView workflows={workPanelData.workflows} templates={workPanelData.templates} pomodoro={workPanelData.pomodoro}/>
 			</div>
 		</WorkPanelContext.Provider>
 	);

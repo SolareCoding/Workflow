@@ -14,6 +14,15 @@ If your plugin does not need CSS, delete this file.
 	flex-direction: column;
 	padding: 6px;
 }
+.workflow-container-floating {
+	background: var(--background-secondary);
+	display: flex;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	flex-direction: column;
+	padding: 6px;
+	box-shadow: 1px 1px #ACACAC;
+}
 .workflow-container-inner {
 	background: var(--background-primary);
 	display: flex;
