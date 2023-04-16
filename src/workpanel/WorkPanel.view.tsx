@@ -105,7 +105,6 @@ export default function WorkPanelView(props: WorkPanelProps) {
 			if (updateMode == UpdateMode.ADD) {
 				newPomodoro.push(pomodoro)
 			}
-			console.log(JSON.stringify(newPomodoro))
 			setWorkPanelData(Object.assign({}, workPanelData, {pomodoro: newPomodoro}))
 		}
 	}

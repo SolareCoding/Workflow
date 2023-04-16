@@ -9,6 +9,7 @@ export enum PomodoroStatus {
 	FINISHED,
 }
 export class PomodoroModel {
+	editMode: boolean;
 	title: string;
 	duration: number;
 	startTime: number;
@@ -19,6 +20,7 @@ export class PomodoroModel {
 
 	public static newInstance(pipeline: PipelineModel): PomodoroModel {
 		let pomodoroModel = new PomodoroModel()
+		pomodoroModel.editMode = true
 		pomodoroModel.pipelineId = pipeline.id
 		pomodoroModel.id = UUIDUtils.getUUID()
 		pomodoroModel.title = pipeline.title + ' ' + TimeUtils.getDateTimeStr(Date.now())
