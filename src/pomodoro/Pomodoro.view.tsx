@@ -3,6 +3,7 @@ import {useContext, useEffect, useState} from "react";
 import {PomodoroModel, PomodoroStatus} from "./Pomodoro.model";
 import {TimeUtils} from "../utils/Time.utils";
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
+import {NotificationUtils} from "../utils/Notification.utils";
 
 export interface PomodoroProps {
 	pomodoro: PomodoroModel,
@@ -36,6 +37,7 @@ export default function PomodoroView(props: PomodoroProps) {
 			timerID = setTimeout(() => tick(), 1000)
 		} else {
 			pomodoro.status = PomodoroStatus.FINISHED
+			NotificationUtils.sendMessage('Pomodoro ' + pomodoro.title + 'has finished')
 		}
 	}
 
