@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {PomodoroModel, PomodoroStatus} from "./Pomodoro.model";
 import {TimeUtils} from "../utils/Time.utils";
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
@@ -16,29 +16,37 @@ export default function PomodoroView(props: PomodoroProps) {
 	const [title, setTitle] = useState(pomodoro.title)
 	const [timeLeft, setTimeLeft] = useState(pomodoro.timeleft)
 
-	let timerID: any
+	let timer = useRef<any>()
+	let pomodoroRef = useRef<PomodoroModel>(pomodoro)
 
 	useEffect(() => {
-			if (!pomodoro.editMode) {
-				timerID = setTimeout(() => tick(), 1000)
-			}
-			return () => clearTimeout(timerID)
-		}, [pomodoro]
-	)
+		timer.current = setInterval(tick, 1000)
+		return () => {
+			clearInterval(timer.current)
+		}
+	}, [])
+
+	useEffect(() => {
+		pomodoroRef.current = pomodoro
+	}, [props])
+
+	const getPomodoro = () => {
+		return pomodoroRef.current
+	}
 
 	const tick = () => {
-		clearTimeout(timerID)
-		if (pomodoro.status != PomodoroStatus.RUNNING) {
+		if (getPomodoro().editMode) {
 			return
 		}
-		const copiedPomodoro = Object.assign({}, pomodoro, {timeleft: pomodoro.timeleft-1})
-		workPanelController.updatePomodoro(copiedPomodoro)
-		if (copiedPomodoro.timeleft > 0) {
-			timerID = setTimeout(() => tick(), 1000)
-		} else {
-			pomodoro.status = PomodoroStatus.FINISHED
-			NotificationUtils.sendMessage('Pomodoro ' + pomodoro.title + 'has finished')
+		if (getPomodoro().status != PomodoroStatus.RUNNING) {
+			return
 		}
+		const copiedPomodoro = Object.assign({}, getPomodoro(), {timeleft: getPomodoro().timeleft-1})
+		if (copiedPomodoro.timeleft <= 0) {
+			copiedPomodoro.status = PomodoroStatus.FINISHED
+			NotificationUtils.sendMessage('Pomodoro [' + getPomodoro().title + '] has finished')
+		}
+		workPanelController.updatePomodoro(copiedPomodoro)
 	}
 
 	const handlePomodoroTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,6 +70,7 @@ export default function PomodoroView(props: PomodoroProps) {
 
 	const getTimeLeftOptions = () => {
 		const options = []
+		options.push(<option key={'100'} value={'10'}>{'test'} </option>)
 		options.push(<option key={'900'} value={'900'}>{'15min'} </option>)
 		options.push(<option key={'1800'} value={'1800'}>{'30min'} </option>)
 		options.push(<option key={'2700'} value={'2700'}>{'45min'} </option>)
@@ -74,7 +83,7 @@ export default function PomodoroView(props: PomodoroProps) {
 				{getTimeLeftOptions()}
 			</select>
 		} else {
-			return <div style={{minWidth: 45}}>
+			return <div style={{minWidth: 50}}>
 				{TimeUtils.getMMSSStr(pomodoro.timeleft)}
 			</div>
 		}

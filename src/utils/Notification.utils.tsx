@@ -8,9 +8,9 @@ export class NotificationUtils {
 						body: msg,
 					})
 
-					setTimeout(() => {
-						n.close();
-					}, 5000)
+					// setTimeout(() => {
+					// 	n.close();
+					// }, 5000)
 
 					n.onclick = function (e) {
 						window.open("obsidian://open?vault=BrainAttic")

@@ -1,4 +1,4 @@
-import {Box, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import * as React from "react";
 import {useEffect, useState} from "react";
 import WorkflowKanbanView, {SectionPipelines} from "./WorkflowKanban.view";
@@ -20,18 +20,18 @@ export default function WorkflowView(props: WorkflowProps) {
 
 	const [workflowKanbanFold, setWorkflowKanbanFold] = useState(true)
 	const [templateKanbanFold, setTemplateKanbanFold] = useState(true)
-	const [focusPipeline, setFocusPipeline] = useState(props.workflows.length > 0 ? props.workflows[0] : undefined)
+	const [focusPipeline, setFocusPipeline] = useState<PipelineModel|undefined>(undefined)
 
 	useEffect(()=> {
 		// no prev focus pipeline
 		if (!focusPipeline) {
-			setFocusPipeline(props.workflows.length > 0 ? props.workflows[0] : undefined)
+			setFocusPipeline(getDefaultFocusedPipeline(props.workflows))
 			return
 		}
 		if (!focusPipeline.isTemplate && !props.workflows.contains(focusPipeline)) {
 			const samePipelineIndex = props.workflows.findIndex((value, index, object) => value.id === focusPipeline.id)
 			if (samePipelineIndex === -1) {
-				setFocusPipeline(props.workflows.length > 0 ? props.workflows[0] : undefined)
+				setFocusPipeline(getDefaultFocusedPipeline(props.workflows))
 			} else {
 				setFocusPipeline(props.workflows[samePipelineIndex])
 			}
@@ -47,6 +47,21 @@ export default function WorkflowView(props: WorkflowProps) {
 			return
 		}
 	}, [props])
+
+	const getDefaultFocusedPipeline = (pipelines: PipelineModel[]) => {
+		console.log('getDefaultFocusedPipeline')
+		for (const pipeline of pipelines) {
+			if (pipeline.status == NodeStatusEnum.WORKING) {
+				return pipeline
+			}
+		}
+		for (const pipeline of pipelines) {
+			if (pipeline.status == NodeStatusEnum.PENDING) {
+				return pipeline
+			}
+		}
+		return undefined
+	}
 
 	const getKanbanPipelines = () => {
 		const sectionPipelines:SectionPipelines[] = []
@@ -134,7 +149,7 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getTemplateKanban = () => {
-		return <div className={'workflow-container-outer'} style={{position: 'absolute', right: 0, display: 'flex', flexDirection: 'row', height: '100%', padding: 10}}>
+		return <div className={'workflow-container-outer'} style={{position: 'absolute', right: 0, display: 'flex', flexDirection: 'row', height: '100%', padding: 10, marginTop: 10, marginBottom: 10}}>
 			{!templateKanbanFold ? templateKanban : null}
 			{getFoldTemplateKanbanView()}
 		</div>
