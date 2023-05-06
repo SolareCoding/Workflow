@@ -150,7 +150,7 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 		return <StopCircleIcon onClick={stopPomodoro}/>
 	}
 
-	const getListView = () => {
+	const getListSwitcherView = () => {
 		if (focusedPomodoro?.editMode) {
 			return null
 		}
@@ -184,7 +184,7 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 				{getSaveView()}
 				{getPauseResumeView()}
 				{getStopView()}
-				{getListView()}
+				{getListSwitcherView()}
 			</div>
 		</div>
 	)

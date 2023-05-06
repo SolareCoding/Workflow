@@ -8,6 +8,8 @@ import ListItemButton from "@mui/material/ListItemButton";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import {UpdateMode} from "../workpanel/WorkPanel.controller";
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 
 export interface PomodoroProps {
 	focusedPomodoro: PomodoroModel | undefined,
@@ -18,7 +20,8 @@ export interface PomodoroProps {
 export default function PomodoroListView(props: PomodoroProps) {
 
 	const { focusedPomodoro, pomodoroArray, setFocusPomodoro } = props
-	const [showAll, setShowAll] = useState(false)
+	const [showAllFinishedItems, setShowAllFinishedItems] = useState(false)
+	const [showAllRunningItems, setShowAllRunningItems] = useState(true)
 	const workPanelController = useContext(WorkPanelContext)
 
 	const getPomodoroItemViews = () => {
@@ -27,6 +30,9 @@ export default function PomodoroListView(props: PomodoroProps) {
 			if (pomodoroModel.status != PomodoroStatus.FINISHED) {
 				itemViews.push(getPomodoroItemView(pomodoroModel))
 			}
+		}
+		if (itemViews.length == 0) {
+			itemViews.push(getEmptyHintItemView())
 		}
 		return itemViews
 	}
@@ -37,6 +43,9 @@ export default function PomodoroListView(props: PomodoroProps) {
 			if (pomodoroModel.status == PomodoroStatus.FINISHED) {
 				itemViews.push(getPomodoroItemView(pomodoroModel))
 			}
+		}
+		if (itemViews.length == 0) {
+			itemViews.push(getEmptyHintItemView())
 		}
 		return itemViews
 	}
@@ -67,24 +76,54 @@ export default function PomodoroListView(props: PomodoroProps) {
 		</ListItemButton>
 	}
 
+	const getEmptyHintItemView = () => {
+		return <ListItemButton key={'emptyHintItem'}>
+			<Box
+				className={'workflow-container-inner'}
+				sx={{
+					width: '100%',
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					id: 'emptyHintItem'
+				}}>
+				<div style={{width: '100%', fontSize: 14}}> No pomodoro</div>
+			</Box>
+		</ListItemButton>
+	}
+
 	const deletePomodoro = (pomodoroItem: PomodoroModel) => {
 		workPanelController.updatePomodoro(pomodoroItem, UpdateMode.DELETE)
 	}
 
-	const getShowFinishedItemListButton = () => {
-		const hintText = showAll? 'Hide finished items' : 'Show finished items'
-		return <div style={{marginRight: 25, width: '100%', textAlign: "end"}} onClick={() => setShowAll(!showAll)}> { hintText }</div>
+	const getShowRunningItemListButton = () => {
+		const hintIcon = showAllRunningItems ? <UnfoldLessIcon fontSize={'inherit'} /> : <UnfoldMoreIcon fontSize={'inherit'}/>
+		return <div style={{marginRight: 25, width: '100%', flexDirection: 'row-reverse', display: "flex", alignItems: 'center'}}
+					onClick={() => setShowAllRunningItems(!showAllRunningItems)}>
+			{hintIcon}
+			<div style={{textAlign: "end"}}> Running pomodoro </div>
+		</div>
 	}
 
-	const getDoneItemListView = () => {
-		return !showAll ? null :
+	const getShowFinishedItemListButton = () => {
+		const hintIcon = showAllFinishedItems ? <UnfoldLessIcon fontSize={'inherit'} /> : <UnfoldMoreIcon fontSize={'inherit'}/>
+		return <div style={{marginRight: 25, width: '100%', flexDirection: 'row-reverse', display: "flex", alignItems: 'center'}}
+					onClick={() => setShowAllFinishedItems(!showAllFinishedItems)}>
+			{hintIcon}
+			<div style={{textAlign: "end"}}> Finished pomodoro </div>
+		</div>
+	}
+
+	const getItemListView = (itemStatus: PomodoroStatus, show: boolean) => {
+		return !show ? null :
 			<List
 				sx={{ width: '100%', maxHeight: 300}}
 				component="nav"
 				aria-labelledby="nested-list-subheader"
 				dense = {true}
 			>
-				{getPomodoroDoneItemViews()}
+				{itemStatus == PomodoroStatus.RUNNING ? getPomodoroItemViews() : getPomodoroDoneItemViews()}
 			</List>
 	}
 
@@ -93,24 +132,19 @@ export default function PomodoroListView(props: PomodoroProps) {
 			className={'workflow-container-inner'}
 			style={{
 				maxHeight: 600,
-				maxWidth: '100%',
+				width: '100%',
 				justifyContent: 'center',
 				alignItems: 'center',
 				display: 'flex',
 				flexDirection: 'column',
-				overflow: 'scroll'
+				overflowY: 'scroll',
+				overflowX: 'hidden'
 			}}>
-
-			<List
-				sx={{ width: '100%', maxHeight: 300}}
-				component="nav"
-				aria-labelledby="nested-list-subheader"
-				dense = {true}
-			>
-				{getPomodoroItemViews()}
-			</List>
+			{getShowRunningItemListButton()}
+			{getItemListView(PomodoroStatus.RUNNING, showAllRunningItems)}
+			<div style={{width: '100%', height: '0.5px', backgroundColor: 'var(--background-modifier-border)', marginBottom: '3px', marginTop: '3px'}} />
 			{getShowFinishedItemListButton()}
-			{getDoneItemListView()}
+			{getItemListView(PomodoroStatus.FINISHED, showAllFinishedItems)}
 		</div>
 	);
 }
