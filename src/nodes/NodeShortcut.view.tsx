@@ -98,6 +98,11 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 					})
 				}
 			})
+		} else if (shortCutCommand.type === CommandType.OPEN_FILE) {
+			if (!shortCutCommand.commandFile) {
+				return
+			}
+			openFileInNewLeaf(shortCutCommand.commandFile, app)
 		}
 	}
 
@@ -131,6 +136,7 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 		const options = []
 		options.push(<option value={CommandType.SHELL}>{CommandType.SHELL}</option>);
 		options.push(<option value={CommandType.COPY_FILE}>{CommandType.COPY_FILE}</option>);
+		options.push(<option value={CommandType.OPEN_FILE}>{CommandType.OPEN_FILE}</option>)
 		return options;
 	}
 

@@ -7,29 +7,44 @@ import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import {FormControl, InputLabel, MenuItem} from "@mui/material";
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import UUIDUtils from "../utils/UUID.utils";
+import {SubjectModel} from "../subject/Subject.model";
 
 export interface NewPipelineProps {
 	open: boolean;
 	templates: PipelineModel[];
+	subjects: SubjectModel[];
 	closeDialog: () => void;
 	createNewTask: (newPipeline: PipelineModel) => void;
+	preSelectedTemplate?: PipelineModel | null;
+	preSetWorkflowName?: string | null
 }
 
 export default function NewPipelineDialog(props: NewPipelineProps) {
 
-	const { closeDialog, templates, open } = props;
+	const { closeDialog, templates, open, subjects, preSelectedTemplate, preSetWorkflowName } = props;
 	const [templateIndex, setTemplateIndex] = React.useState('');
+	const [subjectIndex, setSubjectIndex] = React.useState('');
 	const [taskName, setTaskName] = React.useState('新任务')
 
 	useEffect(() => {
 		setTaskName('新任务')
 	}, [open])
 
+	useEffect(() => {
+		if (!preSelectedTemplate || !preSetWorkflowName) {
+			return
+		}
+		const templateIndex = templates.indexOf(preSelectedTemplate)
+		setTemplateIndex(templateIndex.toString())
+		setTaskName(preSetWorkflowName)
+	}, [preSelectedTemplate, templates, preSetWorkflowName])
+
 	const handleCreateNew = () => {
 		if (templateIndex === '') {
 			return
 		}
 		const template = templates[Number.parseInt(templateIndex)]
+		const subject = subjects[Number.parseInt(subjectIndex)]
 		// deep copy template and modify uuid
 		const copiedSections = []
 		for (const section of template.sections) {
@@ -51,6 +66,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 			status: NodeStatusEnum.PENDING,
 			isTemplate: false,
 			id: UUIDUtils.getUUID(),
+			subjectID: subject?.id || '0',
 			sections: copiedSections
 		}
 		props.createNewTask(copiedPipeline)
@@ -69,6 +85,21 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 
 	const handleTemplateChange = (event: SelectChangeEvent) => {
 		setTemplateIndex(event.target.value as string);
+	};
+
+	const getSubjectViews = () => {
+		let subjectsViews = []
+		for (let i = 0; i < subjects.length; i++) {
+			let subject = subjects[i]
+			subjectsViews.push(
+				<MenuItem key={'subject-' + subject.id} sx={{color: 'var(--text-normal)', fontSize: '13px'}} value={i}>{subject.name}</MenuItem>
+			)
+		}
+		return subjectsViews
+	}
+
+	const handleSubjectChange = (event: SelectChangeEvent) => {
+		setSubjectIndex(event.target.value as string);
 	};
 
 	const handleTaskNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +136,26 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 					onChange={handleTemplateChange}
 				>
 					{getTemplateViews()}
+				</Select>
+			</FormControl>
+			<FormControl variant="standard" sx={{margin:1}}>
+				<InputLabel id="subject-select-label" sx={{color: 'var(--text-normal)'}}>Select subject</InputLabel>
+				<Select
+					style={{
+						color: 'var(--text-normal)',
+						fontSize: '13px'
+					}}
+					MenuProps={{ PaperProps: {
+							sx: {
+								backgroundColor: 'var(--background-secondary)',
+								color: '#FFFFFF',
+							},},
+					}}
+					id="subject-select"
+					value={subjectIndex}
+					onChange={handleSubjectChange}
+				>
+					{getSubjectViews()}
 				</Select>
 			</FormControl>
 			<FormControl variant="standard" sx={{margin:1}}>

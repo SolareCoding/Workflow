@@ -61,3 +61,13 @@ If your plugin does not need CSS, delete this file.
 	border-radius: 3px;
 	border: 1px solid var(--background-modifier-border);
 }
+.workflow-span {
+	background: var(--interactive-accent);
+	display: flex;
+	border-radius: 6px;
+	border: 1px solid var(--background-primary);
+	color: var(--background-primary);
+	flex-direction: column;
+	padding-left: 3px;
+	padding-right: 3px;
+}

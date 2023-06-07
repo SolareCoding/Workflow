@@ -32,6 +32,7 @@
 		"immutable": "^4.2.4",
 		"preact": "^10.8.2",
 		"react": "npm:@preact/compat",
-		"react-dom": "npm:@preact/compat"
+		"react-dom": "npm:@preact/compat",
+		"react-flow-renderer": "^10.3.17"
 	}
 }

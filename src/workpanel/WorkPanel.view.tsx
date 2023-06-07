@@ -1,12 +1,13 @@
 import * as React from 'react';
+import {useEffect} from 'react';
 import WorkflowView from "../workflow/Workflow.view";
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
 import {UpdateMode, WorkPanelController} from "./WorkPanel.controller";
 import {WorkPanelModel} from "./WorkPanel.model";
 import {NodeModel} from "../nodes/Node.model";
-import {useEffect} from "react";
 import WorkflowPlugin from "../../main";
 import {PomodoroModel} from "../pomodoro/Pomodoro.model";
+import {SubjectModel} from "../subject/Subject.model";
 
 /**
  * This is the main interface of workflows.
@@ -26,6 +27,7 @@ const defaultController: WorkPanelController = {
 	updateSection(pipeline: PipelineModel, section: SectionModel) {},
 	updateNode(pipeline: PipelineModel, section: SectionModel, node: NodeModel) {},
 	updatePomodoro(pomodoro: PomodoroModel) {},
+	updateSubject(subject: SubjectModel, updateMode: UpdateMode = UpdateMode.UPDATE) {}
 }
 export const WorkPanelContext = React.createContext(defaultController)
 
@@ -106,13 +108,48 @@ export default function WorkPanelView(props: WorkPanelProps) {
 				newPomodoro.push(pomodoro)
 			}
 			setWorkPanelData(Object.assign({}, workPanelData, {pomodoro: newPomodoro}))
+		},
+		updateSubject(subject: SubjectModel, updateMode: UpdateMode = UpdateMode.UPDATE) {
+			const originalSubject = workPanelData.subject
+			const parentSubject = subject.parentID == originalSubject.id ? originalSubject
+				: searchParentSubject(originalSubject, subject.parentID)
+			if (!parentSubject) {
+				return
+			}
+			const newChildren = []
+			for (let i = 0; i < parentSubject.children.length; i++) {
+				if (parentSubject.children[i].id != subject.id) {
+					newChildren.push(parentSubject.children[i])
+				} else if (updateMode == UpdateMode.UPDATE) {
+					newChildren.push(subject)
+				}
+			}
+			if (updateMode == UpdateMode.ADD) {
+				newChildren.push(subject)
+			}
+			parentSubject.children = newChildren
+			setWorkPanelData(Object.assign({}, workPanelData))
 		}
+	}
+
+	const searchParentSubject = (rootSubject: SubjectModel, parentSubjectID: string): SubjectModel | null => {
+		for (let i = 0; i < rootSubject.children.length; i++) {
+			if (rootSubject.children[i].id == parentSubjectID) {
+				return rootSubject.children[i]
+			} else {
+				const searchResult = searchParentSubject(rootSubject.children[i], parentSubjectID)
+				if (searchResult != null) {
+					return searchResult
+				}
+			}
+		}
+		return null
 	}
 
 	return (
 		<WorkPanelContext.Provider value={workPanelController} >
 			<div style={{ width: '100%', height: '100%'}} ref={ref}>
-				<WorkflowView workflows={workPanelData.workflows} templates={workPanelData.templates} pomodoro={workPanelData.pomodoro}/>
+				<WorkflowView workflows={workPanelData.workflows} templates={workPanelData.templates} pomodoro={workPanelData.pomodoro} subject={workPanelData.subject}/>
 			</div>
 		</WorkPanelContext.Provider>
 	);

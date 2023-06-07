@@ -8,6 +8,7 @@ export class PipelineModel {
 	isTemplate: boolean;
 	status: NodeStatusEnum;
 	createTime: number;
+	subjectID: string;
 	sections: SectionModel[];
 
 	static newInstance(): PipelineModel {
@@ -17,6 +18,7 @@ export class PipelineModel {
 		pipeline.isTemplate = true
 		pipeline.status = NodeStatusEnum.PENDING
 		pipeline.createTime = Date.now()
+		pipeline.subjectID = '0'
 		pipeline.sections = []
 		return pipeline;
 	}

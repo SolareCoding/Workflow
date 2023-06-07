@@ -1,6 +1,6 @@
 import {Typography} from "@mui/material";
 import * as React from "react";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import WorkflowKanbanView, {SectionPipelines} from "./WorkflowKanban.view";
 import PipelineView from "../pipeline/Pipeline.view";
 import {PipelineModel} from "../pipeline/Pipeline.model";
@@ -9,11 +9,13 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import FloatingBarView from "../floating/FloatingBar.view";
 import {PomodoroModel} from "../pomodoro/Pomodoro.model";
+import {SubjectModel} from "../subject/Subject.model";
 
 export interface WorkflowProps {
 	workflows: PipelineModel[]
 	templates: PipelineModel[]
 	pomodoro: PomodoroModel[]
+	subject: SubjectModel
 }
 
 export default function WorkflowView(props: WorkflowProps) {
@@ -48,8 +50,27 @@ export default function WorkflowView(props: WorkflowProps) {
 		}
 	}, [props])
 
+	const getLeafSubjects = (rootSubject: SubjectModel): SubjectModel[] => {
+		const leafSubjects: SubjectModel[] = []
+		innerSearchLeafSubjects(rootSubject, leafSubjects)
+		return leafSubjects
+	}
+
+	const innerSearchLeafSubjects = (rootSubject: SubjectModel, leafSubjects: SubjectModel[]) => {
+		if (rootSubject.children.length == 0) {
+			leafSubjects.push(rootSubject)
+			return
+		}
+		for (let i = 0; i < rootSubject.children.length; i++) {
+			innerSearchLeafSubjects(rootSubject.children[i], leafSubjects)
+		}
+	}
+
+	const leafSubjects = useMemo(
+		() => getLeafSubjects(props.subject), [props.subject]
+	)
+
 	const getDefaultFocusedPipeline = (pipelines: PipelineModel[]) => {
-		console.log('getDefaultFocusedPipeline')
 		for (const pipeline of pipelines) {
 			if (pipeline.status == NodeStatusEnum.WORKING) {
 				return pipeline
@@ -116,12 +137,14 @@ export default function WorkflowView(props: WorkflowProps) {
 											   sectionPipelines={getKanbanPipelines()}
 											   selectedPipeline={focusPipeline}
 											   selectPipeline={selectPipeline}
-											   templates={props.templates}/>
+											   templates={props.templates}
+											   subjects={leafSubjects}/>
 	const templateKanban = <WorkflowKanbanView editorMode={true} kanbanTitle={'template'}
 											   sectionPipelines={getTemplatePipelines()}
 											   selectedPipeline={focusPipeline}
 											   selectPipeline={selectPipeline}
-											   templates={props.templates}/>
+											   templates={props.templates}
+											   subjects={leafSubjects}/>
 
 	const getFoldWorkflowKanbanView = () => {
 		return <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}
@@ -156,7 +179,7 @@ export default function WorkflowView(props: WorkflowProps) {
 	}
 
 	const getFloatingBarView = () => {
-		return <FloatingBarView focusedPipeline={focusPipeline} pomodoroArray={props.pomodoro}/>
+		return <FloatingBarView focusedPipeline={focusPipeline} pomodoroArray={props.pomodoro} subject={props.subject} />
 	}
 
 	return (

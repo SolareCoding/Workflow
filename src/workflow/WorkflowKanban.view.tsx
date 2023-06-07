@@ -14,6 +14,8 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import Collapse from "@mui/material/Collapse";
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import {UpdateMode} from "../workpanel/WorkPanel.controller";
+import {SubjectModel} from "../subject/Subject.model";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 export interface SectionPipelines {
 	sectionName: string;
@@ -25,6 +27,7 @@ export interface WorkflowKanbanProps {
 	kanbanTitle: string,
 	sectionPipelines: SectionPipelines[],
 	templates: PipelineModel[],
+	subjects: SubjectModel[],
 	selectedPipeline?: PipelineModel,
 	selectPipeline: (pipeline: PipelineModel) => void,
 }
@@ -35,11 +38,13 @@ export interface WorkflowKanbanProps {
  */
 export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 
-	const {editorMode, kanbanTitle, sectionPipelines, selectedPipeline, templates, selectPipeline } = props
+	const {editorMode, kanbanTitle, sectionPipelines, selectedPipeline, templates, selectPipeline, subjects } = props
 	const [openDialog, setOpenDialog] = useState(false);
 	const [pendingCollapse, setPendingCollapse] = useState(true);
 	const [workingCollapse, setWorkingCollapse] = useState(true);
 	const [doneCollapse, setDoneCollapse] = useState(true);
+	const [preSelectedTemplate, setPreSelectedTemplate] = useState<PipelineModel | null>(null)
+	const [preSetWorkflowName, setPreSetWorkflowName] = useState<string | null >(null)
 
 	const workPanelController = useContext(WorkPanelContext)
 
@@ -58,6 +63,8 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 	}
 
 	const openNewPipelineDialog = () => {
+		setPreSelectedTemplate(null)
+		setPreSetWorkflowName(null)
 		setOpenDialog(true);
 	}
 
@@ -78,9 +85,10 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 		workPanelController.updatePipeline(newTemplatePipeline, UpdateMode.ADD)
 	}
 
-	const addNewView = <Box className='workflow-accent' sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}} onClick={()=>{
+	const addNewView = <Box className='workflow-accent' sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems:'center'}} onClick={()=>{
 			!editorMode ? openNewPipelineDialog() : handleCreateNewTemplate()
 		}}>
+			<AddCircleIcon />
 			<Typography variant="body1">
 				{ !editorMode ? 'Add a new pipeline' : 'Add a new template' }
 			</Typography>
@@ -115,6 +123,21 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 		}
 	}
 
+	const getExtraInfoView = (pipeline: PipelineModel) => {
+		if (!editorMode) {
+			return <Typography variant="body2" sx={{fontWeight: '600', color: "#336666"}}>
+				{getProgress(pipeline)}
+			</Typography>
+		} else {
+			return <AddCircleIcon onClick={() => {
+				setPreSelectedTemplate(pipeline)
+				setPreSetWorkflowName(`${pipeline.title} - ${TimeUtils.getDateStr(Date.now())}`)
+				setOpenDialog(true)
+				return true
+			}} />
+		}
+	}
+
 	const getPipelineKanbanItems = () => {
 		const menuItemViews = []
 		menuItemViews.push(
@@ -134,7 +157,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 			for (const pipeline of pipelines) {
 				sectionItemViews.push(
 					<ListItemButton sx={{ pl: 4 }} key={pipeline.id}>
-						<Box className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', id: pipeline.id}} onClick={()=>{
+						<Box className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', id: pipeline.id}} onClick={()=>{
 							selectPipeline(pipeline)}}>
 							<Typography variant="body2">
 								{pipeline.title}
@@ -143,9 +166,7 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 								<Typography variant="body2">
 									{TimeUtils.getDateTimeStr(pipeline.createTime)}
 								</Typography>
-								<Typography variant="body2" sx={{fontWeight: '600', color: "#336666"}}>
-									{getProgress(pipeline)}
-								</Typography>
+								{ getExtraInfoView(pipeline) }
 							</Box>
 						</Box>
 					</ListItemButton>
@@ -187,6 +208,9 @@ export default function WorkflowKanbanView(props: WorkflowKanbanProps) {
 				open={openDialog}
 				closeDialog={closeNewPipelineDialog}
 				createNewTask={handleCreateNewPipeline}
+				subjects={subjects}
+				preSelectedTemplate={preSelectedTemplate}
+				preSetWorkflowName={preSetWorkflowName}
 			/>
 		</div>
 	);

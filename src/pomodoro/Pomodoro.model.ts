@@ -15,6 +15,7 @@ export class PomodoroModel {
 	startTime: number;
 	timeleft: number;
 	pipelineId: string;
+	subjectId: string;
 	id: string;
 	status: PomodoroStatus;
 
@@ -22,6 +23,7 @@ export class PomodoroModel {
 		let pomodoroModel = new PomodoroModel()
 		pomodoroModel.editMode = true
 		pomodoroModel.pipelineId = pipeline.id
+		pomodoroModel.subjectId = pipeline.subjectID
 		pomodoroModel.id = UUIDUtils.getUUID()
 		pomodoroModel.title = pipeline.title + ' ' + TimeUtils.getDateTimeStr(Date.now())
 		pomodoroModel.duration = 15 * 60

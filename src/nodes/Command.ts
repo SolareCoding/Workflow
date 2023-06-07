@@ -1,5 +1,6 @@
 export enum CommandType {
 	COPY_FILE = 'COPY_FILE',
+	OPEN_FILE = 'OPEN_FILE',
 	SHELL = 'SHELL',
 }
 

@@ -2,6 +2,7 @@ import {NodeModel} from "../nodes/Node.model";
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
 import WorkflowPlugin from "../../main";
 import {PomodoroModel} from "../pomodoro/Pomodoro.model";
+import {SubjectModel} from "../subject/Subject.model";
 
 export enum UpdateMode {
 	ADD,
@@ -19,4 +20,6 @@ export class WorkPanelController {
 	updatePipeline(pipeline: PipelineModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
 
 	updatePomodoro(pomodoro: PomodoroModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
+
+	updateSubject(subject: SubjectModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
 }
