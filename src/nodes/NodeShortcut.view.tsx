@@ -113,7 +113,7 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 	}
 
 	const handleNodeShortcutTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		const commandType = event.target.value == CommandType.SHELL ? CommandType.SHELL : CommandType.COPY_FILE
+		const commandType = event.target.value as CommandType
 		if (commandType === shortCutCommand.type) {
 			return
 		}
