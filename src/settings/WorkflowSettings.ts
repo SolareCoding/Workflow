@@ -1,7 +1,7 @@
 import {App, PluginSettingTab, Setting} from "obsidian";
 import WorkflowPlugin from "../../main";
 import {getFolderChoices} from "./SettingHelper";
-import {WorkPanelModel} from "../workpanel/WorkPanel.model";
+import {newWorkPanelModel, WorkPanelModel} from "../workpanel/WorkPanel.model";
 import {WorkflowModal} from "./WorkflowModal";
 
 export interface WorkflowSettings {
@@ -44,7 +44,7 @@ export class WorkflowSettingTab extends PluginSettingTab {
 			if (exist) {
 				new WorkflowModal(app, 'The workflow file has already been created. Try open the workflow panel from ribbon').open()
 			} else {
-				let workflow = WorkPanelModel.newInstance();
+				let workflow = newWorkPanelModel();
 				this.app.vault.adapter.write(filePath, JSON.stringify(workflow));
 			}
 		})

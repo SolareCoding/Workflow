@@ -1,53 +1,34 @@
 import * as React from "react";
 import {useContext, useEffect, useState} from "react";
-import {PomodoroModel, PomodoroStatus} from "./Pomodoro.model";
+import {newPomodoroModel, PomodoroModel, PomodoroStatus} from "./Pomodoro.model";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-import TocIcon from '@mui/icons-material/Toc';
 import {PipelineModel} from "../pipeline/Pipeline.model";
-import {WorkPanelContext} from "../workpanel/WorkPanel.view";
-import {UpdateMode} from "../workpanel/WorkPanel.controller";
-import AlarmOnIcon from '@mui/icons-material/AlarmOn';
-import PomodoroListView from "./PomodoroList.view";
 import PomodoroView from "./Pomodoro.view";
 import {Divider} from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import {TimeUtils} from "../utils/Time.utils";
+import {useAppDispatch, useAppSelector} from "../repository/hooks";
+import {add, selectPomodoro, update, updateStatus} from "./Pomodoro.slice";
 
 /**
  * 创建、管理所有的番茄时钟？
  */
 export interface PomodoroPanelProps {
 	focusedPipeline?: PipelineModel
-	pomodoroList: PomodoroModel[]
 }
 
-export default function PomodoroPanelView(props: PomodoroPanelProps) {
+export default function PomodoroSnackViewV2(props: PomodoroPanelProps) {
 
-	const {focusedPipeline, pomodoroList} = props
-	const workPanelController = useContext(WorkPanelContext)
-
-	const [showList, setShowList] = useState(false)
+	const pomodoroList = useAppSelector(selectPomodoro).pomodoroArray
+	const dispatch = useAppDispatch()
+	const {focusedPipeline} = props
 	const [focusedPomodoro, setFocusedPomodoro] = useState<undefined | PomodoroModel>()
 
 	useEffect(() => {
-		// no prev focus pipeline
-		if (!focusedPomodoro) {
-			setFocusedPomodoro(getDefaultPomodoro())
-			return
-		}
-		if (!pomodoroList.contains(focusedPomodoro)) {
-			const samePipelineIndex = pomodoroList.findIndex((value, index, object) => value.id === focusedPomodoro.id)
-			if (samePipelineIndex === -1 || pomodoroList[samePipelineIndex].status == PomodoroStatus.FINISHED) {
-				setFocusedPomodoro(undefined)
-			} else {
-				setFocusedPomodoro(pomodoroList[samePipelineIndex])
-			}
-			return
-		}
-	}, [props])
+		setFocusedPomodoro(getDefaultPomodoro)
+	}, [pomodoroList]);
 
 	const getDefaultPomodoro = () => {
 		for (const pomodoroModel of pomodoroList) {
@@ -67,9 +48,13 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 		if (focusedPomodoro && !focusedPomodoro.status) {
 			return
 		}
-		const newPomodoro = PomodoroModel.newInstance(focusedPipeline)
-		workPanelController.updatePomodoro(newPomodoro, UpdateMode.ADD)
-		setFocusedPomodoro(newPomodoro)
+		const newPomodoro = newPomodoroModel(focusedPipeline)
+		dispatch(add(newPomodoro))
+	}
+
+	const savePomodoro = () => {
+		const copiedPomodoro = Object.assign({}, focusedPomodoro, {editMode: false})
+		dispatch(update(copiedPomodoro))
 	}
 
 	const pausePomodoro = () => {
@@ -84,35 +69,20 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 		updatePomodoroStatus(PomodoroStatus.FINISHED)
 	}
 
-	const savePomodoro = () => {
-		workPanelController.updatePomodoro(Object.assign({}, focusedPomodoro, {editMode: false}))
-	}
-
 	const updatePomodoroStatus = (status: PomodoroStatus) => {
 		if (!focusedPomodoro || focusedPomodoro.status === PomodoroStatus.FINISHED) {
 			return
 		}
 		const copiedPomodoro = Object.assign({}, focusedPomodoro, {status: status})
-		workPanelController.updatePomodoro(copiedPomodoro)
+		setFocusedPomodoro(copiedPomodoro)
+		dispatch(update(copiedPomodoro))
 	}
 
 	const getPomodoroView = () => {
-		if (showList) {
-			return <PomodoroListView
-						focusedPomodoro={focusedPomodoro} pomodoroArray={pomodoroList}
-						setFocusPomodoro={
-							(focusedPomodoro: PomodoroModel) => {
-								setFocusedPomodoro(focusedPomodoro)
-								setShowList(!showList)
-							}
-						}/>
-		}
 		if (focusedPomodoro) {
 			return <PomodoroView pomodoro={focusedPomodoro}/>
 		}
-		return <div>
-			Add a new pomodoro and focus on your work.
-		</div>
+		return <div>No pomodoro is running</div>
 	}
 
 
@@ -149,17 +119,6 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 		}
 		return <StopCircleIcon onClick={stopPomodoro}/>
 	}
-
-	const getListSwitcherView = () => {
-		if (focusedPomodoro?.editMode) {
-			return null
-		}
-		if (!showList) {
-			return <TocIcon onClick={() => setShowList(!showList)}/>
-		}
-		return <AlarmOnIcon onClick={() => setShowList(!showList)}/>
-	}
-
 	const getSaveView = () => {
 		if (focusedPomodoro?.editMode) {
 			return <CheckCircleIcon onClick={savePomodoro}/>
@@ -169,22 +128,19 @@ export default function PomodoroPanelView(props: PomodoroPanelProps) {
 	}
 
 	return (
-		<div>
+		<div style={{display: 'flex', width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
 			{getPomodoroView()}
-			<Divider sx={{marginY: '3px'}}/>
+			<Divider flexItem orientation='vertical' sx={{marginLeft: 1, marginRight: 1}}/>
 			<div style={{
-				width: 345,
 				display: 'flex',
 				flexDirection: 'row',
 				justifyContent: 'center',
 				alignItems: 'center',
-				margin: 1
 			}}>
 				{getAddView()}
 				{getSaveView()}
 				{getPauseResumeView()}
 				{getStopView()}
-				{getListSwitcherView()}
 			</div>
 		</div>
 	)

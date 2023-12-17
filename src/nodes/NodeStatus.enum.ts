@@ -1,7 +1,8 @@
 export enum NodeStatusEnum {
 	PENDING = 'pending',
 	WORKING = 'working',
-	DONE = 'done'
+	DONE = 'done',
+	TEMPLATE = 'template',
 }
 
 export enum NodeActionEnum {

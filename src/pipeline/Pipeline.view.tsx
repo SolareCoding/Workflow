@@ -1,16 +1,16 @@
 import * as React from "react";
 import {useContext, useEffect, useState} from "react";
 import Box from "@mui/material/Box";
-import {Stack, Typography,} from "@mui/material";
+import {Typography,} from "@mui/material";
 import SectionView from "./Section.view";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-import {PipelineModel, SectionModel} from "./Pipeline.model";
+import {newSectionInstance, PipelineModel, SectionModel} from "./Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import PipelineColors from "../common/Pipeline.colors";
 import {AddCircle} from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {WorkPanelContext} from "../workpanel/WorkPanel.view";
-import {UpdateMode} from "../workpanel/WorkPanel.controller";
+import {useAppDispatch, useAppSelector} from "../repository/hooks";
+import {selectWorkflow, UpdateMode, updatePipeline, updateSection} from "../workflow/Workflow.slice";
 
 export interface PipelineProps {
 	pipeline: PipelineModel
@@ -25,10 +25,9 @@ export interface PipelineProps {
  */
 export default function PipelineView(props: PipelineProps) {
 
+	const dispatch = useAppDispatch()
 	const { pipeline } = props
 	const { sections, isTemplate } = pipeline
-	const workPanelController = useContext(WorkPanelContext)
-
 	const [title, setTitle] = useState(pipeline.title)
 
 	useEffect(() => {
@@ -43,11 +42,19 @@ export default function PipelineView(props: PipelineProps) {
 	const handlePipelineNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTitle(event.target.value)
 		const newPipeline = Object.assign({}, pipeline, {title: event.target.value})
-		workPanelController.updatePipeline(newPipeline)
+		dispatch(updatePipeline({
+			pipeline: newPipeline,
+			isEditMode: isTemplate,
+			updateMode: UpdateMode.UPDATE
+		}))
 	}
 
 	const handlePipelineDeleted = () => {
-		workPanelController.updatePipeline(pipeline, UpdateMode.DELETE)
+		dispatch(updatePipeline({
+			pipeline: pipeline,
+			isEditMode: isTemplate,
+			updateMode: UpdateMode.DELETE
+		}))
 	}
 
 	const getActionView = () => {
@@ -90,9 +97,13 @@ export default function PipelineView(props: PipelineProps) {
 	}
 
 	const insertNewSection = (index: number) => {
-		sections.splice(index, 0, SectionModel.newInstance())
-		const newPipeline = Object.assign({}, pipeline)
-		workPanelController.updatePipeline(newPipeline)
+		dispatch(updateSection({
+			pipeline: pipeline,
+			section: newSectionInstance(),
+			isEditMode: isTemplate,
+			updateMode: UpdateMode.ADD,
+			index: index
+		}))
 	}
 
 	const getSectionViews = () => {
@@ -119,18 +130,25 @@ export default function PipelineView(props: PipelineProps) {
 		}
 	}
 
+	/**
+	 * 监听Pipeline，如果每个section均done，则pipeline应该为done
+	 */
 	const updatePipelineStatus = () => {
 		if (getPipelineStatus() == pipeline.status) {
 			return
 		}
-		workPanelController.updatePipeline(Object.assign({}, pipeline, {status: getPipelineStatus()}))
+		dispatch(updatePipeline({
+			pipeline: Object.assign({}, pipeline, {status: getPipelineStatus()}),
+			isEditMode: isTemplate,
+			updateMode: UpdateMode.UPDATE
+		}))
 	}
 
 	/**
 	 * 更新所有Pipelines中的对应节点
 	 */
 	return (
-		<div style={{display: 'flex', width: '100%', alignItems:'center', justifyContent: 'center', height: '100%', paddingTop: '50px', flexDirection: 'column', minHeight: '1px', minWidth: '1px'}}>
+		<div style={{display: 'flex', width: '100%', alignItems:'center', justifyContent: 'center', height: '100%', paddingTop: '50px', flexDirection: 'column', minHeight: '1px', minWidth: 400,}}>
 			{getTitleView()}
 			{getSubTitleView()}
 			<div style={{width: '100%',height: '100%', overflow: 'scroll', marginTop: '10px'}}>

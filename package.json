@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "solare-workflow-puglin",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Solare's workflow plugin",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -29,10 +29,12 @@
 		"@fontsource/roboto": "^4.5.8",
 		"@mui/icons-material": "^5.10.9",
 		"@mui/material": "^5.10.12",
+		"@reduxjs/toolkit": "^2.0.1",
 		"immutable": "^4.2.4",
 		"preact": "^10.8.2",
 		"react": "npm:@preact/compat",
 		"react-dom": "npm:@preact/compat",
-		"react-flow-renderer": "^10.3.17"
+		"react-flow-renderer": "^10.3.17",
+		"react-redux": "^9.0.4"
 	}
 }

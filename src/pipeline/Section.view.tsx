@@ -5,11 +5,12 @@ import {Stack, Typography} from "@mui/material";
 import {PipelineModel, SectionModel} from "./Pipeline.model";
 import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import Box from "@mui/material/Box";
-import {NodeModel} from "../nodes/Node.model";
+import {newNodeInstance, NodeModel} from "../nodes/Node.model";
 import {AddCircle} from "@mui/icons-material";
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
-import {UpdateMode} from "../workpanel/WorkPanel.controller";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {useAppDispatch} from "../repository/hooks";
+import {UpdateMode, updateNode, updateSection} from "../workflow/Workflow.slice";
 
 
 export interface SectionProps {
@@ -26,11 +27,10 @@ export interface SectionProps {
  */
 export default function SectionView(props: SectionProps) {
 
+	const dispatch = useAppDispatch()
 	const { pipeline, section, couldUpdate, editorMode} = props
 	const nodes = section.nodes
-
 	const [title, setTitle] = useState(section.title)
-	const workPanelController = useContext(WorkPanelContext)
 
 	const isPending = (node: NodeModel) => node.status == NodeStatusEnum.PENDING
 	const isDone = (node: NodeModel) => node.status == NodeStatusEnum.DONE
@@ -49,24 +49,44 @@ export default function SectionView(props: SectionProps) {
 		if (section.status == getSectionStatus()) {
 			return
 		}
-		workPanelController.updateSection(pipeline, Object.assign({}, section, {status: getSectionStatus()}))
+		dispatch(updateSection({
+			pipeline: pipeline,
+			section: Object.assign({}, section, {status: getSectionStatus()}),
+			isEditMode: editorMode || false,
+			updateMode: UpdateMode.UPDATE
+		}))
 	}, [section])
 
 	const onRemoveSection = () => {
-		workPanelController.updateSection(pipeline, section, UpdateMode.DELETE)
+		dispatch(updateSection({
+			pipeline: pipeline,
+			section: section,
+			updateMode: UpdateMode.DELETE,
+			isEditMode: editorMode || false
+		}))
 	}
 
 	const onInsertNewNode = (index: number) => {
-		props.section.nodes.splice(index, 0, NodeModel.newInstance())
-		const newSection = Object.assign({}, section, {nodes: props.section.nodes})
-		workPanelController.updateSection(pipeline, newSection, UpdateMode.UPDATE)
+		dispatch(updateNode({
+			pipeline: pipeline,
+			section: section,
+			updateMode: UpdateMode.ADD,
+			isEditMode: editorMode || false,
+			node: newNodeInstance(),
+			index: index
+		}))
 	}
 
 	const handleSectionNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTitle(event.target.value)
 		props.section.title = event.target.value
 		const newSection = Object.assign({}, section, {title: event.target.value})
-		workPanelController.updateSection(pipeline, newSection)
+		dispatch(updateSection({
+			pipeline: pipeline,
+			isEditMode: editorMode || false,
+			section: newSection,
+			updateMode: UpdateMode.UPDATE
+		}))
 	};
 
 	const getSectionTitleView = () => {

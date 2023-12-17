@@ -14,8 +14,9 @@ import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
-import {UpdateMode} from "../workpanel/WorkPanel.controller";
 import NodeShortcutView from "./NodeShortcut.view";
+import {useAppDispatch} from "../repository/hooks";
+import {UpdateMode, updateNode} from "../workflow/Workflow.slice";
 
 interface NodeProps {
 	pipeline: PipelineModel,
@@ -27,7 +28,7 @@ interface NodeProps {
 
 export default function NodeView(nodeViewProps: NodeProps) {
 
-	const workPanelController = useContext(WorkPanelContext)
+	const dispatch = useAppDispatch()
 
 	const {pipeline, section, node, couldUpdate, editorMode} = nodeViewProps
 
@@ -55,14 +56,24 @@ export default function NodeView(nodeViewProps: NodeProps) {
 		setAnchorEl(event.currentTarget);
 	};
 
-	const onNodeUpdate = () => {
-		const newNode = Object.assign({}, node)
-		workPanelController.updateNode(pipeline, section, newNode)
-		console.log('onNodeUpdate is called')
+	const onNodeUpdate = (newNode: NodeModel) => {
+		dispatch(updateNode({
+			pipeline: pipeline,
+			section: section,
+			node: newNode,
+			updateMode: UpdateMode.UPDATE,
+			isEditMode: editorMode || false
+		}))
 	}
 
 	const onNodeDelete = () => {
-		workPanelController.updateNode(pipeline, section, node, UpdateMode.DELETE)
+		dispatch(updateNode({
+			pipeline: pipeline,
+			section: section,
+			node: node,
+			updateMode: UpdateMode.DELETE,
+			isEditMode: editorMode || false
+		}))
 	}
 
 	const handleClose = (action?: NodeActionEnum) => {
@@ -71,24 +82,31 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			return
 		switch (action) {
 			case NodeActionEnum.WORK:
-				node.status = NodeStatusEnum.WORKING
-				node.startTime = Date.now()
+				onNodeUpdate(Object.assign({}, node, {
+					status: NodeStatusEnum.WORKING,
+					startTime: Date.now()
+				}))
 				break
 			case NodeActionEnum.CANCEL:
-				node.status = NodeStatusEnum.PENDING
-				node.startTime = 0
+				onNodeUpdate(Object.assign({}, node, {
+					status: NodeStatusEnum.PENDING,
+					startTime: 0
+				}))
 				break
 			case NodeActionEnum.FINISH:
-				node.status = NodeStatusEnum.DONE
-				node.finishTime = Date.now()
+				onNodeUpdate(Object.assign({}, node, {
+					status: NodeStatusEnum.DONE,
+					startTime: Date.now()
+				}))
 				break;
 			case NodeActionEnum.FINISH_DIRECTLY:
-				node.status = NodeStatusEnum.DONE
-				node.startTime = Date.now()
-				node.finishTime = Date.now()
+				onNodeUpdate(Object.assign({}, node, {
+					status: NodeStatusEnum.DONE,
+					startTime: Date.now(),
+					finishTime: Date.now()
+				}))
 				break;
 		}
-		onNodeUpdate();
 	};
 
 	const getColorFromNodeStatus = () => {
@@ -247,25 +265,38 @@ export default function NodeView(nodeViewProps: NodeProps) {
 
 	const handleNodeNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTitle(event.target.value)
-		node.title = event.target.value
-		onNodeUpdate()
+		const newNode = Object.assign({}, node, {title: event.target.value})
+		dispatch(updateNode({
+			pipeline: pipeline,
+			section: section,
+			node: newNode,
+			updateMode: UpdateMode.UPDATE,
+			isEditMode: editorMode || false
+		}))
 	}
 
 	const handleNodeTipSummaryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTipSummary(event.target.value)
-		node.tips.summary = event.target.value
-		onNodeUpdate()
+		onNodeUpdate(Object.assign({}, node, {
+			tips: Object.assign({}, node.tips, {
+				summary: event.target.value
+			})
+		}))
 	}
 
 	const handleNodeTipContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setTipContent(event.target.value)
-		node.tips.content = event.target.value
-		onNodeUpdate()
+		onNodeUpdate(Object.assign({}, node, {
+			tips: Object.assign({}, node.tips, {
+				content: event.target.value
+			})
+		}))
 	}
 
 	const handleNodeShortCutChange = (nodeShortCutModel: NodeShortcut) => {
-		node.shortcut = nodeShortCutModel
-		onNodeUpdate()
+		onNodeUpdate(Object.assign({}, node, {
+			shortcut: nodeShortCutModel
+		}))
 	}
 
 	const getHeaderView = () => {

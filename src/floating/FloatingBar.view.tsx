@@ -60,10 +60,7 @@ export default function FloatingBarView(floatBarProps: FloatingBarProps) {
 
 	return (
 		<div style={{
-			width: '100%',
-			position: 'absolute',
 			flexDirection: 'column',
-			bottom: 50,
 			display: 'flex',
 			justifyContent: 'center',
 			alignItems: 'center'

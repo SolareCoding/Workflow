@@ -108,8 +108,8 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 
 	const handleNodeShortcutNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setShortcutName(event.target.value)
-		nodeShortCutModel.name = event.target.value
-		onUpdateShortCut(nodeShortCutModel)
+		const newShortCutModel = Object.assign({}, nodeShortCutModel, {name: event.target.value})
+		onUpdateShortCut(newShortCutModel)
 	}
 
 	const handleNodeShortcutTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -118,18 +118,21 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 			return
 		}
 		setShortCutCommandType(commandType)
-		shortCutCommand.type = commandType
-		onUpdateShortCut(nodeShortCutModel)
+		const newInnerCommand = Object.assign({}, shortCutCommand, {type: commandType})
+		const newShortCutModel = Object.assign({}, nodeShortCutModel, Platform.isMacOS ? {macCommand: newInnerCommand} : {command: newInnerCommand})
+		onUpdateShortCut(newShortCutModel)
 	}
 
 	const handleNodeShortcutFileChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		shortCutCommand.commandFile = event.target.value
-		onUpdateShortCut(nodeShortCutModel)
+		const newInnerCommand = Object.assign({}, shortCutCommand, {commandFile: event.target.value})
+		const newShortCutModel = Object.assign({}, nodeShortCutModel, Platform.isMacOS ? {macCommand: newInnerCommand} : {command: newInnerCommand})
+		onUpdateShortCut(newShortCutModel)
 	}
 
 	const handleNodeShortcutFolderChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		shortCutCommand.commandFolder = event.target.value
-		onUpdateShortCut(nodeShortCutModel)
+		const newInnerCommand = Object.assign({}, shortCutCommand, {commandFolder: event.target.value})
+		const newShortCutModel = Object.assign({}, nodeShortCutModel, Platform.isMacOS ? {macCommand: newInnerCommand} : {command: newInnerCommand})
+		onUpdateShortCut(newShortCutModel)
 	}
 
 	const getTypeOptions = () => {

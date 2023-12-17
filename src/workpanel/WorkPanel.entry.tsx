@@ -2,10 +2,9 @@ import {TextFileView, TFile, WorkspaceLeaf} from "obsidian";
 import {createRoot} from "react-dom/client";
 import * as React from "react";
 import WorkPanelView from "./WorkPanel.view";
-import {
-	Plugin,
-} from 'obsidian';
 import WorkflowPlugin from "../../main";
+import {store} from "../repository/Workflow.store";
+import { Provider } from "react-redux";
 
 export const WORK_FLOW_VIEW = 'WorkFlowView'
 
@@ -56,8 +55,12 @@ export class WorkPanelEntry extends TextFileView {
 		this.data = data;
 		this.root.render(
 			<React.StrictMode>
-				<WorkPanelView data={this.data} saveData={(data) => {this.updateData(data)}} plugin={this.plugin}/>
-				{/*<DummyListView dummyList={DummyListModel.newInstance()}/>*/}
+				<Provider store={store} >
+					<WorkPanelView data={this.data} saveData={(data) => {
+						this.updateData(data)
+					}} plugin={this.plugin}/>
+					{/*<DummyListView dummyList={DummyListModel.newInstance()}/>*/}
+				</Provider>
 			</React.StrictMode>
 		)
 	}

@@ -4,6 +4,8 @@ import {PomodoroModel, PomodoroStatus} from "./Pomodoro.model";
 import {TimeUtils} from "../utils/Time.utils";
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import {NotificationUtils} from "../utils/Notification.utils";
+import {useAppDispatch, useAppSelector} from "../repository/hooks";
+import {selectPomodoro, update} from "./Pomodoro.slice";
 
 export interface PomodoroProps {
 	pomodoro: PomodoroModel,
@@ -11,8 +13,9 @@ export interface PomodoroProps {
 
 export default function PomodoroView(props: PomodoroProps) {
 
+	const dispatch = useAppDispatch()
+
 	const { pomodoro } = props
-	const workPanelController = useContext(WorkPanelContext)
 	const [title, setTitle] = useState(pomodoro.title)
 	const [timeLeft, setTimeLeft] = useState(pomodoro.timeleft)
 
@@ -46,25 +49,25 @@ export default function PomodoroView(props: PomodoroProps) {
 			copiedPomodoro.status = PomodoroStatus.FINISHED
 			NotificationUtils.sendMessage('Pomodoro [' + getPomodoro().title + '] has finished')
 		}
-		workPanelController.updatePomodoro(copiedPomodoro)
+		dispatch(update(copiedPomodoro))
 	}
 
 	const handlePomodoroTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTitle(event.target.value)
-		workPanelController.updatePomodoro(Object.assign({}, pomodoro, {title: event.target.value}))
+		dispatch(update(Object.assign({}, pomodoro, {title: event.target.value})))
 	}
 
 	const handlePomodoroTimeLeftChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const timeLeft = Number(event.target.value)
 		setTimeLeft(timeLeft)
-		workPanelController.updatePomodoro(Object.assign({}, pomodoro, {timeleft: timeLeft}))
+		dispatch(update(Object.assign({}, pomodoro, {timeleft: timeLeft})))
 	}
 
 	const getTitleView = () => {
 		if (pomodoro.editMode) {
 			return <input className={'workflow-input'} placeholder={'Pomodoro title'} style={{height: 25, width: '100%', fontSize: 16, fontWeight: 600, textAlign: 'center'}} id="pomodoro-title" value={title} onChange={handlePomodoroTitleChange} />
 		} else {
-			return <div className={'workflow-text-accent'} style={{width: '100%', fontSize: 16, fontWeight: 600}}> {pomodoro?.title} </div>
+			return <div className={'workflow-text-accent'} style={{height: 25, width: '100%', fontSize: 16, fontWeight: 600, textAlign: 'center', verticalAlign: 'center'}}> {pomodoro?.title} </div>
 		}
 	}
 
@@ -79,11 +82,11 @@ export default function PomodoroView(props: PomodoroProps) {
 
 	const getTimeLeftView = () => {
 		if (pomodoro.editMode) {
-			return <select value={timeLeft} style={{height: 25, width: '100%', fontSize: 16, fontWeight: 600, marginLeft: 3, textAlign: 'center'}} name="select-type" onChange={handlePomodoroTimeLeftChange}>
+			return <select value={timeLeft} style={{height: 25, width: 100, fontSize: 14, fontWeight: 500, marginLeft: 3, textAlign: 'center'}} name="select-type" onChange={handlePomodoroTimeLeftChange}>
 				{getTimeLeftOptions()}
 			</select>
 		} else {
-			return <div style={{minWidth: 50}}>
+			return <div style={{width: 100, textAlign: 'center'}}>
 				{TimeUtils.getMMSSStr(pomodoro.timeleft)}
 			</div>
 		}
@@ -93,8 +96,8 @@ export default function PomodoroView(props: PomodoroProps) {
 		<div
 			className={'workflow-container-inner'}
 			style={{
-				maxWidth: 400,
-				justifyContent: 'center',
+				width: 300,
+				justifyContent: 'space-between',
 				alignItems: 'center',
 				display: 'flex',
 				flexDirection: 'row',

@@ -8,7 +8,7 @@ export enum PomodoroStatus {
 	PAUSED,
 	FINISHED,
 }
-export class PomodoroModel {
+export interface PomodoroModel {
 	editMode: boolean;
 	title: string;
 	duration: number;
@@ -18,18 +18,18 @@ export class PomodoroModel {
 	subjectId: string;
 	id: string;
 	status: PomodoroStatus;
+}
 
-	public static newInstance(pipeline: PipelineModel): PomodoroModel {
-		let pomodoroModel = new PomodoroModel()
-		pomodoroModel.editMode = true
-		pomodoroModel.pipelineId = pipeline.id
-		pomodoroModel.subjectId = pipeline.subjectID
-		pomodoroModel.id = UUIDUtils.getUUID()
-		pomodoroModel.title = pipeline.title + ' ' + TimeUtils.getDateTimeStr(Date.now())
-		pomodoroModel.duration = 15 * 60
-		pomodoroModel.timeleft = 15 * 60
-		pomodoroModel.startTime = Date.now()
-		pomodoroModel.status = PomodoroStatus.RUNNING
-		return pomodoroModel
+export function newPomodoroModel(pipeline: PipelineModel): PomodoroModel {
+	return {
+		editMode : true,
+		pipelineId : pipeline.id,
+		subjectId : pipeline.subjectID,
+		id : UUIDUtils.getUUID(),
+		title : '🍅' + pipeline.title,
+		duration : 15 * 60,
+		timeleft : 15 * 60,
+		startTime : Date.now(),
+		status : PomodoroStatus.RUNNING,
 	}
 }

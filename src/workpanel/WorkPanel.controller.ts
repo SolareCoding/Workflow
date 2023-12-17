@@ -13,13 +13,5 @@ export class WorkPanelController {
 
 	plugin?: WorkflowPlugin
 
-	updateNode(pipeline: PipelineModel, section: SectionModel, node: NodeModel, updateMode: UpdateMode = UpdateMode.UPDATE):void  {}
-
-	updateSection(pipeline: PipelineModel, section: SectionModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
-
-	updatePipeline(pipeline: PipelineModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
-
-	updatePomodoro(pomodoro: PomodoroModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
-
 	updateSubject(subject: SubjectModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
 }

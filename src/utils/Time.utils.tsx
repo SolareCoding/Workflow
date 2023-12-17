@@ -7,6 +7,12 @@ export class TimeUtils {
 		if (s.length == 1) s = '0' + s
 		return m + ": " + s;
 	}
+
+	static getYearDateTimeStr(time: number) {
+		let date = new Date(time)
+		return date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes()
+	}
+
 	static getDateTimeStr(time: number) {
 		let date = new Date(time)
 		return date.getMonth() + 1 + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes()

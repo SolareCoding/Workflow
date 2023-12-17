@@ -1,4 +1,4 @@
-import {SubjectModel} from "./Subject.model";
+import {newSubjectInstance, SubjectModel} from "./Subject.model";
 import * as React from "react";
 import {useContext, useState} from "react";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -7,6 +7,8 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import {UpdateMode} from "../workpanel/WorkPanel.controller";
+import {useAppDispatch} from "../repository/hooks";
+import {updateSubject} from "./Subject.slice";
 
 interface SubjectProps {
 	subject: SubjectModel
@@ -14,26 +16,33 @@ interface SubjectProps {
 
 const SubjectView: React.FC<SubjectProps> = ({ subject }) => {
 
-	const workPanelController = useContext(WorkPanelContext)
-
+	const dispatch = useAppDispatch()
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [name, setName] = useState(subject.name);
 
 	const handleAddChild = () => {
-		const newSubject = SubjectModel.newInstance()
-		newSubject.parentID = subject.id
-		workPanelController.updateSubject(newSubject, UpdateMode.ADD)
+		const newSubject = newSubjectInstance(subject.id)
+		dispatch(updateSubject({
+			subject: newSubject,
+			updateMode: UpdateMode.ADD
+		}))
 		setIsExpanded(true);
 	};
 
 	const handleDelete = () => {
-		workPanelController.updateSubject(subject, UpdateMode.DELETE);
+		dispatch(updateSubject({
+			subject: subject,
+			updateMode: UpdateMode.DELETE
+		}))
 	};
 
 	const handleUpdateName = () => {
 		const newSubject = Object.assign({}, subject, {name: name})
-		workPanelController.updateSubject(newSubject)
+		dispatch(updateSubject({
+			subject: newSubject,
+			updateMode: UpdateMode.UPDATE
+		}))
 		setIsEditing(false);
 	};
 
@@ -72,8 +81,8 @@ const SubjectView: React.FC<SubjectProps> = ({ subject }) => {
 	};
 
 	return (
-		<div style={{maxHeight: 400, overflowY: 'scroll'}}>
-			<div className={'workflow-container-inner'} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 3}}>
+		<div className={'workflow-container-outter-subject'} style={{overflowY: 'scroll', width: '100%',}}>
+			<div className={'workflow-container-inner-subject'} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 3}}>
 				<div style={{display: 'flex', alignItems: 'center', marginRight: 3}} onClick={handleExpand}>{isExpanded ? <ExpandLessIcon fontSize={'inherit'} /> : <ExpandMoreIcon fontSize={'inherit'}/>}</div>
 				{isEditing ? (
 					<input

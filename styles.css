@@ -31,6 +31,17 @@ If your plugin does not need CSS, delete this file.
 	flex-direction: column;
 	padding: 6px;
 }
+.workflow-container-outter-subject {
+	padding: 0px 0px 0px 0px;
+}
+.workflow-container-inner-subject {
+	background: var(--background-primary);
+	display: flex;
+	border-radius: 6px;
+	border: 1px solid var(--background-modifier-border);
+	flex-direction: column;
+	padding: 6px 0px 6px 6px;
+}
 .workflow-container-inner-accent-border {
 	background: var(--background-primary);
 	display: flex;

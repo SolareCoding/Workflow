@@ -13,7 +13,7 @@ export class NodeShortcut {
 	macCommand: ShortCutCommand;
 }
 
-export class NodeModel {
+export interface NodeModel {
 	id: string
 	title: string
 	tips: NodeTip
@@ -21,16 +21,17 @@ export class NodeModel {
 	status: NodeStatusEnum
 	startTime: number
 	finishTime: number
+}
 
-	static newInstance() {
-		let node = new NodeModel()
-		node.id = UUIDUtils.getUUID()
-		node.title = "Node Title"
-		node.tips = {
+export function newNodeInstance(): NodeModel {
+	return {
+		id: UUIDUtils.getUUID(),
+		title: "Node Title",
+		tips: {
 			summary: '',
 			content: ''
-		}
-		node.shortcut = {
+		},
+		shortcut: {
 			name: "Shortcut",
 			command: {
 				type: CommandType.SHELL,
@@ -42,9 +43,10 @@ export class NodeModel {
 				commandFolder: '',
 				commandFile: ''
 			},
-		}
-		node.status = NodeStatusEnum.PENDING
-		return node
+		},
+		status: NodeStatusEnum.PENDING,
+		startTime: 0,
+		finishTime: 0,
 	}
 }
 
