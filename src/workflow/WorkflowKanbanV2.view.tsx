@@ -84,7 +84,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 		} else {
 			setSectionPipelines(getKanbanPipelines(workflowRepo.pipelines))
 		}
-	}, [props.editorMode, workflowRepo])
+	}, [props.editorMode, workflowRepo.templates, workflowRepo.pipelines])
 
 	const getProgress = (pipeline: PipelineModel) => {
 		let totalNodes = 0;
@@ -116,7 +116,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 		selectPipeline(pipeline)
 		dispatch(updatePipeline({
 			pipeline: pipeline,
-			isEditMode: editorMode || false,
+			isEditMode: false,
 			updateMode: UpdateMode.ADD,
 		}))
 	}

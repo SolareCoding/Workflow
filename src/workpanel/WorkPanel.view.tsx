@@ -72,10 +72,21 @@ export default function WorkPanelView(props: WorkPanelProps) {
 		if (workflow.hasLoaded) {
 			props.saveData(JSON.stringify(Object.assign({}, workPanelData, {
 				workflows: workflow.pipelines,
+			})))
+		}
+	}, [workflow.pipelines])
+
+	/**
+	 * 监听pipelines和templates，保存数据
+	 */
+	useEffect(() => {
+		if (workflow.hasLoaded) {
+			console.log('on template changed, save the change: ' + JSON.stringify(workflow.templates))
+			props.saveData(JSON.stringify(Object.assign({}, workPanelData, {
 				templates: workflow.templates
 			})))
 		}
-	}, [workflow])
+	}, [workflow.templates])
 
 	useEffect(() => {
 		if (subject.hasLoaded) {

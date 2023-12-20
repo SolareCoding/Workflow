@@ -11,6 +11,7 @@ import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import {getAllFolders, openFileInNewLeaf} from "../utils/File.utils";
 
 export interface ShortCutProps {
+	nodeID: string,
 	editorMode?: boolean,
 	nodeShortCutModel: NodeShortcut,
 	onUpdateShortCut: (nodeShortcut: NodeShortcut) => void,
@@ -21,7 +22,7 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 	const workPanelController = useContext(WorkPanelContext)
 
 	const {editorMode, nodeShortCutModel, onUpdateShortCut} = nodeViewProps
-	const shortCutCommand = Platform.isMacOS ? nodeShortCutModel.macCommand : nodeShortCutModel.command
+	let shortCutCommand = Platform.isMacOS ? nodeShortCutModel.macCommand : nodeShortCutModel.command
 
 	const [shortCutName, setShortcutName] = useState(nodeShortCutModel.name || '')
 	const [shortCutCommandType, setShortCutCommandType] = useState(shortCutCommand.type)
@@ -119,12 +120,14 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 		}
 		setShortCutCommandType(commandType)
 		const newInnerCommand = Object.assign({}, shortCutCommand, {type: commandType})
-		const newShortCutModel = Object.assign({}, nodeShortCutModel, Platform.isMacOS ? {macCommand: newInnerCommand} : {command: newInnerCommand})
+		shortCutCommand = newInnerCommand
+		const newShortCutModel: NodeShortcut = Object.assign({}, nodeShortCutModel, Platform.isMacOS ? {macCommand: newInnerCommand} : {command: newInnerCommand})
 		onUpdateShortCut(newShortCutModel)
 	}
 
 	const handleNodeShortcutFileChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const newInnerCommand = Object.assign({}, shortCutCommand, {commandFile: event.target.value})
+		shortCutCommand = newInnerCommand
 		const newShortCutModel = Object.assign({}, nodeShortCutModel, Platform.isMacOS ? {macCommand: newInnerCommand} : {command: newInnerCommand})
 		onUpdateShortCut(newShortCutModel)
 	}
@@ -252,7 +255,7 @@ export default function NodeShortcutView(nodeViewProps: ShortCutProps) {
 	}
 
 	return (
-		<div>
+		<div key={'shortcutView' + nodeViewProps.nodeID}>
 			{ getShortcutView() }
 		</div>
 	);

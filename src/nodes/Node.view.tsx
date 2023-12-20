@@ -354,7 +354,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 			{getHeaderView()}
 			{getTipsView()}
 			{getTimeDetails()}
-			<NodeShortcutView editorMode={editorMode} nodeShortCutModel={node.shortcut} onUpdateShortCut={handleNodeShortCutChange} />
+			<NodeShortcutView nodeID={node.id} editorMode={editorMode} nodeShortCutModel={node.shortcut} onUpdateShortCut={handleNodeShortCutChange} />
 		</Box>
 	);
 }

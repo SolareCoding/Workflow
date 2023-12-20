@@ -8,20 +8,24 @@ import {FormControl, InputLabel, MenuItem} from "@mui/material";
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import UUIDUtils from "../utils/UUID.utils";
 import {SubjectModel} from "../subject/Subject.model";
+import {useAppSelector} from "../repository/hooks";
+import {selectWorkflow} from "./Workflow.slice";
+import {selectSubject} from "../subject/Subject.slice";
 
 export interface NewPipelineProps {
 	open: boolean;
-	templates: PipelineModel[];
-	subjects: SubjectModel[];
 	closeDialog: () => void;
 	createNewTask: (newPipeline: PipelineModel) => void;
-	preSelectedTemplate?: PipelineModel | null;
+	preSelectedTemplateID?: string;
 	preSetWorkflowName?: string | null
 }
 
 export default function NewPipelineDialog(props: NewPipelineProps) {
 
-	const { closeDialog, templates, open, subjects, preSelectedTemplate, preSetWorkflowName } = props;
+	const workflowRepo = useAppSelector(selectWorkflow)
+	const subjectRepo = useAppSelector(selectSubject)
+
+	const { closeDialog, open, preSelectedTemplateID, preSetWorkflowName } = props;
 	const [templateIndex, setTemplateIndex] = React.useState('');
 	const [subjectIndex, setSubjectIndex] = React.useState('');
 	const [taskName, setTaskName] = React.useState('新任务')
@@ -31,20 +35,20 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 	}, [open])
 
 	useEffect(() => {
-		if (!preSelectedTemplate || !preSetWorkflowName) {
+		if (!preSelectedTemplateID || !preSetWorkflowName) {
 			return
 		}
-		const templateIndex = templates.indexOf(preSelectedTemplate)
+		const templateIndex = workflowRepo.templates.findIndex((value) => value.id == preSelectedTemplateID)
 		setTemplateIndex(templateIndex.toString())
 		setTaskName(preSetWorkflowName)
-	}, [preSelectedTemplate, templates, preSetWorkflowName])
+	}, [preSelectedTemplateID, workflowRepo.templates, preSetWorkflowName])
 
 	const handleCreateNew = () => {
 		if (templateIndex === '') {
 			return
 		}
-		const template = templates[Number.parseInt(templateIndex)]
-		const subject = subjects[Number.parseInt(subjectIndex)]
+		const template = workflowRepo.templates[Number.parseInt(templateIndex)]
+		const subject = subjectRepo.rootSubject[Number.parseInt(subjectIndex)]
 		// deep copy template and modify uuid
 		const copiedSections = []
 		for (const section of template.sections) {

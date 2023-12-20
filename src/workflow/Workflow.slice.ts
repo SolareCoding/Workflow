@@ -154,10 +154,8 @@ export const workflowSlice = createSlice({
 					break;
 				case UpdateMode.UPDATE:
 					const localUpdateSection = searchSection(action.payload.isEditMode? state.templates : state.pipelines, action.payload.pipeline, action.payload.section)
-					console.log('localUpdateSection ', JSON.stringify(localUpdateSection))
 					const updateNodeIndex = localUpdateSection?.nodes.findIndex((value) => value.id == action.payload.node.id)
 					if (updateNodeIndex != undefined && updateNodeIndex > -1 && localUpdateSection?.nodes[updateNodeIndex]) {
-						console.log('node to update ', JSON.stringify(localUpdateSection?.nodes[updateNodeIndex]))
 						Object.assign(localUpdateSection?.nodes[updateNodeIndex], action.payload.node)
 					}
 					break
