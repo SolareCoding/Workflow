@@ -41,7 +41,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 	const {editorMode, kanbanTitle, selectedPipeline, selectPipeline, subjects } = props
 	const [openDialog, setOpenDialog] = useState(false);
 	const [collapseSection, setCollapseSection] = useState(editorMode ? NodeStatusEnum.TEMPLATE : NodeStatusEnum.WORKING);
-	const [preSelectedTemplate, setPreSelectedTemplate] = useState<PipelineModel | null>(null)
+	const [preSelectedTemplateID, setPreSelectedTemplateID] = useState('')
 	const [preSetWorkflowName, setPreSetWorkflowName] = useState<string | null >(null)
 
 	const [sectionPipelines, setSectionPipelines] = useState<SectionPipelines[]>([])
@@ -101,7 +101,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 	}
 
 	const openNewPipelineDialog = () => {
-		setPreSelectedTemplate(null)
+		setPreSelectedTemplateID('')
 		setPreSetWorkflowName(null)
 		setOpenDialog(true);
 	}
@@ -151,7 +151,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 			</Typography>
 		} else {
 			return <AddCircleIcon onClick={() => {
-				setPreSelectedTemplate(pipeline)
+				setPreSelectedTemplateID(pipeline.id)
 				setPreSetWorkflowName(`${pipeline.title} - ${TimeUtils.getDateStr(Date.now())}`)
 				setOpenDialog(true)
 				return true
@@ -206,12 +206,10 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 		<div style={{width: '100%', height: '100%', overflowY: 'scroll', overflowX: 'scroll'}}>
 			{getPipelineKanbanItems()}
 			<NewPipelineDialog
-				templates={workflowRepo.templates}
 				open={openDialog}
 				closeDialog={closeNewPipelineDialog}
 				createNewTask={handleCreateNewPipeline}
-				subjects={subjects}
-				preSelectedTemplate={preSelectedTemplate}
+				preSelectedTemplateID={preSelectedTemplateID}
 				preSetWorkflowName={preSetWorkflowName}
 			/>
 		</div>

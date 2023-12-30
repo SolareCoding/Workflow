@@ -17,3 +17,16 @@ export function newSubjectInstance(parentID ?: string): SubjectModel {
 		score: 0,
 	}
 }
+
+export function flatSubjects(rootSubject: SubjectModel): SubjectModel[] {
+	const flatList: SubjectModel[] = [];
+	innerFlatterSubjects(rootSubject, flatList);
+	return flatList;
+}
+
+export function innerFlatterSubjects(subject: SubjectModel, list: SubjectModel[]) {
+	for (const child of subject.children) {
+		list.push(child);
+		innerFlatterSubjects(child, list);
+	}
+}

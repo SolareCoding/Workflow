@@ -7,10 +7,11 @@ import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import {FormControl, InputLabel, MenuItem} from "@mui/material";
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import UUIDUtils from "../utils/UUID.utils";
-import {SubjectModel} from "../subject/Subject.model";
+import {flatSubjects} from "../subject/Subject.model";
 import {useAppSelector} from "../repository/hooks";
 import {selectWorkflow} from "./Workflow.slice";
 import {selectSubject} from "../subject/Subject.slice";
+import {genPipelineFromTemplate} from "../utils/Object.utils";
 
 export interface NewPipelineProps {
 	open: boolean;
@@ -24,7 +25,7 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 
 	const workflowRepo = useAppSelector(selectWorkflow)
 	const subjectRepo = useAppSelector(selectSubject)
-
+	const flatSubjectList = flatSubjects(subjectRepo.rootSubject)
 	const { closeDialog, open, preSelectedTemplateID, preSetWorkflowName } = props;
 	const [templateIndex, setTemplateIndex] = React.useState('');
 	const [subjectIndex, setSubjectIndex] = React.useState('');
@@ -48,38 +49,16 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 			return
 		}
 		const template = workflowRepo.templates[Number.parseInt(templateIndex)]
-		const subject = subjectRepo.rootSubject[Number.parseInt(subjectIndex)]
-		// deep copy template and modify uuid
-		const copiedSections = []
-		for (const section of template.sections) {
-			const copiedSection = Object.assign({}, section)
-			copiedSection.id = UUIDUtils.getUUID()
-			const copiedNodes = []
-			for (const node of copiedSection.nodes) {
-				const copiedNode = Object.assign({}, node)
-				copiedNode.id = UUIDUtils.getUUID()
-				copiedNodes.push(copiedNode)
-			}
-			copiedSection.nodes = copiedNodes
-			copiedSections.push(copiedSection)
-		}
-		const copiedPipeline: PipelineModel = {
-			templateTitle: template.title,
-			title: taskName,
-			createTime: Date.now(),
-			status: NodeStatusEnum.PENDING,
-			isTemplate: false,
-			id: UUIDUtils.getUUID(),
-			subjectID: subject?.id || '0',
-			sections: copiedSections
-		}
+		const subject = flatSubjectList[Number.parseInt(subjectIndex)]
+		const copiedPipeline = genPipelineFromTemplate(template, taskName, subject?.id || '0')
+		console.log('copiedPipeline: ', JSON.stringify(copiedPipeline))
 		props.createNewTask(copiedPipeline)
 	}
 
 	const getTemplateViews = () => {
 		let pipelines = []
-		for (let i = 0; i < templates.length; i++) {
-			let pipeline = templates[i]
+		for (let i = 0; i < workflowRepo.templates.length; i++) {
+			let pipeline = workflowRepo.templates[i]
 			pipelines.push(
 				<MenuItem key={'template-' + pipeline.id} sx={{color: 'var(--text-normal)', fontSize: '13px'}} value={i}>{pipeline.title}</MenuItem>
 			)
@@ -93,8 +72,8 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 
 	const getSubjectViews = () => {
 		let subjectsViews = []
-		for (let i = 0; i < subjects.length; i++) {
-			let subject = subjects[i]
+		for (let i = 0; i < flatSubjectList.length; i++) {
+			let subject = flatSubjectList[i]
 			subjectsViews.push(
 				<MenuItem key={'subject-' + subject.id} sx={{color: 'var(--text-normal)', fontSize: '13px'}} value={i}>{subject.name}</MenuItem>
 			)
