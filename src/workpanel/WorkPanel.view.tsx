@@ -1,14 +1,14 @@
 import * as React from 'react';
-import {useEffect, useMemo} from 'react';
-import {UpdateMode, WorkPanelController} from "./WorkPanel.controller";
+import {useEffect} from 'react';
 import {WorkPanelModel} from "./WorkPanel.model";
 import WorkflowPlugin from "../../main";
-import {SubjectModel} from "../subject/Subject.model";
 import WorkflowViewV2 from "../workflow/WorkflowV2.view";
 import {useAppDispatch, useAppSelector} from "../repository/hooks";
 import {loadPomodoro, selectPomodoro} from "../pomodoro/Pomodoro.slice";
 import {loadWorkflow, selectWorkflow} from "../workflow/Workflow.slice";
 import {loadSubject, selectSubject} from "../subject/Subject.slice";
+import {WorkPanelController} from "./WorkPanel.controller";
+import {loadShortCut} from "../nodes/Shortcut.slice";
 
 /**
  * This is the main interface of workflows.
@@ -24,7 +24,6 @@ interface WorkPanelProps {
 
 const defaultController: WorkPanelController = {
 	plugin : undefined,
-	updateSubject(subject: SubjectModel, updateMode: UpdateMode = UpdateMode.UPDATE) {}
 }
 export const WorkPanelContext = React.createContext(defaultController)
 
@@ -54,6 +53,7 @@ export default function WorkPanelView(props: WorkPanelProps) {
 		dispatch(loadPomodoro(data.pomodoro))
 		dispatch(loadWorkflow(data))
 		dispatch(loadSubject(data))
+		dispatch(loadShortCut(props.plugin.settings))
 	}, [])
 
 	/**
@@ -81,7 +81,6 @@ export default function WorkPanelView(props: WorkPanelProps) {
 	 */
 	useEffect(() => {
 		if (workflow.hasLoaded) {
-			console.log('on template changed, save the change: ' + JSON.stringify(workflow.templates))
 			props.saveData(JSON.stringify(Object.assign({}, workPanelData, {
 				templates: workflow.templates
 			})))
@@ -98,8 +97,10 @@ export default function WorkPanelView(props: WorkPanelProps) {
 
 
 	return (
-		<div style={{ width: '100%', height: '100%'}} ref={ref}>
-			<WorkflowViewV2 subject={workPanelData.subject}/>
-		</div>
+		<WorkPanelContext.Provider value={{plugin: props.plugin}}>
+			<div style={{ width: '100%', height: '100%'}} ref={ref}>
+				<WorkflowViewV2 subject={workPanelData.subject}/>
+			</div>
+		</WorkPanelContext.Provider>
 	);
 }

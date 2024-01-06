@@ -12,6 +12,4 @@ export enum UpdateMode {
 export class WorkPanelController {
 
 	plugin?: WorkflowPlugin
-
-	updateSubject(subject: SubjectModel, updateMode: UpdateMode = UpdateMode.UPDATE): void {}
 }

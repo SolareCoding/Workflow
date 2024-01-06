@@ -1,11 +1,10 @@
 import {newSubjectInstance, SubjectModel} from "./Subject.model";
 import * as React from "react";
-import {useContext, useState} from "react";
+import {useState} from "react";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import {UpdateMode} from "../workpanel/WorkPanel.controller";
 import {useAppDispatch} from "../repository/hooks";
 import {updateSubject} from "./Subject.slice";

@@ -51,7 +51,6 @@ export default function NewPipelineDialog(props: NewPipelineProps) {
 		const template = workflowRepo.templates[Number.parseInt(templateIndex)]
 		const subject = flatSubjectList[Number.parseInt(subjectIndex)]
 		const copiedPipeline = genPipelineFromTemplate(template, taskName, subject?.id || '0')
-		console.log('copiedPipeline: ', JSON.stringify(copiedPipeline))
 		props.createNewTask(copiedPipeline)
 	}
 

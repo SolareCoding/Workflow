@@ -3,6 +3,7 @@ import {RootState} from "../repository/Workflow.store";
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
 import {WorkPanelModel} from "../workpanel/WorkPanel.model";
 import {NodeModel} from "../nodes/Node.model";
+import WorkflowPlugin from "../../main";
 
 export interface WorkflowState {
 	pipelines: PipelineModel[]

@@ -34,12 +34,12 @@ export function newNodeInstance(): NodeModel {
 		shortcut: {
 			name: "Shortcut",
 			command: {
-				type: CommandType.SHELL,
+				type: CommandType.EMPTY,
 				commandFolder: '',
 				commandFile: ''
 			},
 			macCommand: {
-				type: CommandType.SHELL,
+				type: CommandType.EMPTY,
 				commandFolder: '',
 				commandFile: ''
 			},

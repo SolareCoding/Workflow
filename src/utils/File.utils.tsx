@@ -17,7 +17,6 @@ export function openFileInNewLeaf(filePath: string, app: App) {
 		return
 	}
 	// open the file directly
-	console.log("newFilePath: ", filePath)
 	const leaf = app.workspace.getLeaf(true);
 	leaf.openFile(file, {
 		active: true,

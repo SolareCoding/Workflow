@@ -131,7 +131,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 		}))
 	}
 
-	const addNewView = <Box className='workflow-accent' sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems:'center'}} onClick={()=>{
+	const addNewView = <Box key={'addNewView'} className='workflow-accent' sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems:'center'}} onClick={()=>{
 			!editorMode ? openNewPipelineDialog() : handleCreateNewTemplate()
 		}}>
 			<AddCircleIcon />
@@ -174,7 +174,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 			const sectionItemViews = []
 			for (const pipeline of pipelines) {
 				sectionItemViews.push(
-					<Box className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: 200, height: 60, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', id: pipeline.id, margin: 1}} onClick={()=>{
+					<Box key={'pipeline-'+pipeline.id} className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: 200, height: 60, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', id: pipeline.id, margin: 1}} onClick={()=>{
 						selectPipeline(pipeline)}}>
 						<Box sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
 							<Typography variant="body2">

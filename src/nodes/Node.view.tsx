@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {Divider, Menu, MenuItem, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
@@ -13,7 +13,6 @@ import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
-import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import NodeShortcutView from "./NodeShortcut.view";
 import {useAppDispatch} from "../repository/hooks";
 import {UpdateMode, updateNode} from "../workflow/Workflow.slice";
@@ -37,6 +36,7 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [title, setTitle] = useState(node.title)
 	const [tipSummary, setTipSummary] = useState(node.tips?.summary || '')
 	const [tipContent, setTipContent] = useState(node.tips?.content || '')
+	const [shortCut, setShortCut] = useState(node.shortcut)
 
 	const open = Boolean(anchorEl);
 

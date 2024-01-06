@@ -1,6 +1,6 @@
 {
 	"name": "solare-workflow-puglin",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Solare's workflow plugin",
 	"main": "main.js",
 	"scripts": {

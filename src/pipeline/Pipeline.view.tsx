@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import {Typography,} from "@mui/material";
 import SectionView from "./Section.view";
@@ -9,8 +9,8 @@ import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import PipelineColors from "../common/Pipeline.colors";
 import {AddCircle} from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {useAppDispatch, useAppSelector} from "../repository/hooks";
-import {selectWorkflow, UpdateMode, updatePipeline, updateSection} from "../workflow/Workflow.slice";
+import {useAppDispatch} from "../repository/hooks";
+import {UpdateMode, updatePipeline, updateSection} from "../workflow/Workflow.slice";
 
 export interface PipelineProps {
 	pipeline: PipelineModel
@@ -89,7 +89,7 @@ export default function PipelineView(props: PipelineProps) {
 		if (!isTemplate) {
 			if (index === 0 || index == end)
 				return false
-			return <KeyboardDoubleArrowRightIcon style={{margin: '10px 10px 10px 10px'}}/>
+			return <KeyboardDoubleArrowRightIcon key={'divider-' + index} style={{margin: '10px 10px 10px 10px'}}/>
 		}
 		return <Box key = {'addCircle-' + index} onClick={() => {insertNewSection(index)}}>
 			<AddCircle style={{margin: '10px 10px 10px 10px'}}/>

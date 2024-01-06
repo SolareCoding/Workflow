@@ -38,7 +38,7 @@ export default function PomodoroListViewV2(props: PomodoroProps) {
 	}
 
 	const getPomodoroItemView = (pomodoroItem: PomodoroModel) => {
-		return <Box className={'workflow-container-inner'} sx={{width: 200, height: 60, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', id: pomodoroItem.id, margin: 1}}>
+		return <Box key={pomodoroItem.id} className={'workflow-container-inner'} sx={{width: 200, height: 60, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', id: pomodoroItem.id, margin: 1}}>
 			<div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
 				<div style={{width: '100%', fontSize: 14, fontWeight: 500}}> {pomodoroItem?.title} </div>
 				{(pomodoroItem.status == PomodoroStatus.RUNNING) ? <DirectionsRunIcon fontSize={'inherit'}/> :
@@ -57,7 +57,7 @@ export default function PomodoroListViewV2(props: PomodoroProps) {
 	}
 
 	const getEmptyHintItemView = () => {
-		return <Box className={'workflow-container-inner'} sx={{width: 200, height: 60, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', margin: 1}}>
+		return <Box key={'pomodoroHint'} className={'workflow-container-inner'} sx={{width: 200, height: 60, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', margin: 1}}>
 			<Typography>
 				Start your first pomodoro by click ➕
 			</Typography>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import NodeView from "../nodes/Node.view";
 import {Stack, Typography} from "@mui/material";
 import {PipelineModel, SectionModel} from "./Pipeline.model";
@@ -7,7 +7,6 @@ import {NodeStatusEnum} from "../nodes/NodeStatus.enum";
 import Box from "@mui/material/Box";
 import {newNodeInstance, NodeModel} from "../nodes/Node.model";
 import {AddCircle} from "@mui/icons-material";
-import {WorkPanelContext} from "../workpanel/WorkPanel.view";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {useAppDispatch} from "../repository/hooks";
 import {UpdateMode, updateNode, updateSection} from "../workflow/Workflow.slice";
