@@ -1,9 +1,9 @@
 {
 	"id": "solare-workflow-puglin",
 	"name": "Workflows",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
-	"description": "Maintain your workflow.",
+	"description": "Use workflow to help your work.",
 	"author": "Solare",
 	"authorUrl": "https://www.solare.pub",
 	"isDesktopOnly": false

@@ -1,7 +1,7 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
-import {Divider, Menu, MenuItem, Typography} from "@mui/material";
+import {Divider, Menu, MenuItem, TextareaAutosize, TextField, Typography} from "@mui/material";
 import {NodeActionEnum, NodeStatusEnum} from "./NodeStatus.enum";
 import {NodeModel, NodeShortcut} from "./Node.model";
 import {TimeUtils} from "../utils/Time.utils";
@@ -11,6 +11,8 @@ import RunCircleIcon from '@mui/icons-material/RunCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {PipelineModel, SectionModel} from "../pipeline/Pipeline.model";
 import NodeShortcutView from "./NodeShortcut.view";
@@ -36,7 +38,6 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const [title, setTitle] = useState(node.title)
 	const [tipSummary, setTipSummary] = useState(node.tips?.summary || '')
 	const [tipContent, setTipContent] = useState(node.tips?.content || '')
-	const [shortCut, setShortCut] = useState(node.shortcut)
 
 	const open = Boolean(anchorEl);
 
@@ -171,9 +172,9 @@ export default function NodeView(nodeViewProps: NodeProps) {
 	const getTipsButton = () => {
 		if (!editorMode) {
 			if (showTips) {
-				return <UnfoldLessIcon onClick={()=>{setShowTips(!showTips)}}/>
+				return <ExpandLessIcon onClick={()=>{setShowTips(!showTips)}}/>
 			} else {
-				return <UnfoldMoreIcon onClick={()=>{setShowTips(!showTips)}}/>
+				return <ExpandMoreIcon onClick={()=>{setShowTips(!showTips)}}/>
 			}
 		}
 		else {
@@ -216,13 +217,15 @@ export default function NodeView(nodeViewProps: NodeProps) {
 				return null
 			}
 			if (showTips) {
-				return <Typography sx={{fontSize: 12}}>{node.tips.content}</Typography>
+				return <Typography sx={{fontSize: 12, whiteSpace: 'pre-line'}}>{node.tips.content}</Typography>
 			} else {
 				return null
 			}
 		}
 		else {
-			return <textarea placeholder={'Tip content'} style={{fontSize: 12, marginTop: 3, minWidth: 160, maxWidth: 160}} id="tip-content" value={tipContent} onChange={handleNodeTipContentChange} />
+			return <textarea placeholder={'Tip content'}
+							 style={{fontSize: 12, marginTop: 3, minWidth: 160, maxWidth: 160}} id="tip-content"
+							 value={tipContent} onChange={handleNodeTipContentChange}/>
 		}
 	}
 

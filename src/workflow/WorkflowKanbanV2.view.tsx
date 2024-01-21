@@ -14,6 +14,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {useAppDispatch, useAppSelector} from "../repository/hooks";
 import {selectWorkflow, updatePipeline} from "./Workflow.slice";
 import * as React from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 
 export interface SectionPipelines {
@@ -81,8 +82,10 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 	useEffect(() => {
 		if (props.editorMode) {
 			setSectionPipelines(getTemplatePipelines(workflowRepo.templates))
+			setCollapseSection(NodeStatusEnum.TEMPLATE)
 		} else {
 			setSectionPipelines(getKanbanPipelines(workflowRepo.pipelines))
+			setCollapseSection(NodeStatusEnum.WORKING)
 		}
 	}, [props.editorMode, workflowRepo.templates, workflowRepo.pipelines])
 
@@ -146,7 +149,7 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 
 	const getExtraInfoView = (pipeline: PipelineModel) => {
 		if (!editorMode) {
-			return <Typography variant="body2" sx={{fontWeight: '600', color: "#336666"}}>
+			return <Typography variant="body2" sx={{fontWeight: '600', color: "#336666", marginLeft: 1}}>
 				{getProgress(pipeline)}
 			</Typography>
 		} else {
@@ -157,6 +160,16 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 				return true
 			}} />
 		}
+	}
+
+	const getDeleteView = (pipeline: PipelineModel) => {
+		return <DeleteIcon onClick={() => {
+			dispatch(updatePipeline({
+				pipeline: pipeline,
+				isEditMode: editorMode || false,
+				updateMode: UpdateMode.DELETE,
+			}))
+		}} />
 	}
 
 	const getPipelineKanbanItems = () => {
@@ -174,17 +187,21 @@ export default function WorkflowKanbanViewV2(props: WorkflowKanbanProps) {
 			const sectionItemViews = []
 			for (const pipeline of pipelines) {
 				sectionItemViews.push(
-					<Box key={'pipeline-'+pipeline.id} className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: 200, height: 60, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', id: pipeline.id, margin: 1}} onClick={()=>{
+					<Box key={'pipeline-'+pipeline.id} className={ selectedPipeline == pipeline ? 'workflow-container-inner-accent-border' : 'workflow-container-inner'} sx={{width: 200, maxHeight: 80, display: 'flex', flexDirection: 'column', alignItems: 'left', justifyContent: 'space-between', id: pipeline.id, margin: 1}} onClick={()=>{
 						selectPipeline(pipeline)}}>
 						<Box sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-							<Typography variant="body2">
+							<Typography variant="body2" sx={{maxLines: 1, overflow: 'hidden', whiteSpace: 'nowrap'}} >
 								{pipeline.title}
 							</Typography>
 							{ getExtraInfoView(pipeline) }
 						</Box>
-						<Typography variant="body2">
-							{TimeUtils.getYearDateTimeStr(pipeline.createTime)}
-						</Typography>
+						<Divider sx={{margin: 1}}/>
+						<Box sx={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+							<Typography variant="body2">
+								{TimeUtils.getYearDateTimeStr(pipeline.createTime)}
+							</Typography>
+							{ getDeleteView(pipeline) }
+						</Box>
 					</Box>
 				)
 			}

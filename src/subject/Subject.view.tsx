@@ -16,7 +16,7 @@ interface SubjectProps {
 const SubjectView: React.FC<SubjectProps> = ({ subject }) => {
 
 	const dispatch = useAppDispatch()
-	const [isExpanded, setIsExpanded] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(true);
 	const [isEditing, setIsEditing] = useState(false);
 	const [name, setName] = useState(subject.name);
 
